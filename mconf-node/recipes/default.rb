@@ -26,9 +26,8 @@ if node[:platform] = "ubuntu" and node[:user] != "root"
     package "iftop"
     package "ant"
     package "curl"
-END
-    if node[:platform] != "ubuntu"
-        Chef::Log.info("A Mconf node MUST BE a fresh installation of Ubuntu 10.04 Server")
-    if node[:user] != "root"
-        Chef::Log.info("This script shouldn't be executed as root")
-END
+end
+if node[:platform] != "ubuntu"
+    Chef::Log.info("A Mconf node MUST BE a fresh installation of Ubuntu 10.04 Server")
+if node[:user] != "root"
+    Chef::Log.info("This script shouldn't be executed as root")

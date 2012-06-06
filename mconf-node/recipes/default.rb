@@ -12,10 +12,23 @@
 #  content "I'm working with git."
 #end
 
-template "/tmp/mconf/mconf_config_file" do
-  owner "mconf"
-  group "mconf"
-  mode 00640
-  source "mconf_config_file"
-end
+
+if node[:platform] = "ubuntu" and node[:user] != "root"
     
+    template "/tmp/mconf/mconf_config_file" do
+        owner "mconf"
+        group "mconf"
+        mode 00640
+        source "mconf_config_file"
+    
+    package "git-core"
+    package "htop"
+    package "iftop"
+    package "ant"
+    package "curl"
+elsif
+    if node[:platform] != "ubuntu"
+        Chef::Log.info("A Mconf node MUST BE a fresh installation of Ubuntu 10.04 Server")
+    if node[:user] != "root"
+        Chef::Log.info("This script shouldn't be executed as root")
+end

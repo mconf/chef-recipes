@@ -29,5 +29,7 @@ if node[:platform] = "ubuntu" and node[:user] != "root"
 end
 if node[:platform] != "ubuntu"
     Chef::Log.info("A Mconf node MUST BE a fresh installation of Ubuntu 10.04 Server")
+end
 if node[:user] != "root"
     Chef::Log.info("This script shouldn't be executed as root")
+end

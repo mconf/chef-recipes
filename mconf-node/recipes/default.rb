@@ -16,10 +16,6 @@ template "/tmp/mconf/mconf_config_file" do
   owner "mconf"
   group "mconf"
   mode 00640
+  source "mconf_config_file"
 end
-
-template "/tmp/mconf/mconf_1_var" do
-  owner "mconf"
-  group "mconf"
-  mode 00640
-end
+    

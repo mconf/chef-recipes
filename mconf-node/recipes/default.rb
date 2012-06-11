@@ -83,6 +83,6 @@ template "/etc/mconf/mconf.conf" do
   source "mconf_config_file"
   mode "0644"
   variables(
-      :loadbalanceip => node[:mconf][:lbip],
+      :loadbalanceip => node[:mconf][:lbip]
     )
 end

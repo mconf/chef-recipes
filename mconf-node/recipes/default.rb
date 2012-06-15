@@ -23,14 +23,5 @@ bash "install mypackage" do
     Chef::Log.info("Making tools instalation")
     mkdir -p ~/tools
     cd ~/tools
-    if [ -d "installation-scripts" ]
-    then
-        cd installation-scripts
-        git pull origin master
-        cd ..
-    else
-        git clone git://github.com/mconf/installation-scripts.git
-    fi
-    cd installation-scripts/bbb-deploy/
   EOH
 end

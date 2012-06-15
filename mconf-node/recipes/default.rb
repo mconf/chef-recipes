@@ -14,11 +14,9 @@ package "iftop"
 package "ant"
 package "curl"
 
-bash "install mypackage" do
+bash "create tools folder" do
   cwd "#{Chef::Config[:file_cache_path]}"
   code <<-EOH
-    Chef::Log.info("Creating tools directory")
     mkdir -p ~/tools
-    cd ~/tools
   EOH
 end

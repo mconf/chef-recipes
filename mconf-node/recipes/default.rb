@@ -17,10 +17,7 @@ package "curl"
 bash "install mypackage" do
   cwd "#{Chef::Config[:file_cache_path]}"
   code <<-EOH
-    Chef::Log.info("Updating the Ubuntu package repository")
-    sudo apt-get update > /dev/null
-
-    Chef::Log.info("Making tools instalation")
+    Chef::Log.info("Creating tools directory")
     mkdir -p ~/tools
     cd ~/tools
   EOH

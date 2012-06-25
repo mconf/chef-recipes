@@ -14,9 +14,8 @@ package "iftop"
 package "ant"
 package "curl"
 
-#load balancer ip
-node.default["mconf"]["lbip"] = "http://nidorino.inf.ufrgs.br"
-Chef::Log.info(node.default["mconf"]["lbip"])
+#ip used to set bbb
+node.default["mconf"]["bbbip"] = node[:ipaddress]
 
 #create instalation script folder
 script "install_tools" do
@@ -30,7 +29,7 @@ script "install_tools" do
         echo "A Mconf node MUST BE a fresh installation of Ubuntu 10.04 Server"
             exit 1
         fi
-#end test
+#temp end
         mkdir -p tools
         cd tools
         if [ -d "installation-scripts" ]
@@ -47,13 +46,13 @@ end
 #install bbb and sets ip
 script "install_bbb" do
         interpreter "bash"
-        ENV['LBIP'] = "localhost"
+        ENV['BBBIP'] = node.default["mconf"]["bbbip"]
         user "mconf"
         cwd "/home/mconf/tools/installation-scripts/bbb-deploy/"
         code <<-EOH
         chmod +x install-bigbluebutton.sh
         ./install-bigbluebutton.sh
-        sudo bbb-conf --setip $LBIP
+        sudo bbb-conf --setip $BBBIP
         EOH
 end
 

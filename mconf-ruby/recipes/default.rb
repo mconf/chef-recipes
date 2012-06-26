@@ -21,12 +21,11 @@ package "libyaml-0-2"
 
 
 #make ruby installation
-script "install_tools" do
+script "install_ruby" do
         interpreter "bash"
         user "root"
-        cwd "/home/mconf"
+        cwd "/tmp"
         code <<-EOH
-        cd /tmp
         wget http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-p290.tar.gz
         tar xvzf ruby-1.9.2-p290.tar.gz
         cd ruby-1.9.2-p290

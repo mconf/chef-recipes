@@ -18,6 +18,6 @@ script "set_repositories" do
         EOH
 end
 
-#install packages
+#install bbb packages
 package "bigbluebutton"
 package "bbb-demo"

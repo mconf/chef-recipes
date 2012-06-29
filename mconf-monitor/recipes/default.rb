@@ -17,54 +17,35 @@ node.default["mconf"]["nagios_address"] = "localhost"
 node.default["mconf"]["instance_type"] = "nagios"
 node.default["mconf"]["interval"] = "360"
 
-#make monitor install
-script "install_monitor" do
+#get nagios repo
+script "nagios_repo" do
         interpreter "bash"
-        user "root"
-        environment({
-          'INSTANCE_TYPE' => node.default["mconf"]["instance_type"],
-          'NAGIOS_ADDRESS' => node.default["mconf"]["nagios_address"],
-          'INTERVAL' => node.default["mconf"]["interval"]
-        })
+        user "mconf"
         cwd "/home/mconf/"
         code <<-EOH
-        function get_hostname
-        {
-            if [ `which bbb-conf | wc -l` -eq 0 ]
-            then
-                echo $(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
-            else
-                echo `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's:URL\:http\://\([^:/]*\).*:\1:g'`
-            fi
-        }
-
-        if [ $INSTANCE_TYPE != "bigbluebutton" ] && [ $INSTANCE_TYPE != "freeswitch" ] && [ $INSTANCE_TYPE != "nagios" ]
-        then
-            exit 1
-        fi
-
-        if [ $INSTANCE_TYPE == "nagios" ]
-        then
-        HOST="localhost"
-        else
-        HOST=`get_hostname`
-        fi
-        
-        mkdir -p ~/tools
-        cd ~/tools/
+        mkdir -p /tools
+        cd /tools/
         if [ -d "nagios-etc" ]
         then
         cd nagios-etc/
-            ~/tools/nagios-etc/cli/performance_report.py stop
+            /tools/nagios-etc/cli/performance_report.py stop
             git pull origin master
             cd ..
         else
         git clone git://github.com/mconf/nagios-etc.git
         fi
-        
-        mkdir -p ~/downloads
+        EOH
+end
 
-        cd ~/downloads/
+#get psutil and build it
+script "install_psutil" do
+        interpreter "bash"
+        user "mconf"
+        cwd "/home/mconf/"
+        code <<-EOH
+        mkdir -p /downloads
+
+        cd /downloads/
         if [ -d "psutil-read-only" ]
         then
         cd psutil-read-only/
@@ -77,9 +58,25 @@ script "install_monitor" do
         fi
         cd psutil-read-only/
         python setup.py build
-        sudo python setup.py install
+        EOH
+end
 
-        cd ~/downloads/
+#then install psutil as root
+script "install_psutil" do
+        interpreter "bash"
+        user "root"
+        cwd "/home/mconf/downloads/psutil-read-only/"
+        code <<-EOH
+        python setup.py install
+        EOH
+end
+
+#set up nsca sender
+script "install_psutil" do
+        interpreter "bash"
+        user "root"
+        cwd "/home/mconf/downloads/"
+        code <<-EOH 
         NSCA_VERSION="2.7.2"
         NSCA="nsca-$NSCA_VERSION"
         NSCA_TAR="$NSCA.tar.gz"
@@ -94,30 +91,60 @@ script "install_monitor" do
         fi
 
         cd ~/downloads/$NSCA/
-        if [ $2 == "nagios" ]
+        if [ INSTANCE_TYPE == "nagios" ]
         then
-        sudo cp src/nsca /usr/local/nagios/bin/
-            sudo cp sample-config/nsca.cfg /usr/local/nagios/etc/
-            sudo chmod a+r /usr/local/nagios/etc/nsca.cfg
+            cp src/nsca /usr/local/nagios/bin/
+            cp sample-config/nsca.cfg /usr/local/nagios/etc/
+            chmod a+r /usr/local/nagios/etc/nsca.cfg
             # install as XINETD service
-            sudo cp ~/downloads/$NSCA/sample-config/nsca.xinetd /etc/xinetd.d/nsca
-            sudo sed -i "s:\tonly_from.*:#\0:g" /etc/xinetd.d/nsca
-            sudo chmod a+r /etc/xinetd.d/nsca
-            sudo service xinetd restart
+            cp ~/downloads/$NSCA/sample-config/nsca.xinetd /etc/xinetd.d/nsca
+            sed -i "s:\tonly_from.*:#\0:g" /etc/xinetd.d/nsca
+            chmod a+r /etc/xinetd.d/nsca
+            service xinetd restart
         else
-        sudo mkdir -p /usr/local/nagios/bin/ /usr/local/nagios/etc/
+            mkdir -p /usr/local/nagios/bin/ /usr/local/nagios/etc/
             USER=`whoami`
-            sudo chown $USER:$USER -R /usr/local/nagios
+            chown $USER:$USER -R /usr/local/nagios
         fi
 
-        sudo cp src/send_nsca /usr/local/nagios/bin/
-        sudo cp sample-config/send_nsca.cfg /usr/local/nagios/etc/
-        sudo chmod a+r /usr/local/nagios/etc/send_nsca.cfg
+        cp src/send_nsca /usr/local/nagios/bin/
+        cp sample-config/send_nsca.cfg /usr/local/nagios/etc/
+        chmod a+r /usr/local/nagios/etc/send_nsca.cfg
+        EOH
+end
 
-        if [ $2 != "nagios" ]
+#make monitor install
+script "install_monitor" do
+        interpreter "bash"
+        user "mconf"
+        environment({
+          'INSTANCE_TYPE' => node.default["mconf"]["instance_type"],
+          'NAGIOS_ADDRESS' => node.default["mconf"]["nagios_address"],
+          'INTERVAL' => node.default["mconf"]["interval"]
+        })
+        cwd "/home/mconf/"
+        code <<-EOH
+        function get_hostname
+        {
+            if [ `which bbb-conf | wc -l` -eq 0 ]
+            then
+        echo $(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print NAGIOS_ADDRESS}')
+            else
+        echo `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's:URL\:http\://\([^:/]*\).*:\1:g'`
+            fi
+        }
+
+        if [ INSTANCE_TYPE == "nagios" ]
+        then
+        HOST="localhost"
+        else
+        HOST=`get_hostname`
+        fi
+
+        if [ INSTANCE_TYPE != "nagios" ]
         then
         echo "Sending the Nagios packet to start monitoring"
-            if [ $2 == "bigbluebutton" ]
+            if [ INSTANCE_TYPE == "bigbluebutton" ]
             then
         CMD="~/tools/nagios-etc/cli/check_bbb_salt.sh $NAGIOS_ADDRESS $INTERVAL | tee /tmp/output_check_bbb_salt.txt 2>&1"
                 eval $CMD

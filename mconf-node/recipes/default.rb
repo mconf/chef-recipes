@@ -101,14 +101,21 @@ script "install_presentation" do
         EOH
 end
 
-#install mobile fs
+# enable the straight voice connection between the Android client (or any other external caller) and the FreeSWITCH server
 script "install_mobiles_fs" do
         interpreter "bash"
-        user "mconf"
+        user "root"
         cwd "/home/mconf/tools/installation-scripts/bbb-deploy/"
         code <<-EOH
-        chmod +x enable-mobile-fs.sh
-        ./enable-mobile-fs.sh
+        # http://code.google.com/p/bigbluebutton/issues/detail?id=1133
+        HOST=$(ifconfig | grep -v '127.0.0.1' | grep -E "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | head -1 | cut -d: -f2 | awk '{ print $1}')
+        sed -i "s:sip\.server\.host=.*:sip.server.host=$HOST:g" /usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties
+        sed -i "s:\([ ]*\)<\(X-PRE-PROCESS.*local_ip_v4=[^>]*\)>:\1<\!--\2-->:g" /opt/freeswitch/conf/vars.xml
+        sed -i "s:\([ ]*\)<\(param.*name=\"ext-rtp-ip\"[^\"]*\"\)\([^\"]*\)\([^>]*\)>:\1<\2auto-nat\4>:g" /opt/freeswitch/conf/sip_profiles/external.xml
+        sed -i "s:\([ ]*\)<\(param.*name=\"ext-sip-ip\"[^\"]*\"\)\([^\"]*\)\([^>]*\)>:\1<\2auto-nat\4>:g" /opt/freeswitch/conf/sip_profiles/external.xml
+
+        # disable the comfort noise
+        sed -i "s:\([ ]*\)<\(param.*name=\"comfort-noise\"[^\"]*\"\)\([^\"]*\)\([^>]*\)>:\1<\2false\4>:g" /opt/freeswitch/conf/autoload_configs/conference.conf.xml
         EOH
 end
 

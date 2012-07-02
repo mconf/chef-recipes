@@ -10,7 +10,7 @@
 script "set_repositories" do
         interpreter "bash"
         user "root"
-        cwd "/home/mconf"
+        cwd "/home/mconf/"
         code <<-EOH
         wget http://ubuntu.bigbluebutton.org/bigbluebutton.asc -O- | apt-key add -
         echo "deb http://ubuntu.bigbluebutton.org/lucid_dev_08/ bigbluebutton-lucid main" | tee /etc/apt/sources.list.d/bigbluebutton.list

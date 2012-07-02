@@ -15,10 +15,12 @@ script "set_repositories" do
         wget http://ubuntu.bigbluebutton.org/bigbluebutton.asc -O- | apt-key add -
         echo "deb http://ubuntu.bigbluebutton.org/lucid_dev_08/ bigbluebutton-lucid main" | tee /etc/apt/sources.list.d/bigbluebutton.list
         echo "deb http://us.archive.ubuntu.com/ubuntu/ lucid multiverse" | tee -a /etc/apt/sources.list
+        
+        apt-get update
+        apt-get -y dist-upgrade
         EOH
 end
 
 #install bbb packages
-package "dist-upgrade"
 package "bigbluebutton"
 package "bbb-demo"

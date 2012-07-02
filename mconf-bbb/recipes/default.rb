@@ -18,6 +18,11 @@ script "set_repositories" do
         EOH
 end
 
+execute "apt-get update" do
+  command "apt-get update"
+  ignore_failure true
+end
+
 #install bbb packages
 package "bigbluebutton"
 package "bbb-demo"

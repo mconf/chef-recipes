@@ -11,16 +11,13 @@ script "set_repositories" do
         interpreter "bash"
         user "root"
         cwd "/home/mconf/"
+        ignore_failure true
         code <<-EOH
         wget http://ubuntu.bigbluebutton.org/bigbluebutton.asc -O- | apt-key add -
         echo "deb http://ubuntu.bigbluebutton.org/lucid_dev_08/ bigbluebutton-lucid main" | tee /etc/apt/sources.list.d/bigbluebutton.list
         echo "deb http://us.archive.ubuntu.com/ubuntu/ lucid multiverse" | tee -a /etc/apt/sources.list
+        apt-get update
         EOH
-end
-
-execute "apt-get update" do
-  command "apt-get update"
-  ignore_failure true
 end
 
 #install bbb packages

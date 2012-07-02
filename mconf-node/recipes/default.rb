@@ -23,13 +23,6 @@ script "install_tools" do
         user "mconf"
         cwd "/home/mconf"
         code <<-EOH
-#temp sysop test
-        if [ `lsb_release --description | grep 'Ubuntu 10.04' | wc -l` -eq 0 ]
-        then
-        echo "A Mconf node MUST BE a fresh installation of Ubuntu 10.04 Server"
-            exit 1
-        fi
-#temp end
         mkdir -p tools
         cd tools
         if [ -d "installation-scripts" ]
@@ -43,66 +36,34 @@ script "install_tools" do
         EOH
 end
 
-#install bbb and sets ip
+#set bbb ip
 script "install_bbb" do
         interpreter "bash"
         ENV['BBBIP'] = node.default["mconf"]["bbbip"]
-        user "mconf"
-        cwd "/home/mconf/tools/installation-scripts/bbb-deploy/"
+        user "root"
+        cwd "/home/mconf/"
         code <<-EOH
-        chmod +x install-bigbluebutton.sh
-        ./install-bigbluebutton.sh
-        sudo bbb-conf --setip $BBBIP
+        bbb-conf --setip $BBBIP
         EOH
 end
 
-#install notes
-script "install_notes" do
-        interpreter "bash"
-        user "mconf"
-        cwd "/home/mconf/tools/installation-scripts/bbb-deploy/"
-        code <<-EOH
-        chmod +x install-notes.sh
-        ./install-notes.sh
-        EOH
-end
-
-#install monitor
-script "install_monitor" do
-        interpreter "bash"
-        user "mconf"
-        cwd "/home/mconf/tools/installation-scripts/bbb-deploy/"
-        code <<-EOH
-        chmod +x install-monitor.sh
-        #./install-monitor.sh lb.mconf.org bigbluebutton 10
-        EOH
-end
+#TODO: Must set monitor params
+#./install-monitor.sh lb.mconf.org bigbluebutton 10
 
 #get custom bbb
 script "apply_custom_bbb" do
         interpreter "bash"
-        user "mconf"
+        user "root"
         cwd "/home/mconf/tools/installation-scripts/bbb-deploy/"
         code <<-EOH
         VERSION=$(curl http://mconf.org:8888/mconf-node/current.txt)
         wget -O bigbluebutton.zip "http://mconf.org:8888/mconf-node/$VERSION"
-        sudo ant -f deploy_target.xml deploy
-        EOH
-end
-
-#install presentation
-script "install_presentation" do
-        interpreter "bash"
-        user "mconf"
-        cwd "/home/mconf/tools/installation-scripts/bbb-deploy/"
-        code <<-EOH
-        chmod +x mconf-presentation.sh
-        ./mconf-presentation.sh
+        ant -f deploy_target.xml deploy
         EOH
 end
 
 # enable the straight voice connection between the Android client (or any other external caller) and the FreeSWITCH server
-script "install_mobiles_fs" do
+script "enable_mobiles_fs" do
         interpreter "bash"
         user "root"
         cwd "/home/mconf/tools/installation-scripts/bbb-deploy/"

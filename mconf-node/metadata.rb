@@ -9,4 +9,3 @@ depends          "mconf-bbb"
 depends          "mconf-notes"
 depends          "mconf-monitor"
 depends          "mconf-presentation"
-

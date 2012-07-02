@@ -19,5 +19,6 @@ script "set_repositories" do
 end
 
 #install bbb packages
+package "dist-upgrade"
 package "bigbluebutton"
 package "bbb-demo"

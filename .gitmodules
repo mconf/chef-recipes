@@ -1,0 +1,3 @@
+[submodule "3rd-party/opscode"]
+	path = 3rd-party/opscode
+	url = git://github.com/opscode/cookbooks.git

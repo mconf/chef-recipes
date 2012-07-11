@@ -6,18 +6,19 @@
 # All rights reserved - Do Not Redistribute
 #
 
-# Add the BigBlueButton key and repository URL and ensure the multiverse is enabled
-script "set_repositories" do
-        interpreter "bash"
-        user "root"
-        cwd "/home/mconf/"
-        ignore_failure true
-        code <<-EOH
-        wget http://ubuntu.bigbluebutton.org/bigbluebutton.asc -O- | apt-key add -
-        echo "deb http://ubuntu.bigbluebutton.org/lucid_dev_08/ bigbluebutton-lucid main" | tee /etc/apt/sources.list.d/bigbluebutton.list
-        echo "deb http://us.archive.ubuntu.com/ubuntu/ lucid multiverse" | tee -a /etc/apt/sources.list
-        apt-get update
-        EOH
+include_recipe "ruby-1.9.2"
+
+#add ubuntu repo
+apt_repository "ubuntu-us" do
+  uri "http://us.archive.ubuntu.com/ubuntu"
+  components ["lucid" , "multiverse"]
+end
+
+#add bbb repo
+apt_repository "bigbluebutton" do
+  key "http://ubuntu.bigbluebutton.org/bigbluebutton.asc"
+  uri "http://ubuntu.bigbluebutton.org/lucid_dev_08"
+  components ["bigbluebutton-lucid" , "main"]
 end
 
 #install bbb packages

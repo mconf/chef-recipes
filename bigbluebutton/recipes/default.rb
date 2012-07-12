@@ -35,16 +35,12 @@ apt_repository "bigbluebutton" do
 end
 
 # \TODO check how to do it using the apt recipe
-#execute "refresh" do
-#  command "apt-get update"
-#end
-
 execute "refresh apt" do
-  notifies :run, resources(:execute => "apt-get update"), :immediately
-  action :nothing
+  command "apt-get update"
 end
 
 package "bigbluebutton" do
+#  notifies :run, resources(:execute => "apt-get update"), :immediately
 #  version node[:bigbluebutton][:version]
   response_file "bigbluebutton.seed"
   action :install

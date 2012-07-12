@@ -12,6 +12,9 @@ include_recipe "ruby-1.9.2"
 apt_repository "ubuntu" do
   uri "http://archive.ubuntu.com/ubuntu/"
   components ["lucid" , "multiverse"]
+  not_if do
+    File.exists?('/etc/apt/sources.list.d/ubuntu-us-source.list')
+  end
 end
 
 # create the cache directory
@@ -24,6 +27,9 @@ apt_repository "bigbluebutton" do
   key "http://ubuntu.bigbluebutton.org/bigbluebutton.asc"
   uri "http://ubuntu.bigbluebutton.org/lucid_dev_08"
   components ["bigbluebutton-lucid" , "main"]
+  not_if do
+    File.exists?('/etc/apt/sources.list.d/bigbluebutton.list')
+  end
 end
 
 # \TODO check how to do it using the apt recipe

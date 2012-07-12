@@ -8,19 +8,27 @@
 
 include_recipe "ruby-1.9.2"
 
-#add ubuntu repo
+# add ubuntu repo
 apt_repository "ubuntu-us" do
-  uri "http://us.archive.ubuntu.com/ubuntu"
+  uri "http://archive.ubuntu.com/ubuntu/"
   components ["lucid" , "multiverse"]
 end
 
-#add bbb repo
+# add bigbluebutton repo
 apt_repository "bigbluebutton" do
   key "http://ubuntu.bigbluebutton.org/bigbluebutton.asc"
   uri "http://ubuntu.bigbluebutton.org/lucid_dev_08"
   components ["bigbluebutton-lucid" , "main"]
 end
 
-#install bbb packages
-package "bigbluebutton"
-package "bbb-demo"
+# install bigbluebutton packages
+%w{ bigbluebutton bbb-demo }.each do |pkg|
+  package pkg do
+    action :install
+  end
+end
+
+execute "restart-bigbluebutton" do
+  command "bbb-conf --clean"
+  action :run
+end

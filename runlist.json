@@ -1,11 +1,10 @@
 { "run_list": [ 
     "recipe[htop::default]",
-    "recipe[mconf-bbb::default]",
+    "recipe[bigbluebutton::default]",
     "recipe[mconf-monitor::default]",
     "recipe[mconf-node::default]",
     "recipe[mconf-notes::default]",
     "recipe[mconf-presentation::default]",
-    "recipe[mconf-ruby::default]",
     "recipe[vim::default]",
     "recipe[apt::default]",
     "recipe[build-essential::default]",

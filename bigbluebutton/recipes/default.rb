@@ -14,7 +14,7 @@ apt_repository "ubuntu" do
   uri "http://archive.ubuntu.com/ubuntu/"
   components ["lucid" , "multiverse"]
   not_if do
-    File.exists?('/etc/apt/sources.list.d/ubuntu-us-source.list')
+    File.exists?('/etc/apt/sources.list.d/ubuntu-source.list')
   end
 end
 
@@ -30,8 +30,9 @@ apt_repository "bigbluebutton" do
   uri "http://ubuntu.bigbluebutton.org/lucid_dev_08"
   components ["bigbluebutton-lucid" , "main"]
   not_if do
-    File.exists?('/etc/apt/sources.list.d/bigbluebutton.list')
+    File.exists?('/etc/apt/sources.list.d/bigbluebutton-source.list')
   end
+  # recipe[apt] must appears before recipe[bigbluebutton] in the run_list
   notifies :run, resources(:execute => "apt-get update"), :immediately
 end
 

@@ -32,15 +32,10 @@ apt_repository "bigbluebutton" do
   not_if do
     File.exists?('/etc/apt/sources.list.d/bigbluebutton.list')
   end
-end
-
-# \TODO check how to do it using the apt recipe
-execute "refresh apt" do
-  command "apt-get update"
+  notifies :run, resources(:execute => "apt-get update"), :immediately
 end
 
 package "bigbluebutton" do
-#  notifies :run, resources(:execute => "apt-get update"), :immediately
 #  version node[:bigbluebutton][:version]
   response_file "bigbluebutton.seed"
   action :install

@@ -1,3 +1,4 @@
+package "python"
 
 directory "/var/mconf/tools/psutil" do
   mode "0775"

@@ -32,14 +32,23 @@ apt_repository "bigbluebutton" do
   not_if do
     File.exists?('/etc/apt/sources.list.d/bigbluebutton-source.list')
   end
-  # recipe[apt] must appears before recipe[bigbluebutton] in the run_list
-  notifies :run, resources(:execute => "apt-get update"), :immediately
+end
+
+execute "refresh apt" do
+  user "root"
+  command "apt-get update"
+  ignore_failure true
+  action :run
 end
 
 package "bigbluebutton" do
+  # we won't use the version for bigbluebutton and bbb-demo because they
+  # don't keep the older versions
 #  version node[:bigbluebutton][:version]
   response_file "bigbluebutton.seed"
   action :install
+  # well, it just doesn't work, can't be done
+#  notifies :run, resources(:execute => "apt-get update"), :immediately
 end
 
 package "bbb-demo" do

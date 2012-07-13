@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd <%= node[:notes][:notes_server][:path] %>
+sbt "run <%= node[:notes][:notes_server][:port] %>"

@@ -1,0 +1,6 @@
+maintainer       "mconf.org"
+maintainer_email "mconf@mconf.org"
+license          "GPL"
+description      "get source, build it and install psutil"
+version          "0.0.1"
+supports         "ubuntu"

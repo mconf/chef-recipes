@@ -4,8 +4,9 @@
     "recipe[bigbluebutton::default]",
     "recipe[mconf-monitor::default]",
     "recipe[mconf-node::default]",
-    "recipe[mconf-notes::default]",
-    "recipe[mconf-presentation::default]",
+    "recipe[live-notes-server::default]",
+    "recipe[mconf-bbb::default]",
+    "recipe[mconf-bbb::deploy]",
     "recipe[vim::default]",
     "recipe[build-essential::default]",
     "recipe[ruby-1.9.2::default]"

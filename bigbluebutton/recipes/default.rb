@@ -32,23 +32,15 @@ apt_repository "bigbluebutton" do
   not_if do
     File.exists?('/etc/apt/sources.list.d/bigbluebutton-source.list')
   end
-end
-
-execute "refresh apt" do
-  user "root"
-  command "apt-get update"
-  ignore_failure true
-  action :run
+  notifies :run, 'execute[apt-get update]', :immediately
 end
 
 package "bigbluebutton" do
-  # we won't use the version for bigbluebutton and bbb-demo because they
-  # don't keep the older versions
+  # we won't use the version for bigbluebutton and bbb-demo because the BigBlueButton
+  # folks don't keep the older versions
 #  version node[:bigbluebutton][:version]
   response_file "bigbluebutton.seed"
   action :install
-  # well, it just doesn't work, can't be done
-#  notifies :run, resources(:execute => "apt-get update"), :immediately
 end
 
 package "bbb-demo" do

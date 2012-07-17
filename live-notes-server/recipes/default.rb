@@ -1,4 +1,4 @@
-# Cookbook Name:: mconf-notes
+# Cookbook Name:: live-notes-server
 # Recipe:: default
 #
 # Copyright 2012, mconf.org

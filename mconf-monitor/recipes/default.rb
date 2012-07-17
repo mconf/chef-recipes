@@ -53,6 +53,7 @@ script "nsca_build" do
     notifies :run, 'script[install_nsca]', :immediately
 end
 
+#nsca install procedure 
 script "install_nsca" do
     action :nothing
     interpreter "bash"
@@ -81,17 +82,19 @@ script "install_nsca" do
     EOH
 end
 
-service "performance_reporter" do
-    provider Chef::Provider::Service::Upstart
-    subscribes :restart, resources()
-    supports :restart => true, :start => true, :stop => true
-end
-
+#performance reporter tamplate creation
 template "performance_report.py" do
     path "/etc/init/performance_report.conf"
     source "performance_report.conf"
     mode "0644"
     notifies :restart, resources(:service => "performance_reporter")
+end
+
+#performance reporter service definition
+service "performance_reporter" do
+    provider Chef::Provider::Service::Upstart
+    subscribes :restart, resources()
+    supports :restart => true, :start => true, :stop => true
 end
 
 #make monitor install

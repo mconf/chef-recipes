@@ -6,11 +6,13 @@
 # All rights reserved - Do Not Redistribute
 #
 
-#package "zlib1g-dev"
-#package "git-core"
-#package "python-dev"
-#package "python-argparse"
-#package "subversion"
+package "zlib1g-dev"
+package "git-core"
+package "python-dev"
+package "python-argparse"
+package "subversion"
+
+include_recipe "psutil"
 
 directory "/var/mconf/tools/nagios/" do
   mode "0775"
@@ -18,56 +20,107 @@ directory "/var/mconf/tools/nagios/" do
   recursive true
 end
 
-#create performance reporter script
-template "/var/mconf/tools/nagios/performance_report.py" do
-  source "performance_report.py"
-  mode 0755
-  owner "mconf"
-  action :create_if_missing
+#create script files
+%w{ performance_report.py check_bbb_salt.sh daemon.py server_up.sh update.sh}.each do |file|
+    template "/var/mconf/tools/nagios/#{file}" do
+      source file
+      mode 0755
+      owner "mconf"
+      action :create_if_missing
+    end
 end
 
-#set up nsca sender
-script "set_up_nsca_sender" do
-        interpreter "bash"
-        user "root"
-        cwd "/var/mconf/tools/nagios/"
-        not_if do File.exists?('/usr/local/nagios/bin/send_nsca') end
-        code <<-EOH
-            NSCA_VERSION=#{node[:mconf][:ncsa_version]}
-            NSCA="nsca-$NSCA_VERSION"
-            NSCA_TAR="$NSCA.tar.gz"
-            if [ ! -f "NSCA_TAR" ]
-            then
-                wget -nc http://prdownloads.sourceforge.net/sourceforge/nagios/$NSCA_TAR
-                tar xzf $NSCA_TAR
-                cd $NSCA
-                ./configure
-                make
-                make install
-            fi
+#get nsca file from server and call build script if there is a new file
+remote_file "/var/mconf/tools/nagios/nsca-#{node[:mconf][:ncsa_version]}.tar.gz" do
+    source "http://prdownloads.sourceforge.net/sourceforge/nagios/nsca-#{node[:mconf][:ncsa_version]}.tar.gz"
+    mode "0644"
+    notifies :run, 'script[nsca_build]', :immediately
+end
 
-            cd /var/mconf/tools/nagios/$NSCA/
-            
-            if [ INSTANCE_TYPE == "nagios" ]
+#build nsca and call installer
+script "nsca_build" do
+    action :nothing
+    interpreter "bash"
+    user "root"
+    cwd "/var/mconf/tools/nagios/"
+    code <<-EOH
+        tar xzf "nsca-#{node[:mconf][:ncsa_version]}.tar.gz"
+        cd "nsca-#{node[:mconf][:ncsa_version]}"
+        ./configure
+        make
+        make install
+    EOH
+    notifies :run, 'script[install_nsca]', :immediately
+end
+
+#nsca install procedure 
+script "install_nsca" do
+    action :nothing
+    interpreter "bash"
+    user "root"
+    cwd "/var/mconf/tools/nagios/nsca-#{node[:mconf][:ncsa_version]}"
+    code <<-EOH
+    if [ #{node[:mconf][:instance_type]} == "nagios" ]
+    then
+        cp src/nsca /usr/local/nagios/bin/
+        cp sample-config/nsca.cfg /usr/local/nagios/etc/
+        chmod a+r /usr/local/nagios/etc/nsca.cfg
+        # install as XINETD service
+        cp /var/mconf/tools/nagios/$NSCA/sample-config/nsca.xinetd /etc/xinetd.d/nsca
+        sed -i "s:\tonly_from.*:#\0:g" /etc/xinetd.d/nsca
+        chmod a+r /etc/xinetd.d/nsca
+        service xinetd restart
+    else
+        mkdir -p /usr/local/nagios/bin/ /usr/local/nagios/etc/
+        chown nagios:nagios -R /usr/local/nagios
+    fi
+
+    cp src/send_nsca /usr/local/nagios/bin/
+    cp sample-config/send_nsca.cfg /usr/local/nagios/etc/
+    chmod a+r /usr/local/nagios/etc/send_nsca.cfg
+    EOH
+end
+
+#performance reporter service definition
+service "performance_reporter" do
+    provider Chef::Provider::Service::Upstart
+    subscribes :restart, resources()
+    supports :restart => true, :start => true, :stop => true
+end
+
+#performance reporter tamplate creation
+template "performance_report.py" do
+    path "/etc/init/performance_report.conf"
+    source "performance_report.conf"
+    mode "0644"
+    notifies :restart, resources(:service => "performance_reporter")
+end
+
+#make monitor install
+script "install_monitor" do
+    interpreter "bash"
+    user "mconf"
+    cwd "/home/mconf/"
+    code <<-EOH
+        INSTANCE_TYPE=#{node[:mconf][:instance_type]}
+        NAGIOS_ADDRESS=#{node[:mconf][:nagios_address]}
+        INTERVAL=#{node[:mconf][:interval]}
+
+        if [ $INSTANCE_TYPE != "nagios" ]
+        then
+            echo "Sending the Nagios packet to start monitoring"
+            if [ $INSTANCE_TYPE == "bigbluebutton" ]
             then
-                cp src/nsca /usr/local/nagios/bin/
-                cp sample-config/nsca.cfg /usr/local/nagios/etc/
-                chmod a+r /usr/local/nagios/etc/nsca.cfg
-                # install as XINETD service
-                cp /var/mconf/tools/nagios/$NSCA/sample-config/nsca.xinetd /etc/xinetd.d/nsca
-                sed -i "s:\tonly_from.*:#\0:g" /etc/xinetd.d/nsca
-                chmod a+r /etc/xinetd.d/nsca
-                service xinetd restart
+                CMD="/var/mconf/tools/nagios/check_bbb_salt.sh $NAGIOS_ADDRESS $INTERVAL | tee /var/mconf/log/output_check_bbb_salt.txt 2>&1"
+                eval $CMD
+                # add a cron job to check if there's any modification on the BigBlueButton URL or salt
+                crontab -l | grep -v "check_bbb_salt.sh" > cron.jobs
+                echo "*/5 * * * * $CMD" >> cron.jobs
+                crontab cron.jobs
+                rm cron.jobs
             else
-                mkdir -p /usr/local/nagios/bin/ /usr/local/nagios/etc/
-                USER=`whoami`
-                chown $USER:$USER -R /usr/local/nagios
+                /var/mconf/tools/nagios/server_up.sh $NAGIOS_ADDRESS $INSTANCE_TYPE
             fi
-
-            cp src/send_nsca /usr/local/nagios/bin/
-            cp sample-config/send_nsca.cfg /usr/local/nagios/etc/
-            chmod a+r /usr/local/nagios/etc/send_nsca.cfg
-      EOH
+        fi
+    EOH
 end
-
-

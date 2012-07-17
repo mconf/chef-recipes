@@ -12,6 +12,9 @@ Attributes
 ==========
 
 nagios_address: ip of the nagios server receiving the reports
-instance_type: wich installation mode should be used (default: "nagios")
+
+instance_type: wich installation mode should be used ("nagios", "bigbluebutton" or "freeswitch")
+
 interval: that the monitor should report to the nagios server
+
 ncsa_version: ncsa version should be used

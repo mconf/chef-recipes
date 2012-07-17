@@ -96,7 +96,7 @@ template "performance_report.py" do
     notifies :restart, resources(:service => "performance_reporter")
 end
 
-#add cron job to monitor bbb salt 
+#add cron job to monitor bbb salt on bbb nodes
 cron "bbb_salt_monitor" do
     minute "5"
     command "/var/mconf/tools/nagios/check_bbb_salt.sh 2>&1 >> /var/mconf/log/output_check_bbb_salt.txt "
@@ -105,15 +105,8 @@ cron "bbb_salt_monitor" do
     end
 end
 
-#make monitor install
-script "freeswitch_server_up" do
-    interpreter "bash"
-    user "mconf"
-    cwd "/home/mconf/"
-    only_if do 
-        "#{node[:mconf][:instance_type]}" == "freeswitch" 
-    end
-    code <<-EOH
-        /var/mconf/tools/nagios/server_up.sh $NAGIOS_ADDRESS $INSTANCE_TYPE
-    EOH
+#send a "server up" signal to the nagios server on a freeswitch node
+execute "freeswitch_server_up" do
+    command "/var/mconf/tools/nagios/server_up.sh #{node[:mconf][:nagios_address]} #{node[:mconf][:instance_type]}"
+    only_if do "#{node[:mconf][:instance_type]}" == "freeswitch" end
 end

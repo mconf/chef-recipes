@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+<config>
+    <localeversion suppressWarning="false">0.8-beta4</localeversion>
+    <version>bbb0.8-mconf-0.1 - Mconf Node (mconf.org)</version>
+    <help url="<%= :server_url %>/help.html"/>
+    <porttest host="<%= :server_domain %>" application="video"/>    
+    <application uri="rtmp://<%= :server_domain %>/bigbluebutton" host="<%= :server_url %>/bigbluebutton/api/enter" />
+    <language userSelectionEnabled="true" />
+    <skinning enabled="false" url="branding/css/theme.css.swf" />
+    <layout showLogButton="false" showVideoLayout="false" showResetLayout="false" showToolbar="true" showHelpButton="true" showLogoutWindow="true"/>
+    
+	<modules>
+		
+		<module name="ChatModule" url="ChatModule.swf?v=<%= :module_version %>" 
+			uri="rtmp://<%= :server_domain %>/bigbluebutton" 
+			dependsOn="ViewersModule"	
+			translationOn="false"
+			translationEnabled="false"	
+			privateEnabled="true"  
+			position="top-right"
+		/>
+		
+		<module name="ViewersModule" url="ViewersModule.swf?v=<%= :module_version %>" 
+			uri="rtmp://<%= :server_domain %>/bigbluebutton" 
+			host="<%= :server_url %>/bigbluebutton/api/enter"
+			allowKickUser="false"
+			windowVisible="true"
+		/>
+			
+		<module name="ListenersModule" url="ListenersModule.swf?v=<%= :module_version %>" 
+			uri="rtmp://<%= :server_domain %>/bigbluebutton" 
+			recordingHost="<%= :server_url %>"
+			windowVisible="true"
+			position="middle-left"
+		/>
+		
+		<module name="DeskShareModule" 
+			url="DeskShareModule.swf?v=<%= :module_version %>" 
+			uri="rtmp://<%= :server_domain %>/deskShare"
+			autoStart="false"
+		/>
+		
+		<module name="PhoneModule" url="PhoneModule.swf?v=<%= :module_version %>" 
+			uri="rtmp://<%= :server_domain %>/sip" 
+			autoJoin="true"
+			skipCheck="false"
+			showButton="true"
+			enabledEchoCancel="true"
+			dependsOn="ViewersModule"
+		/>
+
+		<module name="VideoconfModule" url="VideoconfModule.swf?v=<%= :module_version %>" 
+			uri="rtmp://<%= :server_domain %>/video"
+			dependson = "ViewersModule"
+			videoQuality = "100"
+			presenterShareOnly = "false"
+			resolutions = "160x120,320x240,640x480"
+			autoStart = "false"
+			showButton = "true"
+			showCloseButton = "true"
+			publishWindowVisible = "true"
+			viewerWindowMaxed = "false"
+			viewerWindowLocation = "top"
+			camKeyFrameInterval = "30"
+			camModeFps = "10"
+			camQualityBandwidth = "0"
+			camQualityPicture = "90"
+			enableH264 = "false"
+			h264Level = "2.1"
+			h264Profile = "main"			
+		/>
+		
+		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=<%= :module_version %>" 
+			uri="rtmp://<%= :server_domain %>/bigbluebutton" 
+			dependsOn="PresentModule"
+		/>
+		
+		<module name="PresentModule" url="PresentModule.swf?v=<%= :module_version %>" 
+			uri="rtmp://<%= :server_domain %>/bigbluebutton" 
+			host="<%= :server_url %>" 
+			showPresentWindow="true"
+			showWindowControls="true"
+			dependsOn="ViewersModule"
+		/>
+
+		<module name="VideodockModule" url="VideodockModule.swf?v=<%= :module_version %>"
+			uri="rtmp://<%= :server_domain %>/bigbluebutton" 
+			dependsOn="VideoconfModule, ViewersModule"
+			autoDock="true"
+			maximizeWindow="false"
+			position="bottom-right"
+			width="172"
+			height="179"
+			layout="smart"
+			oneAlwaysBigger="false"
+		/>
+		
+		<module name="LayoutModule" url="LayoutModule.swf?v=<%= :module_version %>"
+		    layoutConfig="conf/layout.xml"
+		/>
+
+		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=<%= :module_version %>" 
+			uri="rtmp://<%= :server_domain %>/bigbluebutton" 
+			host="<%= :server_url %>/demo/notes.jsp"
+			refreshDelay="500"
+			responseTimeout="3000"
+			enablePlayback="false"
+			autoStart="true"
+			dependsOn="ViewersModule"
+			position="bottom-left"
+		/>
+		
+	</modules>
+</config>

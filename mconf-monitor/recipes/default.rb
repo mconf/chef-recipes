@@ -72,8 +72,7 @@ script "install_nsca" do
         service xinetd restart
     else
         mkdir -p /usr/local/nagios/bin/ /usr/local/nagios/etc/
-        USER=`whoami`
-        chown $USER:$USER -R /usr/local/nagios
+        chown nagios:nagios -R /usr/local/nagios
     fi
 
     cp src/send_nsca /usr/local/nagios/bin/

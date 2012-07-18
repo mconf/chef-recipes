@@ -15,7 +15,7 @@ subversion "psutil_get_source" do
     revision "HEAD"
     destination "/var/mconf/tools/psutil/"
     action :sync
-    notifies :run, 'script[psutil_install]', :immediately
+    notifies :run, 'execute[psutil_install]', :immediately
 end
 
 #install psutil as root

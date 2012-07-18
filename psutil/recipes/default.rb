@@ -1,5 +1,6 @@
 package "python"
 package "subversion"
+package "gcc"
 
 directory "/var/mconf/tools/psutil" do
   mode "0775"

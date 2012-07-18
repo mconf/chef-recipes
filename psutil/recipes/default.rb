@@ -1,4 +1,5 @@
 package "python"
+package "subversion"
 
 directory "/var/mconf/tools/psutil" do
   mode "0775"

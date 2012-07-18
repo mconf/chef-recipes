@@ -15,10 +15,12 @@ subversion "psutil_get_source" do
   revision "HEAD"
   destination "/var/mconf/tools/psutil/"
   action :sync
+  notifies :run, 'script[psutil_install]', :immediately
 end
 
 #install psutil as root
 script "psutil_install" do
+        action :nothing
         interpreter "bash"
         user "root"
         cwd "/var/mconf/tools/psutil/"

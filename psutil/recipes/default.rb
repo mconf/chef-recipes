@@ -11,21 +11,18 @@ end
 
 #get psutil source
 subversion "psutil_get_source" do
-  repository "http://psutil.googlecode.com/svn/trunk"
-  revision "HEAD"
-  destination "/var/mconf/tools/psutil/"
-  action :sync
-  notifies :run, 'script[psutil_install]', :immediately
+    repository "http://psutil.googlecode.com/svn/trunk"
+    revision "HEAD"
+    destination "/var/mconf/tools/psutil/"
+    action :sync
+    notifies :run, 'script[psutil_install]', :immediately
 end
 
 #install psutil as root
-script "psutil_install" do
-        action :nothing
-        interpreter "bash"
-        user "root"
-        cwd "/var/mconf/tools/psutil/"
-        not_if do File.exists?('/usr/local/lib/python2.6/dist-packages/psutil/') end
-        code <<-EOH
-        python setup.py install
-        EOH
+execute "psutil_install" do
+    action :nothing
+    user "root"
+    cwd "/var/mconf/tools/psutil/"
+    command "python setup.py install"
+    creates "/usr/local/lib/python2.6/dist-packages/psutil/"
 end

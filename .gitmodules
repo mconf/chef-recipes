@@ -6,4 +6,4 @@
 	url = git://github.com/opscode-cookbooks/build-essential.git
 [submodule "3rd-parties/ruby-1.9.2"]
 	path = 3rd-parties/ruby-1.9.2
-	url = git://github.com/meskyanichi/chef-ruby1.9.git
+	url = git://github.com/karlfreeman/chef-ruby.git

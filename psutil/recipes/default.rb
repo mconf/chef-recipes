@@ -1,4 +1,5 @@
 package "python"
+package "python-dev"
 package "subversion"
 package "gcc"
 

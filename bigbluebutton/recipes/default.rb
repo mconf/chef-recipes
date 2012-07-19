@@ -13,9 +13,6 @@ include_recipe "apt"
 apt_repository "ubuntu" do
   uri "http://archive.ubuntu.com/ubuntu/"
   components ["lucid" , "multiverse"]
-  not_if do
-    File.exists?('/etc/apt/sources.list.d/ubuntu-source.list')
-  end
 end
 
 # create the cache directory
@@ -29,10 +26,13 @@ apt_repository "bigbluebutton" do
   key "http://ubuntu.bigbluebutton.org/bigbluebutton.asc"
   uri "http://ubuntu.bigbluebutton.org/lucid_dev_08"
   components ["bigbluebutton-lucid" , "main"]
-  not_if do
-    File.exists?('/etc/apt/sources.list.d/bigbluebutton-source.list')
-  end
-  notifies :run, 'execute[apt-get update]', :immediately
+  # it definitely doesn't work
+#  notifies :run, 'execute[apt-get update]', :immediately
+end
+
+execute "apt-get update" do
+  user "root"
+  action :run
 end
 
 package "bigbluebutton" do
@@ -41,6 +41,7 @@ package "bigbluebutton" do
 #  version node[:bigbluebutton][:version]
   response_file "bigbluebutton.seed"
   action :install
+  notifies :run, 'execute[restart-bigbluebutton]', :immediately
 end
 
 package "bbb-demo" do
@@ -51,6 +52,6 @@ end
 execute "restart-bigbluebutton" do
   user "root"
   command "bbb-conf --clean"
-  action :run
+  action :nothing
 end
 

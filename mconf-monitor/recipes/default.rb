@@ -96,31 +96,17 @@ template "performance_report.py" do
     notifies :restart, resources(:service => "performance_reporter")
 end
 
-#make monitor install
-script "install_monitor" do
-    interpreter "bash"
-    user "mconf"
-    cwd "/home/mconf/"
-    code <<-EOH
-        INSTANCE_TYPE=#{node[:mconf][:instance_type]}
-        NAGIOS_ADDRESS=#{node[:mconf][:nagios_address]}
-        INTERVAL=#{node[:mconf][:interval]}
+#add cron job to monitor bbb salt on bbb nodes
+cron "bbb_salt_monitor" do
+    minute "5"
+    command "/var/mconf/tools/nagios/check_bbb_salt.sh 2>&1 >> /var/mconf/log/output_check_bbb_salt.txt "
+    only_if do 
+        "#{node[:mconf][:instance_type]}" == "bigbluebutton" 
+    end
+end
 
-        if [ $INSTANCE_TYPE != "nagios" ]
-        then
-            echo "Sending the Nagios packet to start monitoring"
-            if [ $INSTANCE_TYPE == "bigbluebutton" ]
-            then
-                CMD="/var/mconf/tools/nagios/check_bbb_salt.sh $NAGIOS_ADDRESS $INTERVAL | tee /var/mconf/log/output_check_bbb_salt.txt 2>&1"
-                eval $CMD
-                # add a cron job to check if there's any modification on the BigBlueButton URL or salt
-                crontab -l | grep -v "check_bbb_salt.sh" > cron.jobs
-                echo "*/5 * * * * $CMD" >> cron.jobs
-                crontab cron.jobs
-                rm cron.jobs
-            else
-                /var/mconf/tools/nagios/server_up.sh $NAGIOS_ADDRESS $INSTANCE_TYPE
-            fi
-        fi
-    EOH
+#send a "server up" signal to the nagios server on a freeswitch node
+execute "freeswitch_server_up" do
+    command "/var/mconf/tools/nagios/server_up.sh #{node[:mconf][:nagios_address]} #{node[:mconf][:instance_type]}"
+    only_if do "#{node[:mconf][:instance_type]}" == "freeswitch" end
 end

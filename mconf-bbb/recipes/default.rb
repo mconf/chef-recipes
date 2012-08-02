@@ -52,45 +52,74 @@ end
 
 include_recipe "bigbluebutton"
 
-ruby_block "check_deploy_needed" do
-  block do
-    def bigbluebutton_packages_version()
-      pkg_version = ""
-      %w{ bigbluebutton bbb-config bbb-common bbb-web bbb-client bbb-apps bbb-apps-sip bbb-apps-video bbb-apps-deskshare bbb-playback-slides bbb-openoffice-headless bbb-record-core }.each do |pkg|
-        pkg_version += `dpkg -s #{pkg} | grep 'Version' | sed 's:.*\\: \\(.*\\):#{pkg} \\1:g'`
-      end
-      return pkg_version
+#record installed and deployd versions
+ruby_block "check_deploy" do
+    block do
+        def bigbluebutton_packages_version()
+            pkg_version = ""
+            %w{ bigbluebutton bbb-config bbb-common bbb-web bbb-client bbb-apps bbb-apps-sip bbb-apps-video bbb-apps-deskshare bbb-playback-slides bbb-openoffice-headless bbb-record-core }.each do |pkg|
+                pkg_version += `dpkg -s #{pkg} | grep 'Version' | sed 's:.*\\: \\(.*\\):#{pkg} \\1:g'`
+            end
+            return pkg_version
+        end
+
+        node[:tmp][:mconf_bbb][:new_pkg_version] = bigbluebutton_packages_version()
+        node[:tmp][:mconf_bbb][:deploy_needed] = (node[:tmp][:mconf_bbb][:current_pkg_version] != node[:tmp][:mconf_bbb][:new_pkg_version]) or (node[:tmp][:mconf_bbb][:current_deployed_version] != node[:mconf][:bbb][:version])
+
+        #record installed package versions on filesystem
+        log "installed packages: #{node[:tmp][:mconf_bbb][:new_pkg_version]}"
+        File.open("#{node[:mconf][:bbb][:deploy_dir]}/.installed_packages", "w") do |f|
+            f.write("#{node[:tmp][:mconf_bbb][:new_pkg_version]}")
+        end
+        #record deployed version on filesystem
+        log "deployed: #{node[:mconf][:bbb][:version]}"
+        File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "w") do |f|
+            f.write("#{node[:mconf][:bbb][:version]}")
+        end
+        log "#{node[:tmp][:mconf_bbb][:deploy_needed]}"
     end
-
-    node.set[:tmp][:mconf_bbb][:new_pkg_version] = bigbluebutton_packages_version()
-    node.set[:tmp][:mconf_bbb][:deploy_needed] = (node[:tmp][:mconf_bbb][:current_pkg_version] != node[:tmp][:mconf_bbb][:new_pkg_version]) or (node[:tmp][:mconf_bbb][:current_deployed_version] != node[:mconf][:bbb][:version])
-#    node.save
-    
-    Chef::Log.debug("New packages version: #{node[:tmp][:mconf_bbb][:new_pkg_version]}")
-    Chef::Log.debug("Deploy needed? #{node[:tmp][:mconf_bbb][:deploy_needed]}")
-  end
-  action :create
 end
 
-log "Deploy needed (second check)? #{node[:tmp][:mconf_bbb][:deploy_needed]}"
-
-if node[:tmp][:mconf_bbb][:deploy_needed]
-  include_recipe "mconf-bbb::deploy"
-  File.open("#{node[:mconf][:bbb][:deploy_dir]}/.installed_packages", "w") do |f|
-    f.write("#{node[:tmp][:mconf_bbb][:new_pkg_version]}")
-  end
-  File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "w") do |f|
-    f.write("#{node[:mconf][:bbb][:version]}")
-  end
-else
-  log "There's no need to deploy again the custom version of BigBlueButton"
+#check if a deploy is needed and set flag if necessary
+file "#{node[:mconf][:bbb][:deploy_dir]}/deploy_needed" do
+    owner "mconf"
+    group "mconf"
+    mode "0755"
+    action :nothing
+    subscribes :create, resources("package[bigbluebutton]") , :immediately
 end
 
-properties = Hash[File.read('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
+file "#{node[:mconf][:bbb][:deploy_dir]}/deploy_needed" do
+    owner "mconf"
+    group "mconf"
+    mode "0755"
+    action :nothing
+    only_if do 
+        File.exists?("#{node[:mconf][:bbb][:deploy_dir]}/.deployed") && File.read("#{node[:mconf][:bbb][:deploy_dir]}/.deployed") != "#{node[:mconf][:bbb][:version]}"
+    #File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "r").read != "#{node[:mconf][:bbb][:version]}"
+    end
+end
 
-node.set[:bbb][:server_url] = properties["bigbluebutton.web.serverURL"]
-node.set[:bbb][:server_domain] = properties["bigbluebutton.web.serverURL"].gsub("http://", "").split(":")[0]
-node.set[:bbb][:salt] = properties["securitySalt"]
+ruby_block "debug" do
+    block do
+        if File.exists?("#{node[:mconf][:bbb][:deploy_dir]}/.deployed")
+            log File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "r").read
+        end
+        log "#{node[:mconf][:bbb][:version]}"
+    end
+end
+
+include_recipe "mconf-bbb::deploy"
+
+ruby_block "define_properties" do
+    block do
+        properties = Hash[File.read('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
+
+        node.set[:bbb][:server_url] = properties["bigbluebutton.web.serverURL"]
+        node.set[:bbb][:server_domain] = properties["bigbluebutton.web.serverURL"].gsub("http://", "").split(":")[0]
+        node.set[:bbb][:salt] = properties["securitySalt"]
+    end
+end
 
 service "tomcat6"
 
@@ -116,7 +145,6 @@ template "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.p
   # if the file is modified, restart tomcat
   notifies :restart, "service[tomcat6]", :immediately
 end
-
 
 cookbook_file "/var/www/bigbluebutton-default/mconf-default.pdf" do
   source "mconf-default.pdf"

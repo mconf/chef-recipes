@@ -111,7 +111,7 @@ template "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.p
   mode "0644"
   variables(
     :server_url => node[:bbb][:server_url],
-    :salt => node.set[:bbb][:salt]
+    :salt => node[:bbb][:salt]
   )
   # if the file is modified, restart tomcat
   notifies :restart, "service[tomcat6]", :immediately

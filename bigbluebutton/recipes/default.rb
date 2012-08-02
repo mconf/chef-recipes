@@ -49,9 +49,25 @@ package "bbb-demo" do
   action :install
 end
 
+template "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml" do
+  source "red5-web-deskshare.xml"
+  mode "0644"
+  variables(
+    :record_deskshare => node[:bbb][:recording][:deskshare]
+  )
+end
+
+template "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml" do
+  source "red5-web-video.xml"
+  mode "0644"
+  variables(
+    :record_video => node[:bbb][:recording][:video]
+  )
+end
+
 execute "restart-bigbluebutton" do
   user "root"
-  command "bbb-conf --clean"
+  command "bbb-conf --restart"
   action :nothing
 end
 

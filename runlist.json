@@ -2,6 +2,7 @@
     "recipe[apt::default]",
     "recipe[htop::default]",
     "recipe[bigbluebutton::default]",
+    "recipe[psutil::default]",
     "recipe[mconf-monitor::default]",
     "recipe[mconf-node::default]",
     "recipe[live-notes-server::default]",

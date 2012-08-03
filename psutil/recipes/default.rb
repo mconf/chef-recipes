@@ -12,7 +12,8 @@ end
 #get psutil source
 subversion "psutil_get_source" do
     repository "http://psutil.googlecode.com/svn/trunk"
-    revision "HEAD"
+#    revision "HEAD"
+    revision "1400"
     destination "/var/mconf/tools/psutil/"
     action :sync
     notifies :run, 'execute[psutil_install]', :immediately
@@ -24,5 +25,4 @@ execute "psutil_install" do
     user "root"
     cwd "/var/mconf/tools/psutil/"
     command "python setup.py install"
-    creates "/usr/local/lib/python2.6/dist-packages/psutil/"
 end

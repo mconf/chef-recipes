@@ -13,7 +13,6 @@ import string
 import argparse
 import psutil
 from threading import Thread
-from daemon import Daemon
 import json
 
 # Exit statuses recognized by Nagios
@@ -370,103 +369,44 @@ class Configuration:
         self.disk_warning = int(args.disk_warning)
         self.disk_critical = int(args.disk_critical)
 
-class Runner:
-    def __init__(self):
-        '''main loop to call all the reporters'''
-        self.running = False
-        
-    def start(self, args):
-        if self.running:
-            return
-            
-        config = Configuration(args)
-        
-        self.threadsList = []
-        # here we should have the main call to the reporter threads
-        self.threadsList.append(NetworkReporter(config))
-        self.threadsList.append(ProcessorReporter(config))
-        self.threadsList.append(MemoryReporter(config))
-        self.threadsList.append(DiskReporter(config))
-#        threadsList.append(processesAnalyzer(config))
-
-        self.sender = Sender(config, self.threadsList)
-        # start every thread
-        for reporterThread in self.threadsList:
-            reporterThread.start()
-        self.sender.start()
-        self.running = True
-
-    def stop(self):
-        if not self.running:
-            return
-            
-        # send kill sign to all threads
-        self.sender.kill()
-        self.sender.join()
-        for reporterThread in self.threadsList:
-            reporterThread.kill()
-        # wait for each thread to finish
-        for reporterThread in self.threadsList:
-            reporterThread.join()
-        self.running = False
-
-class WSDaemon(Daemon):  
-    def __init__(self, *kwargs):
-        self.__filename__ = '/tmp/performance_report.cfg'
-        return super(WSDaemon, self).__init__(*kwargs)
-        
-    def start(self):
-        if len(sys.argv) <= 1:
-            self.__reuse_config__ = False
-            print "Trying to read parameters from file"
-            try:
-                sys.argv = self.__readFile__()
-                print "Reusing the following arguments: %s" % (sys.argv)
-            except:
-                print "Failed to recover the lastest used configurations"
-        self.args = sys.argv
-        self.parsed_args = parse_args()
-        return super(WSDaemon, self).start()
+def main_loop(args):
+    '''main loop to call all the reporters'''
+    threadsList = []
     
-    def run(self):
-        self.runner = Runner()
-        self.__writeFile__(self.args)
-        self.runner.start(self.parsed_args)
-        
-    def __writeFile__(self, data):
-        # writes the data as a JSON-encoded dict
-        f = open(self.__filename__, 'w')
-        filestring = json.dumps(data) + '\n'
-        f.write(filestring)
-        f.close()
+    config = Configuration(args)
+    
+    # here we should have the main call to the reporter threads
+    threadsList.append(NetworkReporter(config))
+    threadsList.append(ProcessorReporter(config))
+    threadsList.append(MemoryReporter(config))
+    threadsList.append(DiskReporter(config))
+    #processesAnalyzer thread
+#    threadsList.append(processesAnalyzer(config))
 
-    def __readFile__(self):
-        # reads a JSON-encoded object from file
-        f = open(self.__filename__, 'r')
-        data = []
-        try:
-            data = json.loads(f.read())
-        except ValueError as err:
-            pass
-        f.close()
-        return data
+    sender = Sender(config, threadsList)
+    # start every thread
+    for reporterThread in threadsList:
+        reporterThread.start()
 
-if __name__ == "__main__":
-#    daemon = WSDaemon('/tmp/performance_report.pid', '/dev/null', '/tmp/performance_report.out', '/tmp/performance_report.err')
-    daemon = WSDaemon('/tmp/performance_report.pid')
-    if len(sys.argv) >= 2:
-        if 'start' == sys.argv[1]: 
-            del sys.argv[1:2]
-            daemon.start()
-        elif 'stop' == sys.argv[1]:
-            daemon.stop()
-        elif 'restart' == sys.argv[1]:
-            del sys.argv[1:2]
-            daemon.restart()
-        else:
-            print "Unknown command"
-            sys.exit(2)
-        sys.exit(0)
-    else:
-        print "usage: %s start|stop|restart" % sys.argv[0]
-        sys.exit(2)
+    sender.start()
+
+    raw_input("Press Enter to kill all threads...\n")
+
+    # send kill sign to all threads
+    sender.kill()
+    for reporterThread in threadsList:
+        reporterThread.kill()
+    # wait for each thread to finish
+    for reporterThread in threadsList:
+        reporterThread.join()
+    
+def main():
+    try:
+        # args
+        args = parse_args()
+        main_loop(args)
+    except (KeyboardInterrupt, SystemExit):
+        pass
+if __name__ == '__main__':
+    main()
+

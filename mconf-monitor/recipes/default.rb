@@ -6,33 +6,49 @@
 # All rights reserved - Do Not Redistribute
 #
 
-package "zlib1g-dev"
-package "git-core"
-package "python-dev"
-package "python-argparse"
-package "subversion"
+%w{ "zlib1g-dev" "git-core" "python-dev" "python-argparse" "subversion" "libmcrypt4" }.each do |pkg|
+  package pkg do
+    action :install
+  end
+end
 
 include_recipe "psutil"
 
-directory "/var/mconf/tools/nagios/" do
+if File.exists?("/usr/local/bin/bbb-conf") and node[:mconf][:instance_type] == "bigbluebutton"
+  node.set[:mconf][:hostname] = `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's:URL\\:http\\://\\([^:/]*\\).*:\\1:g'`.chop
+  node.set[:mconf][:bbb_url] =  `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's/URL://g'`.chop
+  node.set[:mconf][:bbb_salt] = `bbb-conf --salt | grep 'Salt' | tr -d ' ' | sed 's/Salt://g'`.chop
+elsif node[:mconf][:instance_type] == "nagios"
+  node.set[:mconf][:hostname] = "localhost"
+else
+  node.set[:mconf][:hostname] = node[:ipaddress]
+end
+
+if node[:mconf][:instance_type] == "bigbluebutton"
+  node.set[:mconf][:nagios_message] = "#{node[:mconf][:instance_type]} #{node[:mconf][:bbb_url]} #{node[:mconf][:bbb_salt]}"
+else
+  node.set[:mconf][:nagios_message] = "#{node[:mconf][:instance_type]}"
+end
+
+directory "#{node[:mconf][:nagios][:dir]}" do
   mode "0775"
   owner "mconf"
   recursive true
 end
 
 #create script files
-%w{ performance_report.py check_bbb_salt.sh daemon.py server_up.sh update.sh}.each do |file|
-    template "/var/mconf/tools/nagios/#{file}" do
+%w{ performance_report.py check_bbb_salt.sh daemon.py server_up.sh update.sh }.each do |file|
+    template "#{node[:mconf][:nagios][:dir]}/#{file}" do
       source file
       mode 0755
       owner "mconf"
-      action :create_if_missing
+      action :create
     end
 end
 
 #get nsca file from server and call build script if there is a new file
-remote_file "/var/mconf/tools/nagios/nsca-#{node[:mconf][:ncsa_version]}.tar.gz" do
-    source "http://prdownloads.sourceforge.net/sourceforge/nagios/nsca-#{node[:mconf][:ncsa_version]}.tar.gz"
+remote_file "#{node[:mconf][:nagios][:dir]}/nsca-#{node[:nsca][:version]}.tar.gz" do
+    source "http://prdownloads.sourceforge.net/sourceforge/nagios/nsca-#{node[:nsca][:version]}.tar.gz"
     mode "0644"
     notifies :run, 'script[nsca_build]', :immediately
 end
@@ -42,10 +58,10 @@ script "nsca_build" do
     action :nothing
     interpreter "bash"
     user "root"
-    cwd "/var/mconf/tools/nagios/"
+    cwd "#{node[:mconf][:nagios][:dir]}"
     code <<-EOH
-        tar xzf "nsca-#{node[:mconf][:ncsa_version]}.tar.gz"
-        cd "nsca-#{node[:mconf][:ncsa_version]}"
+        tar xzf "nsca-#{node[:nsca][:version]}.tar.gz"
+        cd "nsca-#{node[:nsca][:version]}"
         ./configure
         make
         make install
@@ -58,48 +74,36 @@ script "install_nsca" do
     action :nothing
     interpreter "bash"
     user "root"
-    cwd "/var/mconf/tools/nagios/nsca-#{node[:mconf][:ncsa_version]}"
+    cwd "#{node[:mconf][:nagios][:dir]}/nsca-#{node[:nsca][:version]}"
     code <<-EOH
-    if [ #{node[:mconf][:instance_type]} == "nagios" ]
-    then
-        cp src/nsca /usr/local/nagios/bin/
-        cp sample-config/nsca.cfg /usr/local/nagios/etc/
-        chmod a+r /usr/local/nagios/etc/nsca.cfg
-        # install as XINETD service
-        cp /var/mconf/tools/nagios/$NSCA/sample-config/nsca.xinetd /etc/xinetd.d/nsca
-        sed -i "s:\tonly_from.*:#\0:g" /etc/xinetd.d/nsca
-        chmod a+r /etc/xinetd.d/nsca
-        service xinetd restart
-    else
-        mkdir -p /usr/local/nagios/bin/ /usr/local/nagios/etc/
+        mkdir -p #{node[:nsca][:dir]} #{node[:nsca][:config_dir]}
         chown nagios:nagios -R /usr/local/nagios
-    fi
-
-    cp src/send_nsca /usr/local/nagios/bin/
-    cp sample-config/send_nsca.cfg /usr/local/nagios/etc/
-    chmod a+r /usr/local/nagios/etc/send_nsca.cfg
+        cp src/send_nsca #{node[:nsca][:dir]}
+        cp sample-config/send_nsca.cfg #{node[:nsca][:config_dir]}/
+        chmod a+r #{node[:nsca][:config_dir]}/send_nsca.cfg
     EOH
 end
 
 #performance reporter service definition
-service "performance_reporter" do
+service "performance_report" do
     provider Chef::Provider::Service::Upstart
     subscribes :restart, resources()
     supports :restart => true, :start => true, :stop => true
 end
 
-#performance reporter tamplate creation
-template "performance_report.py" do
+#performance reporter template creation
+template "performance_report upstart" do
     path "/etc/init/performance_report.conf"
     source "performance_report.conf"
     mode "0644"
-    notifies :restart, resources(:service => "performance_reporter")
+    notifies :restart, resources(:service => "performance_report")
 end
 
+=begin
 #add cron job to monitor bbb salt on bbb nodes
 cron "bbb_salt_monitor" do
     minute "5"
-    command "/var/mconf/tools/nagios/check_bbb_salt.sh 2>&1 >> /var/mconf/log/output_check_bbb_salt.txt "
+    command "/var/mconf/tools/nagios/check_bbb_salt.sh 2>&1 >> #{node[:mconf][:log][:path]}/output_check_bbb_salt.txt"
     only_if do 
         "#{node[:mconf][:instance_type]}" == "bigbluebutton" 
     end
@@ -109,4 +113,8 @@ end
 execute "freeswitch_server_up" do
     command "/var/mconf/tools/nagios/server_up.sh #{node[:mconf][:nagios_address]} #{node[:mconf][:instance_type]}"
     only_if do "#{node[:mconf][:instance_type]}" == "freeswitch" end
+=end
+
+execute "server up" do
+  command "/usr/bin/printf \"%s\t%s\t%s\t%s\n\" \"localhost\" \"Server UP\" \"3\" \"#{node[:mconf][:nagios_message]}\" | #{node[:nsca][:dir]}/send_nsca -H #{node[:mconf][:nagios_address]} -c #{node[:nsca][:config_dir]}/send_nsca.cfg"
 end

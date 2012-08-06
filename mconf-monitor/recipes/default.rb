@@ -36,16 +36,6 @@ directory "#{node[:mconf][:nagios][:dir]}" do
   recursive true
 end
 
-#create script files
-%w{ performance_report.py check_bbb_salt.sh daemon.py server_up.sh update.sh }.each do |file|
-    template "#{node[:mconf][:nagios][:dir]}/#{file}" do
-      source file
-      mode 0755
-      owner "mconf"
-      action :create
-    end
-end
-
 #get nsca file from server and call build script if there is a new file
 remote_file "#{node[:mconf][:nagios][:dir]}/nsca-#{node[:nsca][:version]}.tar.gz" do
     source "http://prdownloads.sourceforge.net/sourceforge/nagios/nsca-#{node[:nsca][:version]}.tar.gz"
@@ -96,25 +86,25 @@ template "performance_report upstart" do
     path "/etc/init/performance_report.conf"
     source "performance_report.conf"
     mode "0644"
-    notifies :restart, resources(:service => "performance_report")
+    notifies :restart, resources(:service => "performance_report"), :delayed
 end
 
-=begin
-#add cron job to monitor bbb salt on bbb nodes
-cron "bbb_salt_monitor" do
-    minute "5"
-    command "/var/mconf/tools/nagios/check_bbb_salt.sh 2>&1 >> #{node[:mconf][:log][:path]}/output_check_bbb_salt.txt"
-    only_if do 
-        "#{node[:mconf][:instance_type]}" == "bigbluebutton" 
+#create script files
+%w{ performance_report.py reporter.sh }.each do |file|
+    template "#{node[:mconf][:nagios][:dir]}/#{file}" do
+      source file
+      mode 0755
+      owner "mconf"
+      action :create
+      #if anyone of the scripts changed, restart the reporter service
+      notifies :restart, resources(:service => "performance_report"), :delayed
     end
 end
 
-#send a "server up" signal to the nagios server on a freeswitch node
-execute "freeswitch_server_up" do
-    command "/var/mconf/tools/nagios/server_up.sh #{node[:mconf][:nagios_address]} #{node[:mconf][:instance_type]}"
-    only_if do "#{node[:mconf][:instance_type]}" == "freeswitch" end
-=end
-
 execute "server up" do
-  command "/usr/bin/printf \"%s\t%s\t%s\t%s\n\" \"localhost\" \"Server UP\" \"3\" \"#{node[:mconf][:nagios_message]}\" | #{node[:nsca][:dir]}/send_nsca -H #{node[:mconf][:nagios_address]} -c #{node[:nsca][:config_dir]}/send_nsca.cfg"
+  command "/usr/bin/printf \"%s\t%s\t%s\t%s\n\" \"localhost\" \"Server UP\" \"3\" \"#{node[:mconf][:nagios_message]}\" | #{node[:mconf][:nagios][:dir]}/reporter.sh && echo \"#{node[:mconf][:bbb_url]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_url && echo \"#{node[:mconf][:bbb_salt]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_salt"
+  only_if do
+    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_url") && File.read("#{node[:mconf][:nagios][:dir]}/.bbb_url") != node[:mconf][:bbb_url]))
+    || (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_salt") && File.read("#{node[:mconf][:nagios][:dir]}/.bbb_salt") != node[:mconf][:bbb_salt]))
+  end
 end

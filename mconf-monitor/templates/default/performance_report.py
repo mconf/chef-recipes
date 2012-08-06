@@ -65,15 +65,15 @@ class processesAnalyzer(Thread):
                 processesSortByProc = sorted(processList, key=lambda p: p.get_cpu_percent(interval=0), reverse=True)
                 #to use later. Print top 5 processes on mem and proc usage
                 printProcStatus = False
-                if printProcStatus:
-                    print "sorted by memory usage"
-                    for i, p in zip(range(5),processesSortByMem):
-                        print (" process name: " + str(p.name) + " mem use: " + str(p.get_memory_percent()))
-                    print "\n"
-                    print "sorted by processor usage"
-                    for i, p in zip(range(5),processesSortByProc):
-                        print (" process name: " + str(p.name) + " proc use: " + str(p.get_cpu_percent(interval=0)))
-                    print "\n\n\n\n\n\n\n\n"
+#                if printProcStatus:
+#                    print "sorted by memory usage"
+#                    for i, p in zip(range(5),processesSortByMem):
+#                        print (" process name: " + str(p.name) + " mem use: " + str(p.get_memory_percent()))
+#                    print "\n"
+#                    print "sorted by processor usage"
+#                    for i, p in zip(range(5),processesSortByProc):
+#                        print (" process name: " + str(p.name) + " proc use: " + str(p.get_cpu_percent(interval=0)))
+#                    print "\n\n\n\n\n\n\n\n"
             except psutil.NoSuchProcess:
                 #just to catch the error and avoid killing the thread
                 #the raised error is because the process maybe killed before the get_cpu_percent or get_memory_percent calls
@@ -105,23 +105,8 @@ class Sender(Thread):
     
     def __sendReport(self, service, state, message):
         '''send report to nagios server'''
-        #mount data 
-        send_nsca_dir = "/usr/local/nagios/bin"
-        send_nsca_cfg_dir = "/usr/local/nagios/etc"
-        command = (
-            "/usr/bin/printf \"%s\t%s\t%s\t%s\n\" \"" 
-            + self.config.hostname + "\" \"" 
-            + service + "\" \"" 
-            + str(state) + "\" \"" 
-            + message + "\" | " 
-            + send_nsca_dir + "/send_nsca -H " 
-            + self.config.nagios_server + " -c " 
-            + send_nsca_cfg_dir + "/send_nsca.cfg")
-        commandoutput = commands.getoutput(command)
-        if self.config.debug:
-            print "---------------------------------"
-            print service, state, message
-            print command
+        print "%s\t%s\t%s\t%s\t" % (self.config.hostname, service, str(state), message)
+        sys.stdout.flush()
 
 class Reporter(Thread):
     '''base reporter thread class'''
@@ -249,7 +234,7 @@ class NetworkReporter(Reporter):
         pnic_before = psutil.network_io_counters(pernic=True)
         
         if not pnic_before.has_key(self.config.network_interface):
-            print "Couldn't find the network interface %s" % (self.config.network_interface)
+#            print "Couldn't find the network interface %s" % (self.config.network_interface)
             self.config.network_interface = None
             for i in pnic_before.keys():
                 if i != "lo":
@@ -257,7 +242,7 @@ class NetworkReporter(Reporter):
                     break
             if self.config.network_interface == None:
                 return
-            print "Using %s instead" % (self.config.network_interface)
+#            print "Using %s instead" % (self.config.network_interface)
         stats_before = pnic_before[self.config.network_interface]
  
         while not self.terminate:
@@ -315,18 +300,8 @@ def parse_args():
         required = False,
         help = "set the interval in which the script will send data to the Nagios server, in seconds",
         dest = "send_rate",
-        default = "60",
+        default = "2",
         metavar = "<send_rate>")
-    parser.add_argument("--server",
-        required = True,
-        help = "IP address of the Nagios server",
-        dest = "nagios_server",
-        metavar = "<nagios_server>")
-    parser.add_argument("--debug",
-        required = False,
-        help = "debug mode: print output",
-        dest = "debug",
-        action = "store_true")
     parser.add_argument("--network-warning", required=False, default="70000",
         help="define the warning limit in kbps", dest="network_warning", 
         metavar="<network_warning>")
@@ -355,10 +330,8 @@ def parse_args():
 
 class Configuration:
     def __init__(self, args):
-        self.debug = args.debug
         self.network_interface = args.network_interface
         self.hostname = args.hostname
-        self.nagios_server = args.nagios_server
         self.send_rate = int(args.send_rate)
         self.network_warning = int(args.network_warning)
         self.network_critical = int(args.network_critical)
@@ -371,9 +344,11 @@ class Configuration:
 
 def main_loop(args):
     '''main loop to call all the reporters'''
+    
+if __name__ == '__main__':
     threadsList = []
     
-    config = Configuration(args)
+    config = Configuration(parse_args())
     
     # here we should have the main call to the reporter threads
     threadsList.append(NetworkReporter(config))
@@ -387,26 +362,15 @@ def main_loop(args):
     # start every thread
     for reporterThread in threadsList:
         reporterThread.start()
-
     sender.start()
+    try:
+        raw_input("")
+    except:
+        pass
 
-    raw_input("Press Enter to kill all threads...\n")
-
-    # send kill sign to all threads
     sender.kill()
+    sender.join()
     for reporterThread in threadsList:
         reporterThread.kill()
-    # wait for each thread to finish
-    for reporterThread in threadsList:
         reporterThread.join()
-    
-def main():
-    try:
-        # args
-        args = parse_args()
-        main_loop(args)
-    except (KeyboardInterrupt, SystemExit):
-        pass
-if __name__ == '__main__':
-    main()
 

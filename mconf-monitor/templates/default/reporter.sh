@@ -10,3 +10,4 @@ while read data; do
         echo "$data" | $SEND_NSCA_DIR/send_nsca -H $server -c $SEND_NSCA_CFG_DIR/send_nsca.cfg -to $TIMEOUT
     done
 done
+exit 0

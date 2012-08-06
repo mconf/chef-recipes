@@ -15,9 +15,9 @@ end
 include_recipe "psutil"
 
 if File.exists?("/usr/local/bin/bbb-conf") and node[:mconf][:instance_type] == "bigbluebutton"
-  node.set[:mconf][:hostname] = `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's:URL\\:http\\://\\([^:/]*\\).*:\\1:g'`.chop
-  node.set[:mconf][:bbb_url] =  `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's/URL://g'`.chop
-  node.set[:mconf][:bbb_salt] = `bbb-conf --salt | grep 'Salt' | tr -d ' ' | sed 's/Salt://g'`.chop
+  node.set[:mconf][:hostname] = `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's:URL\\:http\\://\\([^:/]*\\).*:\\1:g'`.chomp
+  node.set[:mconf][:bbb_url] =  `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's/URL://g'`.chomp
+  node.set[:mconf][:bbb_salt] = `bbb-conf --salt | grep 'Salt' | tr -d ' ' | sed 's/Salt://g'`.chomp
 elsif node[:mconf][:instance_type] == "nagios"
   node.set[:mconf][:hostname] = "localhost"
 else
@@ -102,9 +102,10 @@ end
 end
 
 execute "server up" do
+  user "mconf"
   command "/usr/bin/printf \"%s\t%s\t%s\t%s\n\" \"localhost\" \"Server UP\" \"3\" \"#{node[:mconf][:nagios_message]}\" | #{node[:mconf][:nagios][:dir]}/reporter.sh && echo \"#{node[:mconf][:bbb_url]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_url && echo \"#{node[:mconf][:bbb_salt]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_salt"
-  only_if do
-    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_url") && File.read("#{node[:mconf][:nagios][:dir]}/.bbb_url") != node[:mconf][:bbb_url]))
-    || (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_salt") && File.read("#{node[:mconf][:nagios][:dir]}/.bbb_salt") != node[:mconf][:bbb_salt]))
+  not_if do
+    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_url") and File.read("#{node[:mconf][:nagios][:dir]}/.bbb_url").chomp == "#{node[:mconf][:bbb_url]}") and \
+    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_salt") and File.read("#{node[:mconf][:nagios][:dir]}/.bbb_salt").chomp == "#{node[:mconf][:bbb_salt]}")
   end
 end

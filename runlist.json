@@ -5,6 +5,7 @@
     "recipe[psutil::default]",
     "recipe[mconf-monitor::default]",
     "recipe[mconf-node::default]",
+    "recipe[mconf-node::uninstall-depreciated]",
     "recipe[live-notes-server::default]",
     "recipe[mconf-bbb::default]",
     "recipe[mconf-bbb::deploy]",

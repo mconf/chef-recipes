@@ -41,9 +41,9 @@ end
 ruby_block "debug" do
     block do
         if File.exists?("#{node[:mconf][:bbb][:deploy_dir]}/.deployed")
-            log File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "r").read
+            puts File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "r").read
         end
-        log "#{node[:mconf][:bbb][:version]}"
+        puts "#{node[:mconf][:bbb][:version]}"
     end
 end
 

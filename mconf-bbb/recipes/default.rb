@@ -16,69 +16,7 @@ node.set[:tmp][:mconf_bbb][:current_pkg_version] = ""
 node.set[:tmp][:mconf_bbb][:current_deployed_version] = ""
 node.set[:tmp][:mconf_bbb][:deploy_needed] = false
 
-ruby_block "save_current_version" do
-  block do
-    current_pkg_version = ""
-    if File.exists?("#{node[:mconf][:bbb][:deploy_dir]}/.installed_packages")
-      File.open("#{node[:mconf][:bbb][:deploy_dir]}/.installed_packages", "r") do |f|
-        while line = f.gets
-          current_pkg_version += line
-        end
-      end
-    else
-      Chef::Log.debug("The file containing the current installed packages version doesn't exists: #{node[:mconf][:bbb][:deploy_dir]}/.installed_packages");
-    end
-
-    current_deployed_version = ""
-    if File.exists?("#{node[:mconf][:bbb][:deploy_dir]}/.deployed")
-      File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "r") do |f|
-        while line = f.gets
-          current_deployed_version += line
-        end
-      end
-    else
-      Chef::Log.debug("The file containing the current deployed version doesn't exists: #{node[:mconf][:bbb][:deploy_dir]}/.deployed");
-    end
-    
-    node.set[:tmp][:mconf_bbb][:current_pkg_version] = current_pkg_version
-    node.set[:tmp][:mconf_bbb][:current_deployed_version] = current_deployed_version
-#    node.save
-
-    Chef::Log.debug("Current packages version: #{node[:tmp][:mconf_bbb][:current_pkg_version]}")
-    Chef::Log.debug("Current deployed version: #{node[:tmp][:mconf_bbb][:current_deployed_version]}")
-  end
-  action :create
-end
-
 include_recipe "bigbluebutton"
-
-#record installed and deployd versions
-ruby_block "check_deploy" do
-    block do
-        def bigbluebutton_packages_version()
-            pkg_version = ""
-            %w{ bigbluebutton bbb-config bbb-common bbb-web bbb-client bbb-apps bbb-apps-sip bbb-apps-video bbb-apps-deskshare bbb-playback-slides bbb-openoffice-headless bbb-record-core }.each do |pkg|
-                pkg_version += `dpkg -s #{pkg} | grep 'Version' | sed 's:.*\\: \\(.*\\):#{pkg} \\1:g'`
-            end
-            return pkg_version
-        end
-
-        node[:tmp][:mconf_bbb][:new_pkg_version] = bigbluebutton_packages_version()
-        node[:tmp][:mconf_bbb][:deploy_needed] = (node[:tmp][:mconf_bbb][:current_pkg_version] != node[:tmp][:mconf_bbb][:new_pkg_version]) or (node[:tmp][:mconf_bbb][:current_deployed_version] != node[:mconf][:bbb][:version])
-
-        #record installed package versions on filesystem
-        log "installed packages: #{node[:tmp][:mconf_bbb][:new_pkg_version]}"
-        File.open("#{node[:mconf][:bbb][:deploy_dir]}/.installed_packages", "w") do |f|
-            f.write("#{node[:tmp][:mconf_bbb][:new_pkg_version]}")
-        end
-        #record deployed version on filesystem
-        log "deployed: #{node[:mconf][:bbb][:version]}"
-        File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "w") do |f|
-            f.write("#{node[:mconf][:bbb][:version]}")
-        end
-        log "#{node[:tmp][:mconf_bbb][:deploy_needed]}"
-    end
-end
 
 #check if a deploy is needed and set flag if necessary
 file "#{node[:mconf][:bbb][:deploy_dir]}/deploy_needed" do

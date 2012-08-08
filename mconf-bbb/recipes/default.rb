@@ -41,9 +41,9 @@ end
 ruby_block "debug" do
     block do
         if File.exists?("#{node[:mconf][:bbb][:deploy_dir]}/.deployed")
-            puts File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "r").read
+            Chef::Log.info(File.open("#{node[:mconf][:bbb][:deploy_dir]}/.deployed", "r").read)
         end
-        puts "#{node[:mconf][:bbb][:version]}"
+        Chef::Log.info("bbb version: #{node[:mconf][:bbb][:version]}")
     end
 end
 

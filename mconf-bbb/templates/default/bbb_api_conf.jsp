@@ -4,6 +4,6 @@
 String salt = "<%= node[:bbb][:salt] %>";
 
 // This is the URL for the BigBlueButton server
-String BigBlueButtonURL = "<%= node[:bbb][:server_url] %>/bigbluebutton";
+String BigBlueButtonURL = "<%= node[:bbb][:server_url] %>/bigbluebutton/";
 <%= "%\>" %>
 

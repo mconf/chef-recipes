@@ -13,6 +13,8 @@
 end
 
 directory "#{node[:mconf][:log][:path]}" do
+  owner "mconf"
+  group "mconf"
   recursive true
   action :create
 end
@@ -44,11 +46,15 @@ template "/usr/local/bin/live-notes-server" do
 end
 
 directory "#{node[:notes][:notes_server][:path]}" do
+  owner "mconf"
+  group "mconf"
   recursive true
   action :create
 end
 
 git "#{node[:notes][:notes_server][:path]}" do
+  user "mconf"
+  group "mconf"
   repository "git://github.com/mconf/live-notes-server.git"
   reference "master"
   action :sync

@@ -10,6 +10,8 @@ user "mconf" do
 end
 
 directory "#{node[:mconf][:bbb][:deploy_dir]}" do
+  owner "mconf"
+  group "mconf"
   recursive true
   action :create
 end

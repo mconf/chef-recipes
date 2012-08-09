@@ -27,7 +27,7 @@
 	</bean>
 
 	<bean id="web.handler" class="org.bigbluebutton.app.video.VideoApplication">
-		<property name="recordVideoStream" value="<%= node[:bbb][:recording][:video] %>"/>
+		<property name="recordVideoStream" value="<%= @record_video %>"/>
 		<property name="eventRecordingService" ref="redisRecorder"/>
 	</bean>
 

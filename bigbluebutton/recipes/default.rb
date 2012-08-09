@@ -59,7 +59,6 @@ end
 template "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml" do
   source "red5-web-deskshare.xml"
   mode "0644"
-  #\TODO check why the variables aren't working properly
   variables(
     :record_deskshare => node[:bbb][:recording][:deskshare]
   )
@@ -69,7 +68,6 @@ end
 template "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml" do
   source "red5-web-video.xml"
   mode "0644"
-  #\TODO check why the variables aren't working properly
   variables(
     :record_video => node[:bbb][:recording][:video]
   )

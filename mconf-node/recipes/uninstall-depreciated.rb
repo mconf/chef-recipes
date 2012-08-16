@@ -1,16 +1,5 @@
 users = `cat /etc/passwd | cut -d: -f1`.split()
 
-=begin
-%w{ /usr/bin/live-notes-server.sh ~/tools/nagios-etc/cli/performance_report.py ~/tools/nagios-etc/cli/check_bbb_salt.sh }.each do |cmd|
-  users.each do |usr|
-    cron "remove #{cmd} cronjob as #{usr}" do
-      user "#{usr}"
-      command "#{cmd}"
-      action :delete
-    end
-  end
-=end
-
 # remove the cron jobs
 users.each do |usr|
   %w{ /usr/bin/live-notes-server.sh ~/tools/nagios-etc/cli/performance_report.py ~/tools/nagios-etc/cli/check_bbb_salt.sh }.each do |cmd|
@@ -37,11 +26,17 @@ end
   end
 end
 
+=begin
+%w{ /home/mconf/.ivy2/ /home/mconf/.sbt/ }.each do |dir|
+  directory dir do
+    recursive true
+    action :delete
+=end
+
 # remove the source folders
 users.each do |usr|
-  %w{ tools downloads }.each do |dir|
+  %w{ tools downloads .ivy2 .sbt }.each do |dir|
     directory "/home/#{usr}/#{dir}/" do
-      user "root"
       action :delete
       recursive true
     end

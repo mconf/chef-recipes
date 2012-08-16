@@ -12,18 +12,16 @@
   end
 end
 
-directory "#{node[:mconf][:log][:path]}" do
-  owner "mconf"
-  group "mconf"
-  recursive true
-  action :create
-end
-
-directory "#{node[:notes][:xsbt][:path]}" do
-  owner "mconf"
-  group "mconf"
-  recursive true
-  action :create
+[ "#{node[:mconf][:tools][:path]}",
+  "#{node[:mconf][:log][:path]}",
+  "#{node[:notes][:xsbt][:path]}",
+  "#{node[:notes][:notes_server][:path]}" ].each do |dir|
+  directory dir do
+    recursive true
+    owner "mconf"
+    group "mconf"
+    action :create
+  end
 end
 
 git "#{node[:notes][:xsbt][:path]}" do
@@ -36,24 +34,23 @@ end
 
 remote_file "/usr/local/bin/sbt-launch.jar" do
   source "#{node[:notes][:sbt_launch][:url]}"
+  owner "mconf"
+  group "mconf"
   mode "0644"
 end
 
-template "/usr/local/bin/sbt" do
+cookbook_file "/usr/local/bin/sbt" do
   source "sbt"
+  owner "mconf"
+  group "mconf"
   mode "0755"
 end
 
 template "/usr/local/bin/live-notes-server" do
   source "live-notes-server"
-  mode "0755"
-end
-
-directory "#{node[:notes][:notes_server][:path]}" do
   owner "mconf"
   group "mconf"
-  recursive true
-  action :create
+  mode "0755"
 end
 
 git "#{node[:notes][:notes_server][:path]}" do

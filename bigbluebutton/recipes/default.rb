@@ -9,6 +9,17 @@
 include_recipe "ruby-1.9.2"
 include_recipe "apt"
 
+link "/usr/bin/ruby1.9.2" do
+  to "/usr/local/bin/ruby"
+end
+
+%w( god ).each do |g|
+  gem_package g do
+    action :install
+    gem_binary('/usr/local/bin/gem')
+  end
+end
+
 # add ubuntu repo
 apt_repository "ubuntu" do
   uri "http://archive.ubuntu.com/ubuntu/"

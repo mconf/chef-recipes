@@ -26,13 +26,6 @@ end
   end
 end
 
-=begin
-%w{ /home/mconf/.ivy2/ /home/mconf/.sbt/ }.each do |dir|
-  directory dir do
-    recursive true
-    action :delete
-=end
-
 # remove the source folders
 users.each do |usr|
   %w{ tools downloads .ivy2 .sbt }.each do |dir|

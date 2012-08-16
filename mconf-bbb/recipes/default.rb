@@ -22,7 +22,6 @@ include_recipe "bigbluebutton"
 file "#{node[:mconf][:bbb][:deploy_dir]}/.deploy_needed" do
     owner "mconf"
     group "mconf"
-    mode "0755"
     action :nothing
     subscribes :create, resources("package[bigbluebutton]") , :immediately
 end
@@ -30,9 +29,8 @@ end
 file "#{node[:mconf][:bbb][:deploy_dir]}/.deploy_needed" do
     owner "mconf"
     group "mconf"
-    mode "0755"
-    action :nothing
-    only_if do 
+    action :create
+    not_if do 
         File.exists?("#{node[:mconf][:bbb][:deploy_dir]}/.deployed") && File.read("#{node[:mconf][:bbb][:deploy_dir]}/.deployed") != "#{node[:mconf][:bbb][:version]}"
     end
 end
@@ -42,8 +40,14 @@ ruby_block "define properties" do
         properties = Hash[File.read('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
 
         node.set[:bbb][:server_url] = properties["bigbluebutton.web.serverURL"]
+        node.set[:bbb][:server_addr] = properties["bigbluebutton.web.serverURL"].gsub("http://", "")
         node.set[:bbb][:server_domain] = properties["bigbluebutton.web.serverURL"].gsub("http://", "").split(":")[0]
         node.set[:bbb][:salt] = properties["securitySalt"]
+        
+        Chef::Log.info("node[:bbb][:server_url] = #{node[:bbb][:server_url]}")
+        Chef::Log.info("node[:bbb][:bbb][:server_addr] = #{node[:bbb][:server_addr]}")
+        Chef::Log.info("node[:bbb][:server_domain] = #{node[:bbb][:server_domain]}")
+        Chef::Log.info("node[:bbb][:bbb][:salt] = #{node[:bbb][:salt]}")
     end
 end
 

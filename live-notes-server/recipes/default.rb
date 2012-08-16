@@ -20,6 +20,8 @@ directory "#{node[:mconf][:log][:path]}" do
 end
 
 directory "#{node[:notes][:xsbt][:path]}" do
+  owner "mconf"
+  group "mconf"
   recursive true
   action :create
 end
@@ -27,6 +29,8 @@ end
 git "#{node[:notes][:xsbt][:path]}" do
   repository "git://github.com/harrah/xsbt.git"
   reference "v#{node[:notes][:xsbt][:version]}"
+  user "mconf"
+  group "mconf"
   action :sync
 end
 
@@ -53,10 +57,10 @@ directory "#{node[:notes][:notes_server][:path]}" do
 end
 
 git "#{node[:notes][:notes_server][:path]}" do
-  user "mconf"
-  group "mconf"
   repository "git://github.com/mconf/live-notes-server.git"
   reference "master"
+  user "mconf"
+  group "mconf"
   action :sync
 end
 

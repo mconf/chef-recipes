@@ -89,6 +89,7 @@ template "performance_report upstart" do
     notifies :restart, resources(:service => "performance_report"), :delayed
 end
 
+=begin
 #create script files
 %w{ performance_report.py reporter.sh }.each do |file|
     template "#{node[:mconf][:nagios][:dir]}/#{file}" do
@@ -99,6 +100,22 @@ end
       #if anyone of the scripts changed, restart the reporter service
       notifies :restart, resources(:service => "performance_report"), :delayed
     end
+=end
+
+template "#{node[:mconf][:nagios][:dir]}/reporter.sh" do
+  source "reporter.sh"
+  mode 0755
+  owner "mconf"
+  action :create
+  notifies :restart, resources(:service => "performance_report"), :delayed
+end
+
+cookbook_file "#{node[:mconf][:nagios][:dir]}/performance_report.py" do
+  source "performance_report.py"
+  mode 0755
+  owner "mconf"
+  action :create
+  notifies :restart, resources(:service => "performance_report"), :delayed
 end
 
 execute "server up" do

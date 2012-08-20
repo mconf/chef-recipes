@@ -14,6 +14,8 @@ import argparse
 import psutil
 from threading import Thread
 import json
+import signal
+import sys
 
 # Exit statuses recognized by Nagios
 NAGIOS_OK = 0
@@ -342,9 +344,17 @@ class Configuration:
         self.disk_warning = int(args.disk_warning)
         self.disk_critical = int(args.disk_critical)
 
-def main_loop(args):
-    '''main loop to call all the reporters'''
-    
+# http://stackoverflow.com/questions/1112343/how-do-i-capture-sigint-in-python
+def signal_handler(signal, frame):
+    print '\nYou pressed Ctrl+C!'
+    sender.kill()
+    for reporterThread in threadsList:
+        reporterThread.kill()
+    sender.join()
+    for reporterThread in threadsList:
+        reporterThread.join()
+    sys.exit(0)
+        
 if __name__ == '__main__':
     threadsList = []
     
@@ -363,14 +373,8 @@ if __name__ == '__main__':
     for reporterThread in threadsList:
         reporterThread.start()
     sender.start()
-    try:
-        raw_input("")
-    except:
-        pass
-
-    sender.kill()
-    sender.join()
-    for reporterThread in threadsList:
-        reporterThread.kill()
-        reporterThread.join()
-
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    print 'Press Ctrl+C'
+    signal.pause()
+    

@@ -46,20 +46,13 @@ execute "apt-get update" do
   action :run
 end
 
-ruby_block "restart-bigbluebutton" do
-  block do
-    node.set["restart_bigbluebutton"] = true
-  end
-  action :nothing
-end
-
 package "bigbluebutton" do
   # we won't use the version for bigbluebutton and bbb-demo because the BigBlueButton
   # folks don't keep the older versions
 #  version node[:bigbluebutton][:version]
   response_file "bigbluebutton.seed"
   action :install
-  notifies :create, "ruby_block[restart-bigbluebutton]", :immediately
+  notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
 package "bbb-demo" do
@@ -73,7 +66,7 @@ template "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml" do
   variables(
     :record_deskshare => node[:bbb][:recording][:deskshare]
   )
-  notifies :create, "ruby_block[restart-bigbluebutton]", :immediately
+  notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
 template "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml" do
@@ -82,18 +75,12 @@ template "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml" do
   variables(
     :record_video => node[:bbb][:recording][:video]
   )
-  notifies :create, "ruby_block[restart-bigbluebutton]", :immediately
+  notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
-execute "restart" do
+execute "restart bigbluebutton" do
   user "root"
   command "bbb-conf --clean"
-  only_if { node[:restart_bigbluebutton] }
+  action :nothing
 end
 
-ruby_block "remove-flag" do
-  block do
-    node.set["restart_bigbluebutton"] = false
-  end
-  action :create
-end

@@ -6,6 +6,6 @@
 # All rights reserved - Do Not Redistribute
 #
 
-include_recipe "mconf-bbb"
 include_recipe "mconf-monitor"
+include_recipe "mconf-bbb"
 

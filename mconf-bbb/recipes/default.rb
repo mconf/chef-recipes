@@ -85,13 +85,13 @@ end
 cookbook_file "/var/www/bigbluebutton-default/mconf-default.pdf" do
   source "mconf-default.pdf"
   mode "0644"
-  notifies :restart, "service[tomcat6]", :delayed
 end
 
 { "bigbluebutton-sip.properties" => "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties" }.each do |k,v|
   template "#{v}" do
     source "#{k}"
     mode "0644"
+    notifies :run, "execute[restart bigbluebutton]", :delayed
   end
 end
 
@@ -103,6 +103,7 @@ end
     group "daemon"
     owner "freeswitch"
     mode "0755"
+    notifies :run, "execute[restart bigbluebutton]", :delayed
   end
 end
 

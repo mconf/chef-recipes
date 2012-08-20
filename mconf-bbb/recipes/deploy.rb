@@ -65,6 +65,19 @@ node[:bbb][:modules].each do |name|
   end
 end
 
+ruby_block "sleep until demo is deployed" do
+  block do
+    FileUtils.rm_rf "#{node[:bbb][:demo][:deploy_dir]}/demo"
+    %x(service tomcat6 start)
+    count = 15
+    while not File.exists?("#{node[:bbb][:demo][:deploy_dir]}/demo") and count > 0 do
+      sleep 1.0
+      count -= 1
+    end
+  end
+  only_if do File.exists?("#{node[:mconf][:bbb][:deploy_dir]}/.deploy_needed") end
+end
+
 #register deployed version
 file "#{node[:mconf][:bbb][:deploy_dir]}/.deployed" do
   action :create
@@ -75,11 +88,11 @@ execute "bbb-conf --setsalt #{node[:bbb][:salt]}; bbb-conf --setip #{node[:bbb][
   user "root"
   action :run
   only_if do File.exists?("#{node[:mconf][:bbb][:deploy_dir]}/.deploy_needed") end
+    notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
-=begin
 #delete deploy flag after deployement
 file "#{node[:mconf][:bbb][:deploy_dir]}/.deploy_needed" do
   action :delete
-=end
+end
 

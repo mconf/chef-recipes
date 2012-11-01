@@ -7,8 +7,8 @@
     "recipe[mconf-node::default]",
     "recipe[mconf-node::uninstall-depreciated]",
     "recipe[live-notes-server::default]",
-    "recipe[mconf-bbb::default]",
-    "recipe[mconf-bbb::deploy]",
+    "recipe[mconf-live::default]",
+    "recipe[mconf-live::deploy]",
     "recipe[vim::default]",
     "recipe[build-essential::default]",
     "recipe[ruby-1.9.2::default]"

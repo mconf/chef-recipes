@@ -7,5 +7,5 @@
 #
 
 include_recipe "mconf-monitor"
-include_recipe "mconf-bbb"
+include_recipe "mconf-live"
 

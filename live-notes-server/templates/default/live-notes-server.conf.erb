@@ -10,7 +10,7 @@ respawn
 
 env USER=mconf
 env APP=/usr/local/bin/live-notes-server
-env LOGFILE="<%= node[:mconf][:log][:path] %>/live-notes-server.log"
+env LOGFILE="<%= node[:mconf][:log][:dir] %>/live-notes-server.log"
 env PIDFILE="/var/run/live-notes-server.pid"
 
 script

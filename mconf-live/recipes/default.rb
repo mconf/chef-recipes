@@ -5,62 +5,50 @@
 #
 # All rights reserved - Do Not Redistribute
 
-user "mconf" do
-  action :create  
-end
+include_recipe "bigbluebutton"
+include_recipe "live-notes-server"
 
 directory "#{node[:mconf][:live][:deploy_dir]}" do
-  owner "mconf"
-  group "mconf"
+  owner "#{node[:mconf][:user]}"
   recursive true
   action :create
 end
 
-include_recipe "bigbluebutton"
+t = ruby_block "print conditions to deploy" do
+    block do
+        Chef::Log.info("Force deploy? #{node[:mconf][:live][:force_deploy]}")
+        if File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed")
+            Chef::Log.info(".deployed content? " + File.read("#{node[:mconf][:live][:deploy_dir]}/.deployed"))
+        else
+            Chef::Log.info(".deployed doesn't exist")
+        end
+        Chef::Log.info("Version to deploy? #{node[:mconf][:live][:version]}")
+    end
+    action :create
+end
 
-#check if a deploy is needed and set flag if necessary
-file "#{node[:mconf][:live][:deploy_dir]}/.deploy_needed" do
-    owner "mconf"
-    group "mconf"
-    action :nothing
+Chef::Log.info("Printed during Ruby pass:")
+t.run_action(:create)
+
+# conditions to trigger the deploy procedure
+# - forced by an attribute
+# - deployed version file doesn't exist
+# - file exists but the deployed version is different than the current version
+file "create deploy flag" do
+    path "#{node[:mconf][:live][:deploy_dir]}/.deploy_needed"
+    owner "#{node[:mconf][:user]}"
+    action :create
+    only_if do "#{node[:mconf][:live][:force_deploy]}" == "true" or not File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed") or (File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed") and File.read("#{node[:mconf][:live][:deploy_dir]}/.deployed") != "#{node[:mconf][:live][:version]}") end
     subscribes :create, resources("package[bigbluebutton]"), :immediately
 end
 
-file "#{node[:mconf][:live][:deploy_dir]}/.deploy_needed" do
-    owner "mconf"
-    group "mconf"
-    action :create
-    not_if do 
-        File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed") && File.read("#{node[:mconf][:live][:deploy_dir]}/.deployed") != "#{node[:mconf][:live][:version]}" && "#{node[:mconf][:live][:deploy_dir]}" != "true"
-    end
-end
-
-p = ruby_block "define properties" do
-    block do
-        if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
-            properties = Hash[File.read('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
-
-            node.set[:bbb][:server_url] = properties["bigbluebutton.web.serverURL"]
-            node.set[:bbb][:server_addr] = properties["bigbluebutton.web.serverURL"].gsub("http://", "")
-            node.set[:bbb][:server_domain] = properties["bigbluebutton.web.serverURL"].gsub("http://", "").split(":")[0]
-            node.set[:bbb][:salt] = properties["securitySalt"]
-            
-            Chef::Log.info("node[:bbb][:server_url] = #{node[:bbb][:server_url]}")
-            Chef::Log.info("node[:bbb][:server_addr] = #{node[:bbb][:server_addr]}")
-            Chef::Log.info("node[:bbb][:server_domain] = #{node[:bbb][:server_domain]}")
-            Chef::Log.info("node[:bbb][:salt] = #{node[:bbb][:salt]}")
-        end
-    end
-    action :create
-end
-
-# it will make this block to execute before the others
-if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
-    p.run_action(:create)
-end
-
-include_recipe "live-notes-server"
 include_recipe "mconf-live::deploy"
+
+# delete deploy flag after deployement
+file "delete flag after the deploy" do
+    path "#{node[:mconf][:live][:deploy_dir]}/.deploy_needed"
+    action :delete
+end
 
 service "tomcat6"
 
@@ -87,6 +75,7 @@ end
     )
     # if the file is modified, restart tomcat
     notifies :restart, "service[tomcat6]", :delayed
+    only_if do File.exists?(File.dirname("#{v}")) end
   end
 end
 
@@ -114,4 +103,3 @@ end
     notifies :run, "execute[restart bigbluebutton]", :delayed
   end
 end
-

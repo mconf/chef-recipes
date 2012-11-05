@@ -5,13 +5,6 @@
 #
 # All rights reserved - Do Not Redistribute
 
-directory "#{node[:mconf][:live][:deploy_dir]}" do
-    owner "mconf"
-    group "mconf"
-    recursive true
-    action :create
-end
-
 execute "bbb-conf --stop" do
   user "root"
   action :run
@@ -21,10 +14,11 @@ end
 remote_file "#{Chef::Config[:file_cache_path]}/#{node[:mconf][:live][:file]}" do
   source "#{node[:mconf][:live][:url]}"
   mode "0644"
+  only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
 end
 
 execute "untar mconf-live" do
-  user "mconf"
+  user "#{node[:mconf][:user]}"
   cwd "#{Chef::Config[:file_cache_path]}"
   command "tar xzf #{node[:mconf][:live][:file]} --directory #{node[:mconf][:live][:deploy_dir]}/"
   action :run
@@ -96,21 +90,17 @@ ruby_block "sleep until bigbluebutton-web is deployed" do
   only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
 end
 
-#register deployed version
+# register deployed version
 file "#{node[:mconf][:live][:deploy_dir]}/.deployed" do
   action :create
   content "#{node[:mconf][:live][:version]}"
 end
 
+# restore salt and IP
 execute "bbb-conf --setsalt #{node[:bbb][:salt]} && bbb-conf --setip #{node[:bbb][:server_addr]}" do
     user "root"
     action :run
     only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
     notifies :run, "execute[restart bigbluebutton]", :delayed
-end
-
-#delete deploy flag after deployement
-file "#{node[:mconf][:live][:deploy_dir]}/.deploy_needed" do
-    action :delete
 end
 

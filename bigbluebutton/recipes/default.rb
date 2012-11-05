@@ -55,9 +55,39 @@ package "bigbluebutton" do
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
-package "bbb-demo" do
-#  version node[:bbb_demo][:version]
-  action :install
+p = ruby_block "define properties" do
+    block do
+        if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
+            properties = Hash[File.read('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
+
+            node.set[:bbb][:server_url] = properties["bigbluebutton.web.serverURL"]
+            node.set[:bbb][:server_addr] = properties["bigbluebutton.web.serverURL"].gsub("http://", "")
+            node.set[:bbb][:server_domain] = properties["bigbluebutton.web.serverURL"].gsub("http://", "").split(":")[0]
+            node.set[:bbb][:salt] = properties["securitySalt"]
+            
+            Chef::Log.info("node[:bbb][:server_url] = #{node[:bbb][:server_url]}")
+            Chef::Log.info("node[:bbb][:server_addr] = #{node[:bbb][:server_addr]}")
+            Chef::Log.info("node[:bbb][:server_domain] = #{node[:bbb][:server_domain]}")
+            Chef::Log.info("node[:bbb][:salt] = #{node[:bbb][:salt]}")
+        end
+    end
+    action :create
+end
+
+# it will make this block to execute before the others
+if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
+    p.run_action(:create)
+end
+
+if node[:bigbluebutton][:demo] == "enabled"
+    package "bbb-demo" do
+#        version node[:bbb_demo][:version]
+        action :install
+    end
+else
+    package "bbb-demo" do
+        action :purge
+    end
 end
 
 template "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml" do

@@ -6,14 +6,15 @@
 # All rights reserved - Do Not Redistribute
 #
 
+include_recipe "psutil"
+
 %w{ "zlib1g-dev" "git-core" "python-dev" "python-argparse" "subversion" "libmcrypt4" }.each do |pkg|
   package pkg do
     action :install
   end
 end
 
-include_recipe "psutil"
-
+#\TODO remove this, since it's done on the BigBlueButton recipe
 if File.exists?("/usr/local/bin/bbb-conf") and node[:mconf][:instance_type] == "bigbluebutton"
   node.set[:mconf][:hostname] = `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's:URL\\:http\\://\\([^:/]*\\).*:\\1:g'`.chomp
   node.set[:mconf][:bbb_url] =  `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's/URL://g'`.chomp
@@ -31,8 +32,7 @@ else
 end
 
 directory "#{node[:mconf][:nagios][:dir]}" do
-  mode "0775"
-  owner "mconf"
+  owner "#{node[:mconf][:user]}"
   recursive true
 end
 
@@ -89,23 +89,10 @@ template "performance_report upstart" do
     notifies :restart, resources(:service => "performance_report"), :delayed
 end
 
-=begin
-#create script files
-%w{ performance_report.py reporter.sh }.each do |file|
-    template "#{node[:mconf][:nagios][:dir]}/#{file}" do
-      source file
-      mode 0755
-      owner "mconf"
-      action :create
-      #if anyone of the scripts changed, restart the reporter service
-      notifies :restart, resources(:service => "performance_report"), :delayed
-    end
-=end
-
 template "#{node[:mconf][:nagios][:dir]}/reporter.sh" do
   source "reporter.sh"
   mode 0755
-  owner "mconf"
+  owner "#{node[:mconf][:user]}"
   action :create
   notifies :restart, resources(:service => "performance_report"), :delayed
 end
@@ -113,13 +100,13 @@ end
 cookbook_file "#{node[:mconf][:nagios][:dir]}/performance_report.py" do
   source "performance_report.py"
   mode 0755
-  owner "mconf"
+  owner "#{node[:mconf][:user]}"
   action :create
   notifies :restart, resources(:service => "performance_report"), :delayed
 end
 
 execute "server up" do
-  user "mconf"
+  user "#{node[:mconf][:user]}"
   command "/usr/bin/printf \"%s\t%s\t%s\t%s\n\" \"localhost\" \"Server UP\" \"3\" \"#{node[:mconf][:nagios_message]}\" | #{node[:mconf][:nagios][:dir]}/reporter.sh && echo \"#{node[:mconf][:bbb_url]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_url && echo \"#{node[:mconf][:bbb_salt]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_salt"
   not_if do
     (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_url") and File.read("#{node[:mconf][:nagios][:dir]}/.bbb_url").chomp == "#{node[:mconf][:bbb_url]}") and \

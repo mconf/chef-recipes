@@ -1,28 +1,26 @@
-package "python"
-package "python-dev"
-package "subversion"
-package "gcc"
+%w{ python python-dev subversion gcc }.each do |pkg|
+  package pkg do
+    action :install
+  end
+end
 
-directory "/var/mconf/tools/psutil" do
-  mode "0775"
-  owner "mconf"
+directory "#{Chef::Config[:file_cache_path]}/psutil" do
+  owner "root"
   recursive true
 end
 
-#get psutil source
-subversion "psutil_get_source" do
+subversion "get psutil source code" do
     repository "http://psutil.googlecode.com/svn/trunk"
 #    revision "HEAD"
     revision "1400"
-    destination "/var/mconf/tools/psutil/"
+    destination "#{Chef::Config[:file_cache_path]}/psutil/"
     action :sync
-    notifies :run, 'execute[psutil_install]', :immediately
+    notifies :run, 'execute[install psutil]', :immediately
 end
 
-#install psutil as root
-execute "psutil_install" do
+execute "install psutil" do
     action :nothing
     user "root"
-    cwd "/var/mconf/tools/psutil/"
+    cwd "#{Chef::Config[:file_cache_path]}/psutil/"
     command "python setup.py install"
 end

@@ -7,4 +7,4 @@ version          "0.0.1"
 supports         "ubuntu", "= 10.04"
 depends          "bigbluebutton"
 depends          "live-notes-server"
-
+depends          "mconf-node::base"

@@ -1,0 +1,30 @@
+{
+    "name": "mconf-node",
+    "description": "This role is to install and update a Mconf-Node",
+    "json_class": "Chef::Role",
+    "chef_type": "role",
+    "default_attributes": {
+        "mconf": {
+            "dir": "/var/mconf",
+            "user": "mconf",
+            "log": {
+                "dir": "/var/mconf/log"
+            },
+            "tools": {
+                "dir": "/var/mconf/tools"
+            },
+            "live": {
+                "deploy_dir": "/var/mconf/deploy/mconf-live",
+                "force_deploy": "false"
+            }
+        },
+        "bigbluebutton": {
+            "demo": "enabled"
+        }
+    },
+    "run_list": [
+        "role[standalone-mconf-node]",
+        "recipe[mconf-monitor]"
+    ]
+}
+

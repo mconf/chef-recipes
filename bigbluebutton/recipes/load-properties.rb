@@ -1,0 +1,34 @@
+p = ruby_block "define bigbluebutton properties" do
+    block do
+        if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
+            properties = Hash[File.read('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
+
+            # node[:bbb][:server_url] = "http://<SERVER_IP>:<SERVER_PORT>"
+            if not node[:bbb][:ip].nil? and not "#{node[:bbb][:ip]}".empty?
+                node.set[:bbb][:server_url] = "http://#{node[:bbb][:ip]}"
+            else
+                node.set[:bbb][:server_url] = "http://#{node[:ipaddress]}"
+            end
+            
+            # node[:bbb][:server_addr] = "<SERVER_IP>:<SERVER_PORT>"
+            node.set[:bbb][:server_addr] = node[:bbb][:server_url].gsub("http://", "")
+            # node[:bbb][:server_domain] = "<SERVER_IP>"
+            node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
+            node.set[:bbb][:salt] = properties["securitySalt"]
+            node.set[:bbb][:setsalt_needed] = ("#{node[:bbb][:server_url]}" != properties["bigbluebutton.web.serverURL"])
+            
+            Chef::Log.info("server_url    : #{node[:bbb][:server_url]}")
+            Chef::Log.info("server_addr   : #{node[:bbb][:server_addr]}")
+            Chef::Log.info("server_domain : #{node[:bbb][:server_domain]}")
+            Chef::Log.info("salt          : #{node[:bbb][:salt]}")
+            Chef::Log.info("--setip needed? #{node[:bbb][:setsalt_needed]}")
+        end
+    end
+    action :create
+end
+
+# it will make this block to execute before the others
+if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
+    p.run_action(:create)
+end
+

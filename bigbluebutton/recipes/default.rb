@@ -49,37 +49,15 @@ end
 package "bigbluebutton" do
   # we won't use the version for bigbluebutton and bbb-demo because the BigBlueButton
   # folks don't keep the older versions
-#  version node[:bigbluebutton][:version]
+#  version node[:bbb][:version]
   response_file "bigbluebutton.seed"
   action :install
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
-p = ruby_block "define properties" do
-    block do
-        if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
-            properties = Hash[File.read('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
+include_recipe "bigbluebutton::load-properties"
 
-            node.set[:bbb][:server_url] = properties["bigbluebutton.web.serverURL"]
-            node.set[:bbb][:server_addr] = properties["bigbluebutton.web.serverURL"].gsub("http://", "")
-            node.set[:bbb][:server_domain] = properties["bigbluebutton.web.serverURL"].gsub("http://", "").split(":")[0]
-            node.set[:bbb][:salt] = properties["securitySalt"]
-            
-            Chef::Log.info("node[:bbb][:server_url] = #{node[:bbb][:server_url]}")
-            Chef::Log.info("node[:bbb][:server_addr] = #{node[:bbb][:server_addr]}")
-            Chef::Log.info("node[:bbb][:server_domain] = #{node[:bbb][:server_domain]}")
-            Chef::Log.info("node[:bbb][:salt] = #{node[:bbb][:salt]}")
-        end
-    end
-    action :create
-end
-
-# it will make this block to execute before the others
-if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
-    p.run_action(:create)
-end
-
-if node[:bigbluebutton][:demo] == "enabled"
+if node[:bbb][:demo] == "enabled"
     package "bbb-demo" do
 #        version node[:bbb_demo][:version]
         action :install
@@ -106,6 +84,13 @@ template "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml" do
     :record_video => node[:bbb][:recording][:video]
   )
   notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+
+execute "set bigbluebutton ip" do
+    user "root"
+    command "bbb-conf --setip #{node[:bbb][:server_addr]}; exit 0"
+    action :run
+    only_if do "#{node[:bbb][:setsalt_needed]}" == "true" end
 end
 
 execute "restart bigbluebutton" do

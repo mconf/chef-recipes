@@ -5,14 +5,14 @@
 #
 # All rights reserved - Do Not Redistribute
 
-include_recipe "bigbluebutton"
-include_recipe "live-notes-server"
-
 directory "#{node[:mconf][:live][:deploy_dir]}" do
   owner "#{node[:mconf][:user]}"
   recursive true
   action :create
 end
+
+include_recipe "bigbluebutton"
+include_recipe "live-notes-server"
 
 t = ruby_block "print conditions to deploy" do
     block do

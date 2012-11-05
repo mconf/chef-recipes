@@ -8,28 +8,31 @@
 
 include_recipe "psutil"
 
-%w{ "zlib1g-dev" "git-core" "python-dev" "python-argparse" "subversion" "libmcrypt4" }.each do |pkg|
+%w{ zlib1g-dev git-core python-dev python-argparse subversion libmcrypt4 }.each do |pkg|
   package pkg do
     action :install
   end
 end
 
-#\TODO remove this, since it's done on the BigBlueButton recipe
-if File.exists?("/usr/local/bin/bbb-conf") and node[:mconf][:instance_type] == "bigbluebutton"
-  node.set[:mconf][:hostname] = `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's:URL\\:http\\://\\([^:/]*\\).*:\\1:g'`.chomp
-  node.set[:mconf][:bbb_url] =  `bbb-conf --salt | grep 'URL' | tr -d ' ' | sed 's/URL://g'`.chomp
-  node.set[:mconf][:bbb_salt] = `bbb-conf --salt | grep 'Salt' | tr -d ' ' | sed 's/Salt://g'`.chomp
-elsif node[:mconf][:instance_type] == "nagios"
-  node.set[:mconf][:hostname] = "localhost"
-else
-  node.set[:mconf][:hostname] = node[:ipaddress]
+include_recipe "bigbluebutton::load-properties"
+
+t = ruby_block "set nagios properties" do
+    block do
+        if node[:mconf][:instance_type] == "bigbluebutton"
+            node.set[:mconf][:hostname] = "#{node[:bbb][:server_domain]}"
+            node.set[:mconf][:nagios_message] = "#{node[:mconf][:instance_type]} #{node[:bbb][:server_url]}/bigbluebutton/ #{node[:bbb][:salt]}"
+        else
+            if node[:mconf][:instance_type] == "nagios"
+                node.set[:mconf][:hostname] = "localhost"
+            else
+                node.set[:mconf][:hostname] = node[:ipaddress]
+            end
+            node.set[:mconf][:nagios_message] = "#{node[:mconf][:instance_type]}"
+        end
+    end
 end
 
-if node[:mconf][:instance_type] == "bigbluebutton"
-  node.set[:mconf][:nagios_message] = "#{node[:mconf][:instance_type]} #{node[:mconf][:bbb_url]} #{node[:mconf][:bbb_salt]}"
-else
-  node.set[:mconf][:nagios_message] = "#{node[:mconf][:instance_type]}"
-end
+t.run_action(:create)
 
 directory "#{node[:mconf][:nagios][:dir]}" do
   owner "#{node[:mconf][:user]}"
@@ -107,9 +110,9 @@ end
 
 execute "server up" do
   user "#{node[:mconf][:user]}"
-  command "/usr/bin/printf \"%s\t%s\t%s\t%s\n\" \"localhost\" \"Server UP\" \"3\" \"#{node[:mconf][:nagios_message]}\" | #{node[:mconf][:nagios][:dir]}/reporter.sh && echo \"#{node[:mconf][:bbb_url]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_url && echo \"#{node[:mconf][:bbb_salt]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_salt"
+  command "/usr/bin/printf \"%s\t%s\t%s\t%s\n\" \"localhost\" \"Server UP\" \"3\" \"#{node[:mconf][:nagios_message]}\" | #{node[:mconf][:nagios][:dir]}/reporter.sh && echo \"#{node[:bbb][:server_url]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_url && echo \"#{node[:bbb][:salt]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_salt"
   not_if do
-    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_url") and File.read("#{node[:mconf][:nagios][:dir]}/.bbb_url").chomp == "#{node[:mconf][:bbb_url]}") and \
-    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_salt") and File.read("#{node[:mconf][:nagios][:dir]}/.bbb_salt").chomp == "#{node[:mconf][:bbb_salt]}")
+    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_url") and File.read("#{node[:mconf][:nagios][:dir]}/.bbb_url").chomp == "#{node[:bbb][:server_url]}") and \
+    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_salt") and File.read("#{node[:mconf][:nagios][:dir]}/.bbb_salt").chomp == "#{node[:bbb][:salt]}")
   end
 end

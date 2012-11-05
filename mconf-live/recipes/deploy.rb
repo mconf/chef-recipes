@@ -27,9 +27,10 @@ end
 
 ruby_block "deploy apps" do
     block do
-        %w{ "bigbluebutton" "video" "deskshare" "sip" }.each do |app|
+        %w{ bigbluebutton video deskshare sip }.each do |app|
             if File.exists?("#{node[:mconf][:live][:deploy_dir]}/apps/#{app}")
-                FileUtils.remove_entry_secure "/usr/share/red5/webapps/#{app}", :force => true
+                Chef::Log.info("Deploying red5 app: #{app}")
+                FileUtils.remove_entry_secure "/usr/share/red5/webapps/#{app}", :force => true, :verbose => true
                 FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/apps/#{app}", "/usr/share/red5/webapps/"
             end
         end
@@ -40,7 +41,8 @@ end
 ruby_block "deploy client" do
     block do
         if File.exists?("#{node[:mconf][:live][:deploy_dir]}/client")
-            FileUtils.remove_entry_secure "/var/www/bigbluebutton/client", :force => true
+            Chef::Log.info("Deploying client")
+            FileUtils.remove_entry_secure "/var/www/bigbluebutton/client/", :force => true, :verbose => true
             FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/client", "/var/www/bigbluebutton/"
         end
     end
@@ -50,6 +52,7 @@ end
 ruby_block "deploy config" do
     block do
         if File.exists?("#{node[:mconf][:live][:deploy_dir]}/config")
+            Chef::Log.info("Deploying config")
             FileUtils.cp_r Dir.glob("#{node[:mconf][:live][:deploy_dir]}/config/*"), "/usr/local/bin/"
         end
     end
@@ -59,8 +62,9 @@ end
 ruby_block "deploy demo" do
     block do
         if File.exists?("#{node[:mconf][:live][:deploy_dir]}/demo") && File.exists?("/var/lib/tomcat6/webapps/demo/")
-            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo.war", :force => true
-            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo", :force => true
+            Chef::Log.info("Deploying demo")
+            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo.war", :force => true, :verbose => true
+            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo/", :force => true, :verbose => true
             FileUtils.cp_r Dir.glob("#{node[:mconf][:live][:deploy_dir]}/demo/*"), "/var/lib/tomcat6/webapps/"
         end
     end
@@ -70,8 +74,9 @@ end
 ruby_block "deploy web" do
     block do
         if File.exists?("#{node[:mconf][:live][:deploy_dir]}/web") && File.exists?("/var/lib/tomcat6/webapps/bigbluebutton/")
-            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/bigbluebutton.war", :force => true
-            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/bigbluebutton", :force => true
+            Chef::Log.info("Deploying bigbluebutton-web")
+            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/bigbluebutton.war", :force => true, :verbose => true
+            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/bigbluebutton/", :force => true, :verbose => true
             FileUtils.cp_r Dir.glob("#{node[:mconf][:live][:deploy_dir]}/web/*"), "/var/lib/tomcat6/webapps/"
         end
     end

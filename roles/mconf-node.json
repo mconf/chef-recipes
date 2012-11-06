@@ -19,11 +19,14 @@
             }
         },
         "bbb": {
-            "demo": "enabled"
+            "demo": "enabled",
+            "ip": ""
         }
     },
     "run_list": [
-        "role[standalone-mconf-node]",
+        "recipe[mconf-node::uninstall-depreciated]",
+        "recipe[mconf-node::base]",
+        "recipe[mconf-live]",
         "recipe[mconf-monitor]"
     ]
 }

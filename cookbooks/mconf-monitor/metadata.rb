@@ -5,4 +5,4 @@ description      "Installs the mconf monitor system"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.0.1"
 depends          "psutil"
-depends          "bigbluebutton::load-properties"
+depends          "bigbluebutton"

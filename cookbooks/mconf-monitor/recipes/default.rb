@@ -108,11 +108,3 @@ cookbook_file "#{node[:mconf][:nagios][:dir]}/performance_report.py" do
   notifies :restart, resources(:service => "performance_report"), :delayed
 end
 
-execute "server up" do
-  user "#{node[:mconf][:user]}"
-  command "/usr/bin/printf \"%s\t%s\t%s\t%s\n\" \"localhost\" \"Server UP\" \"3\" \"#{node[:mconf][:nagios_message]}\" | #{node[:mconf][:nagios][:dir]}/reporter.sh && echo \"#{node[:bbb][:server_url]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_url && echo \"#{node[:bbb][:salt]}\" > #{node[:mconf][:nagios][:dir]}/.bbb_salt"
-  not_if do
-    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_url") and File.read("#{node[:mconf][:nagios][:dir]}/.bbb_url").chomp == "#{node[:bbb][:server_url]}") and \
-    (File.exists?("#{node[:mconf][:nagios][:dir]}/.bbb_salt") and File.read("#{node[:mconf][:nagios][:dir]}/.bbb_salt").chomp == "#{node[:bbb][:salt]}")
-  end
-end

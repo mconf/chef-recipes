@@ -1,33 +1,37 @@
 {
-    "name": "mconf-node",
-    "description": "This role is to install and update a Mconf-Node",
-    "json_class": "Chef::Role",
-    "chef_type": "role",
-    "default_attributes": {
-        "mconf": {
-            "dir": "/var/mconf",
-            "user": "mconf",
-            "log": {
-                "dir": "/var/mconf/log"
-            },
-            "tools": {
-                "dir": "/var/mconf/tools"
-            },
-            "live": {
-                "deploy_dir": "/var/mconf/deploy/mconf-live",
-                "force_deploy": "false"
-            }
-        },
-        "bbb": {
-            "demo": "enabled",
-            "ip": ""
-        }
+  "default_attributes": {
+    "bbb": {
+      "ip": "",
+      "demo": "enabled"
     },
-    "run_list": [
-        "recipe[mconf-node::uninstall-depreciated]",
-        "recipe[mconf-node::base]",
-        "recipe[mconf-live]",
-        "recipe[mconf-monitor]"
-    ]
+    "mconf": {
+      "tools": {
+        "dir": "/var/mconf/tools"
+      },
+      "dir": "/var/mconf",
+      "user": "mconf",
+      "log": {
+        "dir": "/var/mconf/log"
+      },
+      "live": {
+        "deploy_dir": "/var/mconf/deploy/mconf-live",
+        "force_deploy": "false"
+      },
+      "monitoring_servers": ""
+    }
+  },
+  "description": "This role is to install and update a Mconf-Node",
+  "env_run_lists": {
+  },
+  "json_class": "Chef::Role",
+  "override_attributes": {
+  },
+  "name": "mconf-node",
+  "chef_type": "role",
+  "run_list": [
+    "recipe[mconf-node::uninstall-depreciated]",
+    "recipe[mconf-node::base]",
+    "recipe[mconf-live]",
+    "recipe[mconf-monitor]"
+  ]
 }
-

@@ -47,8 +47,8 @@ execute "apt-get update" do
 end
 
 package "bigbluebutton" do
-  # we won't use the version for bigbluebutton and bbb-demo because the BigBlueButton
-  # folks don't keep the older versions
+  # we won't use the version for bigbluebutton and bbb-demo because the 
+  # BigBlueButton folks don't keep the older versions
 #  version node[:bbb][:version]
   response_file "bigbluebutton.seed"
   action :install
@@ -66,6 +66,15 @@ else
     package "bbb-demo" do
         action :purge
     end
+
+    # if the demo was deployed without packages, this block will remove it
+    ruby_block "deploy demo" do
+        block do
+            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo.war", :force => true, :verbose => true
+            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo/", :force => true, :verbose => true
+        end
+        only_if do File.exists?("/var/lib/tomcat6/webapps/demo/") end
+    end    
 end
 
 template "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml" do

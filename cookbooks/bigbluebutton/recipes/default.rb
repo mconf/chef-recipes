@@ -1,9 +1,14 @@
-# Cookbook Name:: mconf-bbb
+#
+# Cookbook Name:: bigbluebutton
 # Recipe:: default
+# Author:: Felipe Cecagno (<felipe@mconf.org>)
+# Author:: Mauricio Cruz (<brcruz@gmail.com>)
 #
-# Copyright 2012, mconf.org
+# This file is part of the Mconf project.
 #
-# All rights reserved - Do Not Redistribute
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
 include_recipe "ruby-1.9.2"

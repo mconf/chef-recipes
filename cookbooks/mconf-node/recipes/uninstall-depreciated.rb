@@ -1,3 +1,16 @@
+#
+# Cookbook Name:: mconf-node
+# Recipe:: uninstall-depreciated
+# Author:: Felipe Cecagno (<felipe@mconf.org>)
+# Author:: Mauricio Cruz (<brcruz@gmail.com>)
+#
+# This file is part of the Mconf project.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
 version = nil
 if File.exists?("/var/www/bigbluebutton/client/conf/config.xml")
     version = `cat /var/www/bigbluebutton/client/conf/config.xml | grep '<version>' | sed 's:.*<version>\\(.*\\)</version>.*:\\1:g'`.strip!

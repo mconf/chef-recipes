@@ -1,23 +1,14 @@
 {
   "default_attributes": {
-    "bbb": {
-      "ip": "",
-      "demo": "enabled"
-    },
     "mconf": {
+      "user": "mconf",
+      "dir": "/var/mconf",
       "tools": {
         "dir": "/var/mconf/tools"
       },
-      "dir": "/var/mconf",
-      "user": "mconf",
       "log": {
         "dir": "/var/mconf/log"
-      },
-      "live": {
-        "deploy_dir": "/var/mconf/deploy/mconf-live",
-        "force_deploy": "false"
-      },
-      "monitoring_servers": ""
+      }
     }
   },
   "description": "This role is to install and update a Mconf-Node",
@@ -25,10 +16,18 @@
   },
   "json_class": "Chef::Role",
   "override_attributes": {
+    "bbb": {
+      "ip": "",
+      "demo": "enabled"
+    },
+    "mconf": {
+      "monitoring_servers": ""
+    }
   },
   "name": "mconf-node",
   "chef_type": "role",
   "run_list": [
+    "role[mconf-server]",
     "recipe[mconf-node::uninstall-depreciated]",
     "recipe[mconf-node::base]",
     "recipe[mconf-live]",

@@ -6,9 +6,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-#\TODO remove this attribute
 default[:mconf][:tools][:dir] = "/var/mconf/tools"
-
 default[:notes][:xsbt][:version] = "0.11.2"
 default[:notes][:xsbt][:dir] = "#{node[:mconf][:tools][:dir]}/xsbt"
 default[:notes][:notes_server][:name] = "live-notes-server"

@@ -62,8 +62,9 @@ end
 
 service "live-notes-server" do
   provider Chef::Provider::Service::Upstart
-  subscribes :restart, resources()
   supports :restart => true, :start => true, :stop => true
+  action [:enable, :start]
+  subscribes :restart, resources()
 end
 
 template "live-notes-server upstart" do

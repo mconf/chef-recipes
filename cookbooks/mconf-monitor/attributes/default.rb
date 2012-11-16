@@ -6,9 +6,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-#\TODO remove this attribute
 default[:mconf][:tools][:dir] = "/var/mconf/tools"
-
 default[:mconf][:instance_type] = "bigbluebutton"
 default[:mconf][:interval] = "10"
 default[:mconf][:nagios][:dir] = "#{node[:mconf][:tools][:dir]}/nagios"

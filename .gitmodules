@@ -7,3 +7,6 @@
 [submodule "cookbooks/ruby-1.9.2"]
 	path = cookbooks/ruby-1.9.2
 	url = git://github.com/karlfreeman/chef-ruby.git
+[submodule "cookbooks/chef-client"]
+	path = cookbooks/chef-client
+	url = git://github.com/opscode-cookbooks/chef-client.git

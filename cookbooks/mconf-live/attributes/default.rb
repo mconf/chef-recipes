@@ -6,9 +6,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-#\TODO remove this attribute
 default[:mconf][:dir] = "/var/mconf"
-
 default[:mconf][:live][:version] = "mconf-live0.2"
 default[:mconf][:live][:version_int] = "2"
 default[:mconf][:live][:file] = "#{node[:mconf][:live][:version]}.tar.gz"

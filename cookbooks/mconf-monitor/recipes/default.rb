@@ -13,7 +13,7 @@
 
 include_recipe "psutil"
 
-%w{ zlib1g-dev git-core python-dev python-argparse subversion libmcrypt4 }.each do |pkg|
+%w{ zlib1g-dev git-core python-dev python-argparse subversion libmcrypt-dev }.each do |pkg|
   package pkg do
     action :install
   end

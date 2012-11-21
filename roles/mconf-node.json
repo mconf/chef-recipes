@@ -1,5 +1,9 @@
 {
   "default_attributes": {
+    "bbb": {
+      "ip": "",
+      "demo": "disabled"
+    },
     "mconf": {
       "user": "mconf",
       "dir": "/var/mconf",
@@ -8,7 +12,8 @@
       },
       "log": {
         "dir": "/var/mconf/log"
-      }
+      },
+      "monitoring_servers": ""
     }
   },
   "description": "This role is to install and update a Mconf-Node",
@@ -16,13 +21,6 @@
   },
   "json_class": "Chef::Role",
   "override_attributes": {
-    "bbb": {
-      "ip": "",
-      "demo": "enabled"
-    },
-    "mconf": {
-      "monitoring_servers": ""
-    }
   },
   "name": "mconf-node",
   "chef_type": "role",

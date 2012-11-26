@@ -12,8 +12,7 @@
       },
       "log": {
         "dir": "/var/mconf/log"
-      },
-      "monitoring_servers": ""
+      }
     }
   },
   "description": "This role is to install and update a Mconf-Node",

@@ -11,9 +11,18 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+# if node[:mconf][:monitoring_servers] is set, it will use it, otherwise it 
+# will use the nsca servers from nsca_handler
+if not node[:mconf][:monitoring_servers]
+  monitoring_servers = node[:nsca_handler][:nsca_server]
+else
+  monitoring_servers = node[:mconf][:monitoring_servers]
+end
+
+include_recipe "nsca"
 include_recipe "psutil"
 
-%w{ zlib1g-dev git-core python-dev python-argparse subversion libmcrypt-dev }.each do |pkg|
+%w{ git-core python-dev python-argparse subversion }.each do |pkg|
   package pkg do
     action :install
   end
@@ -21,22 +30,17 @@ end
 
 include_recipe "bigbluebutton::load-properties"
 
-t = ruby_block "set nagios properties" do
+t = ruby_block "set nsca properties" do
     block do
         if node[:mconf][:instance_type] == "bigbluebutton"
-            node.set[:mconf][:hostname] = "#{node[:bbb][:server_domain]}"
-            node.set[:mconf][:nagios_message] = "#{node[:mconf][:instance_type]} #{node[:bbb][:server_url]}/bigbluebutton/ #{node[:bbb][:salt]}"
+            node.set[:nsca][:hostname] = "#{node[:bbb][:server_domain]}"
+        elsif node[:mconf][:instance_type] == "nagios"
+            node.set[:nsca][:hostname] = "localhost"
         else
-            if node[:mconf][:instance_type] == "nagios"
-                node.set[:mconf][:hostname] = "localhost"
-            else
-                node.set[:mconf][:hostname] = node[:ipaddress]
-            end
-            node.set[:mconf][:nagios_message] = "#{node[:mconf][:instance_type]}"
+            node.set[:nsca][:hostname] = node[:ipaddress]
         end
     end
 end
-
 t.run_action(:create)
 
 directory "#{node[:mconf][:nagios][:dir]}" do
@@ -44,72 +48,50 @@ directory "#{node[:mconf][:nagios][:dir]}" do
   recursive true
 end
 
-#get nsca file from server and call build script if there is a new file
-remote_file "#{node[:mconf][:nagios][:dir]}/nsca-#{node[:nsca][:version]}.tar.gz" do
-    source "http://prdownloads.sourceforge.net/sourceforge/nagios/nsca-#{node[:nsca][:version]}.tar.gz"
-    mode "0644"
-    notifies :run, 'script[nsca_build]', :immediately
-end
-
-#build nsca and call installer
-script "nsca_build" do
-    action :nothing
-    interpreter "bash"
-    user "root"
-    cwd "#{node[:mconf][:nagios][:dir]}"
-    code <<-EOH
-        tar xzf "nsca-#{node[:nsca][:version]}.tar.gz"
-        cd "nsca-#{node[:nsca][:version]}"
-        ./configure
-        make
-        make install
-    EOH
-    notifies :run, 'script[install_nsca]', :immediately
-end
-
-#nsca install procedure 
-script "install_nsca" do
-    action :nothing
-    interpreter "bash"
-    user "root"
-    cwd "#{node[:mconf][:nagios][:dir]}/nsca-#{node[:nsca][:version]}"
-    code <<-EOH
-        mkdir -p #{node[:nsca][:dir]} #{node[:nsca][:config_dir]}
-        chown nagios:nagios -R /usr/local/nagios
-        cp src/send_nsca #{node[:nsca][:dir]}
-        cp sample-config/send_nsca.cfg #{node[:nsca][:config_dir]}/
-        chmod a+r #{node[:nsca][:config_dir]}/send_nsca.cfg
-    EOH
-end
-
-#performance reporter service definition
-service "performance_report" do
-    provider Chef::Provider::Service::Upstart
-    subscribes :restart, resources()
-    supports :restart => true, :start => true, :stop => true
-end
-
-#performance reporter template creation
+# performance reporter template creation
 template "performance_report upstart" do
     path "/etc/init/performance_report.conf"
     source "performance_report.conf"
     mode "0644"
-    notifies :restart, resources(:service => "performance_report"), :delayed
+    if monitoring_servers and not monitoring_servers.empty?
+      notifies :restart, "service[performance_report]", :delayed
+    end
 end
 
 template "#{node[:mconf][:nagios][:dir]}/reporter.sh" do
-  source "reporter.sh"
-  mode 0755
-  owner "#{node[:mconf][:user]}"
-  action :create
-  notifies :restart, resources(:service => "performance_report"), :delayed
+    source "reporter.sh"
+    mode 0755
+    owner "#{node[:mconf][:user]}"
+    variables({
+      :nsca_server => monitoring_servers,
+      :nsca_dir => node[:nsca][:dir],
+      :nsca_config_dir => node[:nsca][:config_dir],
+      :nsca_timeout => node[:nsca][:timeout]
+    })
+    action :create
+    if monitoring_servers and not monitoring_servers.empty?
+      notifies :restart, "service[performance_report]", :delayed
+    end
 end
 
 cookbook_file "#{node[:mconf][:nagios][:dir]}/performance_report.py" do
-  source "performance_report.py"
-  mode 0755
-  owner "#{node[:mconf][:user]}"
-  action :create
-  notifies :restart, resources(:service => "performance_report"), :delayed
+    source "performance_report.py"
+    mode 0755
+    owner "#{node[:mconf][:user]}"
+    action :create
+    if monitoring_servers and not monitoring_servers.empty?
+      notifies :restart, "service[performance_report]", :delayed
+    end
 end
 
+# performance reporter service definition
+service "performance_report" do
+    provider Chef::Provider::Service::Upstart
+    supports :restart => true, :start => true, :stop => true
+    subscribes :restart, resources()
+    if monitoring_servers and not monitoring_servers.empty?
+      action [ :enable, :start ]
+    else
+      action [ :disable, :stop ]
+    end
+end

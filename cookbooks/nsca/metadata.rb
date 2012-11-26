@@ -9,9 +9,6 @@
 maintainer       "mconf"
 maintainer_email "mconf@mconf.org"
 license          "MPL v2.0"
-description      "Setup the Mconf Monitor service"
+description      "Installs/Configures nsca"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.0.1"
-depends          "psutil"
-depends          "bigbluebutton"
-depends          "nsca"
+version          "0.1.0"

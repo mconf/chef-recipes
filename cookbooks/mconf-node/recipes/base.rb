@@ -11,6 +11,34 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+Chef::Log.info("Chef Handlers will be at: #{node[:chef_handler][:handler_path]}")
+
+remote_directory node[:chef_handler][:handler_path] do
+  source 'handlers'
+  owner 'root'
+  group 'root'
+  mode "0755"
+  recursive true
+#  action :nothing
+#end.run_action(:create)
+  action :create
+end
+
+chef_handler "NscaHandler" do
+  source "#{node[:chef_handler][:handler_path]}/nsca_handler"
+  supports :report => true, :exception => true
+  arguments [
+    :send_nsca_binary => "#{node[:nsca][:dir]}/send_nsca",
+    :send_nsca_config => "#{node[:nsca][:config_dir]}/send_nsca.cfg",
+    :nsca_server => node[:nsca_handler][:nsca_server],
+    :service_name => node[:nsca_handler][:service_name],
+    :nsca_timeout => node[:nsca][:timeout]
+  ]
+#  action :nothing
+#end.run_action(:enable)
+  action :enable
+end
+
 user "#{node[:mconf][:user]}" do
   action :create  
 end

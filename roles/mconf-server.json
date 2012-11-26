@@ -14,7 +14,8 @@
   "name": "mconf-server",
   "chef_type": "role",
   "run_list": [
-    "recipe[chef-client::delete_validation]",
+    "recipe[chef_handler::default]",
+    "recipe[nsca]",
     "recipe[chef-client::config]",
     "recipe[chef-client::service]"
   ]

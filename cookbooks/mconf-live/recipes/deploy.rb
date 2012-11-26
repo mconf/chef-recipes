@@ -17,10 +17,15 @@ execute "bbb-conf --stop" do
   only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
 end
 
-remote_file "#{Chef::Config[:file_cache_path]}/#{node[:mconf][:live][:file]}" do
-  source "#{node[:mconf][:live][:url]}"
-  mode "0644"
-  only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
+if "#{node[:mconf][:live][:repo]}".start_with? "http://"
+  remote_file "#{Chef::Config[:file_cache_path]}/#{node[:mconf][:live][:file]}" do
+    source "#{node[:mconf][:live][:url]}"
+    mode "0644"
+    only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
+  end
+else
+  # this is a workaround to be able to install Mconf-Live from a local file instead of a remote one
+  FileUtils.cp "#{node[:mconf][:live][:url]}", "#{Chef::Config[:file_cache_path]}/#{node[:mconf][:live][:file]}"
 end
 
 execute "untar mconf-live" do

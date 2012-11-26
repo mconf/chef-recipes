@@ -60,17 +60,18 @@ git "#{node[:notes][:notes_server][:dir]}" do
   action :sync
 end
 
-service "live-notes-server" do
-  provider Chef::Provider::Service::Upstart
-  supports :restart => true, :start => true, :stop => true
-  action [:enable, :start]
-  subscribes :restart, resources()
-end
-
 template "live-notes-server upstart" do
   path "/etc/init/live-notes-server.conf"
   source "live-notes-server.conf.erb"
   mode "0644"
-  notifies :restart, resources(:service => "live-notes-server")
+#  notifies :restart, resources(:service => "live-notes-server")
+  notifies :restart, "service[live-notes-server]", :delayed
+end
+
+service "live-notes-server" do
+  provider Chef::Provider::Service::Upstart
+  supports :restart => true, :start => true, :stop => true
+  action [ :enable, :start ]
+  subscribes :restart, resources()
 end
 

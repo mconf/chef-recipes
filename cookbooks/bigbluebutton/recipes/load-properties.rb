@@ -11,6 +11,13 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+ruby_block "print warning" do
+    block do
+        Chef::Log.info("This is being printed on execution phase")
+    end
+    action :create
+end
+
 p = ruby_block "define bigbluebutton properties" do
     block do
         if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
@@ -18,7 +25,10 @@ p = ruby_block "define bigbluebutton properties" do
 
             # node[:bbb][:server_url] = "http://<SERVER_IP>:<SERVER_PORT>"
             if not node[:bbb][:ip].nil? and not "#{node[:bbb][:ip]}".empty?
-                node.set[:bbb][:server_url] = "http://#{node[:bbb][:ip]}"
+                if not "#{node[:bbb][:ip]}".start_with?("http://")
+                    node.set[:bbb][:ip] = "http://#{node[:bbb][:ip]}"
+                end
+                node.set[:bbb][:server_url] = "#{node[:bbb][:ip]}"
             else
                 node.set[:bbb][:server_url] = "http://#{node[:ipaddress]}"
             end
@@ -29,12 +39,13 @@ p = ruby_block "define bigbluebutton properties" do
             node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
             node.set[:bbb][:salt] = properties["securitySalt"]
             node.set[:bbb][:setsalt_needed] = ("#{node[:bbb][:server_url]}" != properties["bigbluebutton.web.serverURL"])
+            node.save
             
-            Chef::Log.info("server_url    : #{node[:bbb][:server_url]}")
-            Chef::Log.info("server_addr   : #{node[:bbb][:server_addr]}")
-            Chef::Log.info("server_domain : #{node[:bbb][:server_domain]}")
-            Chef::Log.info("salt          : #{node[:bbb][:salt]}")
-            Chef::Log.info("--setip needed? #{node[:bbb][:setsalt_needed]}")
+            Chef::Log.info("\tserver_url    : #{node[:bbb][:server_url]}")
+            Chef::Log.info("\tserver_addr   : #{node[:bbb][:server_addr]}")
+            Chef::Log.info("\tserver_domain : #{node[:bbb][:server_domain]}")
+            Chef::Log.info("\tsalt          : #{node[:bbb][:salt]}")
+            Chef::Log.info("\t--setip needed? #{node[:bbb][:setsalt_needed]}")
         end
     end
     action :create
@@ -42,6 +53,7 @@ end
 
 # it will make this block to execute before the others
 if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
+    Chef::Log.info("This is being printed on compile phase")
     p.run_action(:create)
 end
 

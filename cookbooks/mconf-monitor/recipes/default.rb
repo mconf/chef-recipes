@@ -11,12 +11,12 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# if node[:mconf][:monitoring_servers] is set, it will use it, otherwise it 
+# if node[:mconf][:monitor][:servers] is set, it will use it, otherwise it 
 # will use the nsca servers from nsca_handler
-if not node[:mconf][:monitoring_servers]
-  monitoring_servers = node[:nsca_handler][:nsca_server]
+if node[:mconf][:monitor][:servers]
+  monitoring_servers = node[:mconf][:monitor][:servers]
 else
-  monitoring_servers = node[:mconf][:monitoring_servers]
+  monitoring_servers = node[:nsca_handler][:nsca_server]
 end
 
 include_recipe "nsca"
@@ -54,7 +54,10 @@ template "performance_report upstart" do
     source "performance_report.conf"
     mode "0644"
     if monitoring_servers and not monitoring_servers.empty?
-      notifies :restart, "service[performance_report]", :delayed
+      # :restart isn't enough to reload the new template, and :reload 
+      # duplicates the process
+      notifies :stop, "service[performance_report]", :delayed
+      notifies :start, "service[performance_report]", :delayed
     end
 end
 
@@ -88,9 +91,14 @@ end
 service "performance_report" do
     provider Chef::Provider::Service::Upstart
     supports :restart => true, :start => true, :stop => true
-    subscribes :restart, resources()
+#    subscribes :restart, resources()
     if monitoring_servers and not monitoring_servers.empty?
-      action [ :enable, :start ]
+      if node[:mconf][:monitor][:force_restart]
+        action [ :enable, :restart ]
+        node[:mconf][:monitor][:force_restart] = false
+      else
+        action [ :enable, :start ]
+      end
     else
       action [ :disable, :stop ]
     end

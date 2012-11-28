@@ -82,6 +82,16 @@ ruby_block "deploy demo" do
     only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
 end
 
+# if the demo was deployed without packages, this block will remove it
+ruby_block "remove demo files" do
+    block do
+        FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo.war", :force => true, :verbose => true
+        FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo/", :force => true, :verbose => true
+    end
+    only_if do not node[:bbb][:demo][:enabled] and File.exists?("/var/lib/tomcat6/webapps/demo/") end
+    notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+
 ruby_block "deploy web" do
     block do
         if File.exists?("#{node[:mconf][:live][:deploy_dir]}/web") && File.exists?("/var/lib/tomcat6/webapps/bigbluebutton/")

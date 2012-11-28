@@ -24,13 +24,12 @@ class NscaHandler < Chef::Handler
     @config[:send_nsca_config] ||= '/usr/sbin/send_nsca.cfg'
     @config[:service_name] ||= 'Chef client run status'
     @config[:nsca_timeout] ||= 5
+    @config[:hostname] ||= run_status.node[:fqdn]
     @config
   end
 
   def report
     ret = run_status.failed? ? 1 : 0
-
-    host_name = @config[:nagios_hostname] || run_status.node[:fqdn]
 
     perfdata = "elapsed_time=#{run_status.elapsed_time}s"
     # number of resources is useless for now
@@ -47,7 +46,7 @@ class NscaHandler < Chef::Handler
       output << ", Chef Run completed successfully"
     end
 
-    msg_string = "#{host_name}\t#{@config[:service_name]}\t#{ret}\t#{output}|#{perfdata}\n#{long_output}".gsub('`', '\'')
+    msg_string = "#{@config[:hostname]}\t#{@config[:service_name]}\t#{ret}\t#{output}|#{perfdata}\n#{long_output}".gsub('`', '\'')
     
     if @config[:nsca_server]
       @config[:nsca_server].each do |nsca_server|

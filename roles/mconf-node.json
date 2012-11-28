@@ -2,7 +2,9 @@
   "default_attributes": {
     "bbb": {
       "ip": "",
-      "demo": "disabled"
+      "demo": {
+        "enabled": false
+      }
     },
     "mconf": {
       "user": "mconf",

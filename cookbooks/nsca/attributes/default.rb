@@ -12,3 +12,4 @@ default[:nsca][:dir] = "/usr/local/nagios/bin"
 default[:nsca][:config_dir] = "/usr/local/nagios/etc"
 default[:nsca][:force_reinstall] = false
 default[:nsca][:timeout] = 5
+default[:nsca][:hostname] = node[:fqdn]

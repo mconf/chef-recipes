@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <config>
     <localeversion suppressWarning="false">0.8</localeversion>
-    <version><%= node[:mconf][:live][:version] %></version>
+    <version><%= node[:mconf][:live][:version] %><% if @streaming -%> - Transmission<% end -%></version>
     <help url="http://mconf.org/m/about"/>
     <porttest host="<%= node[:bbb][:server_domain] %>" application="video"/>    
     <application uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" host="<%= node[:bbb][:server_url] %>/bigbluebutton/api/enter" />
@@ -11,7 +11,7 @@
     
 	<modules>
 		
-		<module name="ChatModule" url="ChatModule.swf?v=<%= node[:mconf][:live][:version_int] %>" 
+		<module name="ChatModule" url="ChatModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
 			dependsOn="ViewersModule"	
 			translationOn="false"
@@ -20,14 +20,14 @@
 			position="top-right"
 		/>
 		
-		<module name="ViewersModule" url="ViewersModule.swf?v=<%= node[:mconf][:live][:version_int] %>" 
+		<module name="ViewersModule" url="ViewersModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
 			host="<%= node[:bbb][:server_url] %>/bigbluebutton/api/enter"
-			allowKickUser="false"
+			allowKickUser="true"
 			windowVisible="true"
 		/>
 			
-		<module name="ListenersModule" url="ListenersModule.swf?v=<%= node[:mconf][:live][:version_int] %>" 
+		<module name="ListenersModule" url="ListenersModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
 			recordingHost="<%= node[:bbb][:server_url] %>"
 			windowVisible="true"
@@ -35,12 +35,12 @@
 		/>
 		
 		<module name="DeskShareModule" 
-			url="DeskShareModule.swf?v=<%= node[:mconf][:live][:version_int] %>" 
+			url="DeskShareModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/deskShare"
 			autoStart="false"
 		/>
 		
-		<module name="PhoneModule" url="PhoneModule.swf?v=<%= node[:mconf][:live][:version_int] %>" 
+		<module name="PhoneModule" url="PhoneModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/sip" 
 			autoJoin="true"
 			skipCheck="false"
@@ -49,11 +49,11 @@
 			dependsOn="ViewersModule"
 		/>
 
-		<module name="VideoconfModule" url="VideoconfModule.swf?v=<%= node[:mconf][:live][:version_int] %>" 
+		<module name="VideoconfModule" url="VideoconfModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/video"
 			dependson = "ViewersModule"
 			videoQuality = "100"
-			presenterShareOnly = "false"
+			presenterShareOnly = "<%= @streaming %>"
 			resolutions = "160x120,320x240,640x480"
 			autoStart = "false"
 			showButton = "true"
@@ -70,12 +70,12 @@
 			h264Profile = "main"			
 		/>
 		
-		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=<%= node[:mconf][:live][:version_int] %>" 
+		<module name="WhiteboardModule" url="WhiteboardModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
 			dependsOn="PresentModule"
 		/>
 		
-		<module name="PresentModule" url="PresentModule.swf?v=<%= node[:mconf][:live][:version_int] %>" 
+		<module name="PresentModule" url="PresentModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
 			host="<%= node[:bbb][:server_url] %>" 
 			showPresentWindow="true"
@@ -83,7 +83,7 @@
 			dependsOn="ViewersModule"
 		/>
 
-		<module name="VideodockModule" url="VideodockModule.swf?v=<%= node[:mconf][:live][:version_int] %>"
+		<module name="VideodockModule" url="VideodockModule.swf?v=<%= @module_version %>"
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
 			dependsOn="VideoconfModule, ViewersModule"
 			autoDock="true"
@@ -95,13 +95,18 @@
 			oneAlwaysBigger="false"
 		/>
 		
-		<module name="LayoutModule" url="LayoutModule.swf?v=<%= node[:mconf][:live][:version_int] %>"
+		<module name="LayoutModule" url="LayoutModule.swf?v=<%= @module_version %>"
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton"
+			<% if not @streaming -%>
 			layoutConfig="conf/layout.xml"
+			<% else -%>
+			layoutConfig="conf/layout-streaming.xml"
+			<% end -%>
 			enableEdit="true"
 		/>
 
-		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=<%= node[:mconf][:live][:version_int] %>" 
+		<% if not @streaming -%>
+		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
 			host="<%= node[:bbb][:server_url] %>/bigbluebutton/notes.jsp"
 			refreshDelay="500"
@@ -112,6 +117,6 @@
 			dependsOn="ViewersModule"
 			position="bottom-left"
 		/>
-		
+		<% end -%>
 	</modules>
 </config>

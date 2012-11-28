@@ -62,24 +62,13 @@ end
 
 include_recipe "bigbluebutton::load-properties"
 
-if node[:bbb][:demo] == "enabled"
-    package "bbb-demo" do
-#        version node[:bbb_demo][:version]
-        action :install
-    end
-else
-    package "bbb-demo" do
-        action :purge
-    end
-
-    # if the demo was deployed without packages, this block will remove it
-    ruby_block "deploy demo" do
-        block do
-            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo.war", :force => true, :verbose => true
-            FileUtils.remove_entry_secure "/var/lib/tomcat6/webapps/demo/", :force => true, :verbose => true
-        end
-        only_if do File.exists?("/var/lib/tomcat6/webapps/demo/") end
-    end    
+package "bbb-demo" do
+#  version node[:bbb_demo][:version]
+  if node[:bbb][:demo][:enabled]
+    action :install
+  else
+    action :purge
+  end
 end
 
 template "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml" do
@@ -104,7 +93,7 @@ execute "set bigbluebutton ip" do
     user "root"
     command "bbb-conf --setip #{node[:bbb][:server_addr]}; exit 0"
     action :run
-    only_if do "#{node[:bbb][:setsalt_needed]}" == "true" end
+    only_if do node[:bbb][:setsalt_needed] end
 end
 
 execute "restart bigbluebutton" do

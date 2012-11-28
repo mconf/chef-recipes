@@ -11,5 +11,7 @@ default[:mconf][:instance_type] = "bigbluebutton"
 default[:mconf][:interval] = "10"
 default[:mconf][:nagios][:dir] = "#{node[:mconf][:tools][:dir]}/nagios"
 # it should be a list, ex: ["server1","server2"]
-# if not set or nil, it will use the attribute node[:nsca_handler][:nsca_server] instead
-default[:mconf][:monitoring_servers] = nil
+# if nil, it will use the attribute node[:nsca_handler][:nsca_server] instead
+default[:mconf][:monitor][:servers] = nil
+# if you want to force restart on every execution, set normal[:mconf][:monitor][:force_restart] = true
+default[:mconf][:monitor][:force_restart] = false

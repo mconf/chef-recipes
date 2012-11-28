@@ -32,7 +32,8 @@ chef_handler "NscaHandler" do
     :send_nsca_config => "#{node[:nsca][:config_dir]}/send_nsca.cfg",
     :nsca_server => node[:nsca_handler][:nsca_server],
     :service_name => node[:nsca_handler][:service_name],
-    :nsca_timeout => node[:nsca][:timeout]
+    :nsca_timeout => node[:nsca][:timeout],
+    :hostname => node[:nsca][:hostname]
   ]
 #  action :nothing
 #end.run_action(:enable)

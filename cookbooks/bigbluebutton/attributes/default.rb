@@ -10,6 +10,7 @@ default[:bbb][:recording][:video] = true
 default[:bbb][:recording][:deskshare] = true
 default[:bbb][:demo][:enabled] = false
 default[:bbb][:ip] = nil
+default[:bbb][:force_restart] = false
 
 #default[:bigbluebutton][:version] = "0.80ubuntu4"
 #default[:bbb_demo][:version] = "0.80ubuntu76"

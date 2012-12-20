@@ -18,10 +18,29 @@ link "/usr/bin/ruby1.9.2" do
   to "/usr/local/bin/ruby"
 end
 
+# this strategy didn't work
+#Encoding.default_external = 'UTF-8'
+#Encoding.default_internal = 'UTF-8'
+
+# http://franzejr.wordpress.com/2012/09/11/argumenterror-invalid-byte-sequence-in-us-ascii/
+# http://www.a.rnaud.net/2011/10/how-to-fix-invalid-byte-sequence-in-us-ascii-in-bundler-installation/ -> didn't work
+bash "set proper encoding" do
+    user "root"
+    code <<-EOH
+        export LANG=en_US.UTF-8
+        export LC_ALL=en_US.UTF-8
+        export LC_LANG=en_US.UTF-8
+        export LANGUAGE=en_US.UTF-8
+    EOH
+    action :nothing
+end
+
 %w( god builder bundler ).each do |g|
   gem_package g do
-    action :install
+    #action :install
+    action :nothing
     gem_binary('/usr/local/bin/gem')
+    options('LC_LANG=en_US.UTF-8')
   end
 end
 
@@ -57,7 +76,8 @@ end
   "trollop" => "1.16.2",
   "vegas" => "0.1.8" }.each do |k,v|
     gem_package "#{k}" do
-        action :install
+        #action :install
+        action :nothing
         version "#{v}"
         gem_binary('/usr/local/bin/gem')
     end
@@ -151,6 +171,6 @@ end
 
 execute "restart bigbluebutton" do
   user "root"
-  command "bbb-conf --clean"
+  command "bbb-conf --clean || echo 'Return successfully'"
   action :nothing
 end

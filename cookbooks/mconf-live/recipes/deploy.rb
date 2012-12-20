@@ -123,10 +123,17 @@ file "#{node[:mconf][:live][:deploy_dir]}/.deployed" do
 end
 
 # restore salt and IP
-execute "bbb-conf --setsalt #{node[:bbb][:salt]} && bbb-conf --setip #{node[:bbb][:server_addr]}" do
+execute "bbb-conf --setsalt #{node[:bbb][:salt]} || bbb-conf --setip #{node[:bbb][:server_addr]} || echo 'Return successfully'" do
     user "root"
     action :run
     only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
     notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+
+ruby_block "reset Mconf-Live force_deploy flag" do
+    block do
+        node.set[:mconf][:live][:force_deploy] = false
+    end
+    only_if do node[:mconf][:live][:force_deploy] end
 end
 

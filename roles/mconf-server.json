@@ -1,7 +1,7 @@
 {
   "default_attributes": {
     "chef_client": {
-      "interval": "300",
+      "interval": "1800",
       "server_url": "http://chef.mconf.org:4000"
     }
   },

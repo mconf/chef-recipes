@@ -39,7 +39,7 @@ class NscaHandler < Chef::Handler
     long_output = ""
 
     if run_status.failed?
-      output << ", Exception: #{run_status.formatted_exception}"
+      output << ", Exception: #{run_status.formatted_exception.gsub("\n", " ~~~ ")}"
       # long output is not supported on nsca 2.7.2
       long_output << "Backtrace: #{Array(run_status.backtrace).join("\n")}"
     else

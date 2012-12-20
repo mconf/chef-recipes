@@ -60,3 +60,10 @@ directory "#{Chef::Config[:file_cache_path]}" do
   recursive true
   action :create
 end
+
+ruby_block "save node properties" do
+  block do
+    node.set[:ruby][:gem_version] = `gem -v`.strip!
+    node.save
+  end
+end

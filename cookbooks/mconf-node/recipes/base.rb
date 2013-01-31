@@ -64,6 +64,17 @@ end
 ruby_block "save node properties" do
   block do
     node.set[:ruby][:gem_version] = `gem -v`.strip!
+
+    `locale`.split("\n").each do |locale|
+      locale_split = locale.split("=")
+      if locale_split.length < 2
+        next
+      end
+      if locale_split[1].start_with?("\"")
+        locale_split[1] = locale_split[1].gsub!(/\A"|"\Z/, '')
+      end
+      node.set[:os_locale][locale_split[0]] = locale_split[1]
+    end
     node.save
   end
 end

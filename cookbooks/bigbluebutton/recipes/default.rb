@@ -35,12 +35,15 @@ bash "set proper encoding" do
     action :nothing
 end
 
+ENV['LANG'] = "en_US.UTF-8"
+ENV['LC_ALL'] = "en_US.UTF-8"
+
 %w( god builder bundler ).each do |g|
   gem_package g do
     #action :install
     action :nothing
     gem_binary('/usr/local/bin/gem')
-    options('LC_LANG=en_US.UTF-8')
+    #options('LC_LANG=en_US.UTF-8')
   end
 end
 

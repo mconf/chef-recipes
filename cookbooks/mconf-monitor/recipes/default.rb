@@ -54,10 +54,7 @@ template "performance_report upstart" do
     source "performance_report.conf"
     mode "0644"
     if monitoring_servers and not monitoring_servers.empty?
-      # :restart isn't enough to reload the new template, and :reload 
-      # duplicates the process
-      notifies :stop, "service[performance_report]", :delayed
-      notifies :start, "service[performance_report]", :delayed
+      notifies :restart, "service[performance_report]", :delayed
     end
 end
 
@@ -91,7 +88,9 @@ end
 service "performance_report" do
     provider Chef::Provider::Service::Upstart
     supports :restart => true, :start => true, :stop => true
-#    subscribes :restart, resources()
+    # :restart isn't enough to reload the new template, and :reload 
+    # duplicates the process
+    restart_command "stop performance_report && start performance_report"
     if monitoring_servers and not monitoring_servers.empty?
       if node[:mconf][:monitor][:force_restart]
         action [ :enable, :restart ]

@@ -121,6 +121,22 @@ package "bigbluebutton" do
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
+logrotate_app "tomcat" do
+  cookbook "logrotate"
+  path "/var/log/tomcat6/catalina.out"
+  options [ "missingok", "compress", "copytruncate", "notifempty" ]
+  frequency "daily"
+  rotate 15
+  size "100M"
+end
+
+cron "remove old bigbluebutton logs" do
+  hour "1"
+  minute "0"
+  command "find /var/log/bigbluebutton -name '*.log*' -mtime +15 -exec rm -r '{}' \\"
+  action :create
+end
+
 include_recipe "bigbluebutton::load-properties"
 
 package "bbb-demo" do

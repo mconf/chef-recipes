@@ -75,6 +75,6 @@ ruby_block "save node properties" do
       end
       node.set[:os_locale][locale_split[0]] = locale_split[1]
     end
-    node.save
+    node.save unless Chef::Config[:solo]
   end
 end

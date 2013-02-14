@@ -39,7 +39,7 @@ p = ruby_block "define bigbluebutton properties" do
             node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
             node.set[:bbb][:salt] = properties["securitySalt"]
             node.set[:bbb][:setsalt_needed] = ("#{node[:bbb][:server_url]}" != properties["bigbluebutton.web.serverURL"])
-            node.save
+            node.save unless Chef::Config[:solo]
             
             Chef::Log.info("\tserver_url    : #{node[:bbb][:server_url]}")
             Chef::Log.info("\tserver_addr   : #{node[:bbb][:server_addr]}")

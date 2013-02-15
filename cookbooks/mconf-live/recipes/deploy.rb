@@ -17,6 +17,8 @@ execute "bbb-conf --stop" do
   only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
 end
 
+node.set[:mconf][:live][:url] = "#{node[:mconf][:live][:repo]}/#{node[:mconf][:live][:file]}"
+
 if "#{node[:mconf][:live][:repo]}".start_with? "http://"
   remote_file "#{Chef::Config[:file_cache_path]}/#{node[:mconf][:live][:file]}" do
     source "#{node[:mconf][:live][:url]}"

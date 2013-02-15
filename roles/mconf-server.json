@@ -14,6 +14,7 @@
   "name": "mconf-server",
   "chef_type": "role",
   "run_list": [
+    "recipe[apt::default]",
     "recipe[chef_handler::default]",
     "recipe[nsca]",
     "recipe[chef-client::config]",

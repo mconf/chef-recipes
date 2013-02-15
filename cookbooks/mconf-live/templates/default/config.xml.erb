@@ -42,7 +42,12 @@
 		
 		<module name="PhoneModule" url="PhoneModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/sip" 
+			<% if @module_version <= 2 -%>
 			autoJoin="true"
+			<% else -%>
+			autoJoin="false"
+			joinGlobal="true"
+			<% end -%>
 			skipCheck="false"
 			showButton="true"
 			enabledEchoCancel="true"

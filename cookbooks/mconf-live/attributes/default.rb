@@ -7,7 +7,7 @@
 #
 
 default[:mconf][:dir] = "/var/mconf"
-default[:mconf][:live][:version_int] = "3"
+default[:mconf][:live][:version_int] = 3
 default[:mconf][:live][:version] = "mconf-live0.3beta3"
 default[:mconf][:live][:file] = "mconf-live0.3beta3.tar.gz"
 default[:mconf][:live][:repo] = "http://143.54.85.35:8888/mconf-node"

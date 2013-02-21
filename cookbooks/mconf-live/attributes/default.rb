@@ -14,6 +14,11 @@ default[:mconf][:live][:repo] = "http://143.54.85.35:8888/mconf-node"
 default[:mconf][:live][:deploy_dir] = "#{node[:mconf][:dir]}/deploy/mconf-live"
 default[:mconf][:live][:force_deploy] = false
 
+default[:mconf][:recording_server][:enabled] = false
+default[:mconf][:recording_server][:playback] = [ "presentation" ]
+default[:mconf][:recording_server][:private_key_path] = "/var/mconf/private_key.pem"
+default[:mconf][:recording_server][:get_recordings_url] = nil
+
 # example of configuration for the Chef Server:
 # remember the backslash before double quotes and backslash before backslash
 # { "enabled": true, "meetingID": "Turing", "moderatorPW": "CHANGE-ME", "attendeePW": "INOFFENSIVE", "maxUsers": 100, "record": "true", "logoutURL": "https://docs.google.com/spreadsheet/viewform?formkey=dC1GX0dWMnFHWDVmS0F0QmprUDBaN1E6MA", "welcomeMsg": "Transmissão do ciclo de palestras sobre Alan Turing.<br><br>A gravação dessa sessão estará disponível posteriormente em <a href=\\\"event:http://mconf.org/events\\\"><u>http://mconf.org/events/turing</u></a>." }

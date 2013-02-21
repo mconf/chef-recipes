@@ -31,7 +31,9 @@
     "role[mconf-server]",
     "recipe[mconf-node::uninstall-depreciated]",
     "recipe[mconf-node::base]",
+    "recipe[bigbluebutton]",
     "recipe[mconf-live]",
+    "recipe[live-notes-server]",
     "recipe[mconf-monitor]"
   ]
 }

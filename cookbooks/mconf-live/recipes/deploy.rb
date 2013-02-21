@@ -11,6 +11,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+require 'openssl'
+
 execute "bbb-conf --stop" do
   user "root"
   action :run
@@ -38,6 +40,89 @@ execute "untar mconf-live" do
   only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
 end
 
+ruby_block "deploy record-and-playback" do
+    block do
+        if File.exists?("#{node[:mconf][:live][:deploy_dir]}/record-and-playback")
+            FileUtils.remove_entry_secure "/usr/local/bigbluebutton/core/Gemfile", :force => true, :verbose => true
+            FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/core/Gemfile", "/usr/local/bigbluebutton/core/"
+            FileUtils.remove_entry_secure "/usr/local/bigbluebutton/core/lib", :force => true, :verbose => true
+            FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/core/lib", "/usr/local/bigbluebutton/core/"
+            FileUtils.remove_entry_secure "/usr/local/bigbluebutton/core/scripts", :force => true, :verbose => true
+            FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/core/scripts", "/usr/local/bigbluebutton/core/"
+            FileUtils.remove_entry_secure "/etc/bigbluebutton/god", :force => true, :verbose => true
+            FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/core/god/god", "/etc/bigbluebutton/"
+            FileUtils.remove_entry_secure "/etc/init.d/bbb-record-core", :force => true, :verbose => true
+            FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/core/god/initd.god", "/etc/init.d/bbb-record-core"
+            FileUtils.rm_r Dir.glob("/var/bigbluebutton/playback/*"), :force => true, :verbose => true
+            File.chmod(0755, "/etc/init.d/bbb-record-core")
+
+            def deploy_recording_format(formats)
+                formats.each do |format|
+                    playback_dir = "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/#{format}/playback/#{format}"
+                    scripts_dir = "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/#{format}/scripts"
+                    FileUtils.cp_r "#{playback_dir}", "/var/bigbluebutton/playback/" unless not File.exists?("#{playback_dir}")
+                    FileUtils.cp_r Dir.glob("#{scripts_dir}/*"), "/usr/local/bigbluebutton/core/scripts/" unless not File.exists?("#{scripts_dir}")
+                    FileUtils.mkdir_p "/var/log/bigbluebutton/#{format}"
+                end
+            end
+
+            if not node[:mconf][:recording_server][:enabled].nil? and node[:mconf][:recording_server][:enabled]
+                Chef::Log.info("This is a Mconf Live recording server")
+                FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/mconf/scripts/mconf-god-conf.rb", "/etc/bigbluebutton/god/conf/"
+                FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/mconf/scripts/mconf-decrypt.rb", "/usr/local/bigbluebutton/core/scripts/"
+
+                deploy_recording_format(node[:mconf][:recording_server][:playback])
+            else
+                Chef::Log.info("This is a Mconf Live recorder")
+                deploy_recording_format([ "mconf" ])
+            end
+
+            FileUtils.mv Dir.glob("/usr/local/bigbluebutton/core/scripts/*.nginx"), "/etc/bigbluebutton/nginx/"
+            FileUtils.chown_R "tomcat6", "tomcat6", [ "/var/bigbluebutton/", "/var/log/bigbluebutton/" ], :verbose => true
+        end
+    end
+    only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
+end
+
+execute "install gems" do
+  user "root"
+  cwd "/usr/local/bigbluebutton/core/"
+  command "bundle install"
+  action :run
+  only_if do File.exists?("/usr/local/bigbluebutton/core/Gemfile") and File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
+end
+
+ruby_block "generate recording server keys" do
+    block do
+        rsa_key = OpenSSL::PKey::RSA.new(2048)
+        private_key = rsa_key.to_pem
+        File.open("#{node[:mconf][:recording_server][:private_key_path]}", 'w') {|f| f.write(private_key) }
+        public_key = rsa_key.public_key.to_pem
+        node.set[:keys][:recording_server_public] = "#{public_key}"
+    end
+    only_if do node[:mconf][:recording_server][:enabled] and not File.exists?("#{node[:mconf][:dir]}/private_key.pem") end
+end
+
+ruby_block "update server url metadata" do
+    block do
+        Dir["/var/bigbluebutton/published/**/metadata.xml"].each do |filename|
+            Chef::Log.info("Updating server URL on metadata: #{filename}")
+            text = File.read(filename)
+            File.open("#{filename}", "w") { |file| file.puts text.gsub(/http:\/\/([^\/]*)/, "#{node[:bbb][:server_url]}") }
+        end
+    end
+end
+
+template "/usr/local/bigbluebutton/core/scripts/mconf.yml" do
+  source "mconf.yml.erb"
+  mode "0644"
+  variables(
+    :get_recordings_url => node[:mconf][:recording_server][:get_recordings_url],
+    :private_key => node[:mconf][:recording_server][:private_key_path]
+  )
+  only_if do node[:mconf][:recording_server][:enabled] end
+end
+
 ruby_block "deploy apps" do
     block do
         %w{ bigbluebutton video deskshare sip }.each do |app|
@@ -49,6 +134,11 @@ ruby_block "deploy apps" do
         end
     end
     only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
+    # we need to notify some of the bigbluebutton resources because we just
+    # overwrite all bbb-apps including the configuration files
+    notifies :create, "template[deploy red5 deskshare conf]", :immediately
+    notifies :create, "template[deploy red5 video conf]", :immediately
+    notifies :create, "directory[video streams dir]", :immediately
 end
 
 ruby_block "deploy client" do
@@ -138,4 +228,3 @@ ruby_block "reset Mconf-Live force_deploy flag" do
     end
     only_if do node[:mconf][:live][:force_deploy] end
 end
-

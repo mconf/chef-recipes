@@ -11,7 +11,6 @@ maintainer_email "mconf@mconf.org"
 license          "MPL v2.0"
 description      "Install Mconf-Live, the Mconf fork of BigBlueButton"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.0.1"
+version          "0.0.2"
 supports         "ubuntu", "= 10.04"
 depends          "bigbluebutton"
-depends          "live-notes-server"

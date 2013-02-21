@@ -22,9 +22,6 @@ directory "#{node[:mconf][:live][:deploy_dir]}" do
   action :create
 end
 
-include_recipe "bigbluebutton"
-include_recipe "live-notes-server"
-
 ruby_block "print conditions to deploy during execution phase" do
     block do
         Chef::Log.info("This is being printed on execution phase")
@@ -92,7 +89,8 @@ template "/var/www/bigbluebutton/client/conf/config.xml" do
 end
 
 { "bbb_api_conf.jsp.erb" => "/var/lib/tomcat6/webapps/demo/bbb_api_conf.jsp",
-  "bigbluebutton.properties.erb" => "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties" }.each do |k,v|
+  "bigbluebutton.properties.erb" => "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties",
+  "bigbluebutton.yml.erb" => "/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml" }.each do |k,v|
   template "#{v}" do
     source "#{k}"
     group "tomcat6"
@@ -114,6 +112,14 @@ end
       source "#{k}"
       mode "0644"
     end
+end
+
+service "nginx"
+
+cookbook_file "/etc/nginx/mime.types" do
+    source "nginx-mime.types"
+    mode "0644"
+    notifies :restart, "service[nginx]", :immediately
 end
 
 template "/var/lib/tomcat6/webapps/demo/mconf_event_conf.jsp" do
@@ -160,18 +166,6 @@ end
   end
 end
 
-{ "vars.xml" => "/opt/freeswitch/conf/vars.xml",
-  "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml",
-  "conference.conf.xml" => "/opt/freeswitch/conf/autoload_configs/conference.conf.xml" }.each do |k,v|
-  cookbook_file "#{v}" do
-    source "#{k}"
-    group "daemon"
-    owner "freeswitch"
-    mode "0755"
-    notifies :run, "execute[restart bigbluebutton]", :delayed
-  end
-end
-
 cookbook_file "/var/www/bigbluebutton-default/index.html" do
   if node[:bbb][:demo][:enabled]
     source "index-demo-enabled.html"
@@ -179,4 +173,22 @@ cookbook_file "/var/www/bigbluebutton-default/index.html" do
     source "index-demo-disabled.html"
   end
   mode "0644"
+end
+
+[
+  "/var/bigbluebutton/playback/",
+  "/var/bigbluebutton/recording/raw/",
+  "/var/bigbluebutton/recording/process/",
+  "/var/bigbluebutton/recording/publish/",
+  "/var/bigbluebutton/recording/status/recorded/",
+  "/var/bigbluebutton/recording/status/archived/",
+  "/var/bigbluebutton/recording/status/processed/",
+  "/var/bigbluebutton/recording/status/sanity/"
+].each do |dir|
+    directory "#{dir}" do
+        owner "tomcat6"
+        group "tomcat6"
+        recursive true
+        action :create
+    end
 end

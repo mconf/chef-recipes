@@ -37,15 +37,22 @@ p = ruby_block "define bigbluebutton properties" do
             node.set[:bbb][:server_addr] = node[:bbb][:server_url].gsub("http://", "")
             # node[:bbb][:server_domain] = "<SERVER_IP>"
             node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
-            node.set[:bbb][:salt] = properties["securitySalt"]
-            node.set[:bbb][:setsalt_needed] = ("#{node[:bbb][:server_url]}" != properties["bigbluebutton.web.serverURL"])
+
+            if not node[:bbb][:enforce_salt].nil? and not "#{node[:bbb][:enforce_salt]}".empty?
+                node.set[:bbb][:salt] = node[:bbb][:enforce_salt]
+            else
+                node.set[:bbb][:salt] = properties["securitySalt"]
+            end
+            
+            node.set[:bbb][:setsalt_needed] = ("#{node[:bbb][:salt]}" != properties["securitySalt"])
+            node.set[:bbb][:setip_needed] = ("#{node[:bbb][:server_url]}" != properties["bigbluebutton.web.serverURL"])
             node.save unless Chef::Config[:solo]
             
             Chef::Log.info("\tserver_url    : #{node[:bbb][:server_url]}")
             Chef::Log.info("\tserver_addr   : #{node[:bbb][:server_addr]}")
             Chef::Log.info("\tserver_domain : #{node[:bbb][:server_domain]}")
             Chef::Log.info("\tsalt          : #{node[:bbb][:salt]}")
-            Chef::Log.info("\t--setip needed? #{node[:bbb][:setsalt_needed]}")
+            Chef::Log.info("\t--setip needed? #{node[:bbb][:setip_needed]}")
         end
     end
     action :create

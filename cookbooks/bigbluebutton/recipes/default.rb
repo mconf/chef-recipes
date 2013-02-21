@@ -40,50 +40,10 @@ ENV['LC_ALL'] = "en_US.UTF-8"
 
 %w( god builder bundler ).each do |g|
   gem_package g do
-    #action :install
-    action :nothing
+    action :install
     gem_binary('/usr/local/bin/gem')
     #options('LC_LANG=en_US.UTF-8')
   end
-end
-
-# `gem list` on BigBlueButton 0.8 returns the following:
-#
-# bundler (1.2.2)
-# god (0.13.1)
-# minitest (1.6.0)
-# rake (0.8.7)
-# rdoc (2.5.8)
-{ "builder" => "2.1.2",
-  "cucumber" => "0.9.2",
-  "curb" => "0.7.15",
-  "diff-lcs" => "1.1.2",
-  "gherkin" => "2.2.9",
-  "json" => "1.4.6",
-  "mime-types" => "1.16",
-  "nokogiri" => "1.4.4",
-  "open4" => "1.3.0",
-  "rack" => "1.2.2",
-  "redis" => "2.1.1",
-  "redis-namespace" => "0.10.0",
-  "resque" => "1.15.0",
-  "rspec" => "2.0.0",
-  "rspec-core" => "2.0.0",
-  "rspec-expectations" => "2.0.0",
-  "rspec-mocks" => "2.0.0",
-  "rubyzip" => "0.9.4",
-  "sinatra" => "1.2.1",
-  "streamio-ffmpeg" => "0.7.8",
-  "term-ansicolor" => "1.0.5",
-  "tilt" => "1.2.2",
-  "trollop" => "1.16.2",
-  "vegas" => "0.1.8" }.each do |k,v|
-    gem_package "#{k}" do
-        #action :install
-        action :nothing
-        version "#{v}"
-        gem_binary('/usr/local/bin/gem')
-    end
 end
 
 # add ubuntu repo
@@ -112,6 +72,45 @@ execute "apt-get update" do
   action :run
 end
 
+# dependencies of libvpx and ffmpeg
+# http://code.google.com/p/bigbluebutton/wiki/081InstallationUbuntu#3.__Install_ffmpeg
+%w( build-essential git-core checkinstall yasm texi2html libopencore-amrnb-dev 
+    libopencore-amrwb-dev libsdl1.2-dev libtheora-dev libvorbis-dev libx11-dev 
+    libxfixes-dev libxvidcore-dev zlib1g-dev ).each do |pkg|
+  package "#{pkg}" do
+    action :install
+  end
+end
+
+script "install libvpx" do
+  interpreter "bash"
+  user "root"
+  cwd "/usr/local/src"
+  code <<-EOH
+    git clone http://git.chromium.org/webm/libvpx.git
+    cd libvpx
+    ./configure
+    make
+    make install
+  EOH
+  only_if do not File.exists?("/usr/local/src/libvpx") end
+end
+
+script "install ffmpeg" do
+  interpreter "bash"
+  user "root"
+  cwd "/usr/local/src"
+  code <<-EOH
+    wget http://ffmpeg.org/releases/ffmpeg-0.11.2.tar.gz
+    tar -xvzf ffmpeg-0.11.2.tar.gz
+    cd ffmpeg-0.11.2
+    ./configure  --enable-version3 --enable-postproc  --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libvorbis  --enable-libvpx
+    make
+    checkinstall --pkgname=ffmpeg --pkgversion="5:$(./version.sh)" --backup=no --deldoc=yes --default
+  EOH
+  only_if do not File.exists?("/usr/local/src/ffmpeg-0.11.2") end
+end
+
 package "bigbluebutton" do
   # we won't use the version for bigbluebutton and bbb-demo because the 
   # BigBlueButton folks don't keep the older versions
@@ -127,7 +126,7 @@ logrotate_app "tomcat" do
   options [ "missingok", "compress", "copytruncate", "notifempty" ]
   frequency "daily"
   rotate 15
-  size "100M"
+  size "15M"
 end
 
 cron "remove old bigbluebutton logs" do
@@ -148,7 +147,8 @@ package "bbb-demo" do
   end
 end
 
-template "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml" do
+template "deploy red5 deskshare conf" do
+  path "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml"
   source "red5-web-deskshare.xml"
   mode "0644"
   variables(
@@ -157,7 +157,8 @@ template "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml" do
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
-template "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml" do
+template "deploy red5 video conf" do
+  path "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml"
   source "red5-web-video.xml"
   mode "0644"
   variables(
@@ -166,18 +167,47 @@ template "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml" do
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
-directory "/usr/share/red5/webapps/video/streams/" do
+directory "video streams dir" do
+  path "/usr/share/red5/webapps/video/streams"
   user "red5"
-  group "red5"
-  mode "0644"
+  group "adm"
+  mode "0755"
   action :create
+end
+
+{ "vars.xml" => "/opt/freeswitch/conf/vars.xml",
+  "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml",
+  "conference.conf.xml" => "/opt/freeswitch/conf/autoload_configs/conference.conf.xml" }.each do |k,v|
+  cookbook_file "#{v}" do
+    source "#{k}"
+    group "daemon"
+    owner "freeswitch"
+    mode "0755"
+    notifies :run, "execute[restart bigbluebutton]", :delayed
+  end
+end
+
+ruby_block "reset enforce salt flag" do
+    block do
+        node.set[:bbb][:enforce_salt] = nil
+        node.set[:bbb][:setsalt_needed] = false
+    end
+    only_if do node[:bbb][:setsalt_needed] end
+    notifies :run, "execute[set bigbluebutton salt]", :immediately
+end
+
+execute "set bigbluebutton salt" do
+    user "root"
+    command "bbb-conf --setsalt #{node[:bbb][:salt]}"
+    action :nothing
+    notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
 execute "set bigbluebutton ip" do
     user "root"
     command "bbb-conf --setip #{node[:bbb][:server_addr]}; exit 0"
     action :run
-    only_if do node[:bbb][:setsalt_needed] end
+    only_if do node[:bbb][:setip_needed] end
 end
 
 ruby_block "reset restart flag" do

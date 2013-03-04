@@ -26,7 +26,7 @@ end
 
 execute "update locale" do
   user "root"
-  command "update-locale LANG=en_US.UTF-8 LC_MESSAGES=POSIX"
+  command "update-locale LANG=en_US.UTF-8"
   action :nothing
 end
 

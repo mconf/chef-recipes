@@ -13,10 +13,12 @@ default[:mconf][:live][:file] = "mconf-live0.3beta3.tar.gz"
 default[:mconf][:live][:repo] = "http://143.54.85.35:8888/mconf-node"
 default[:mconf][:live][:deploy_dir] = "#{node[:mconf][:dir]}/deploy/mconf-live"
 default[:mconf][:live][:force_deploy] = false
+default[:mconf][:live][:default_playback] = [ "presentation" ]
 
+# set true if you want your Mconf-Live server to act as a standalone server or 
+# if you want a recording server that will query for encrypted recordings
 default[:mconf][:recording_server][:enabled] = false
-default[:mconf][:recording_server][:playback] = [ "presentation" ]
-default[:mconf][:recording_server][:private_key_path] = "/var/mconf/private_key.pem"
+default[:mconf][:recording_server][:private_key_path] = "#{node[:mconf][:dir]}/private_key.pem"
 default[:mconf][:recording_server][:get_recordings_url] = nil
 
 # example of configuration for the Chef Server:

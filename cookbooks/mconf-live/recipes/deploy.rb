@@ -71,7 +71,7 @@ ruby_block "deploy record-and-playback" do
                 FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/mconf/scripts/mconf-god-conf.rb", "/etc/bigbluebutton/god/conf/"
                 FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/mconf/scripts/mconf-decrypt.rb", "/usr/local/bigbluebutton/core/scripts/"
 
-                deploy_recording_format(node[:mconf][:recording_server][:playback])
+                deploy_recording_format(node[:mconf][:live][:default_playback])
             else
                 Chef::Log.info("This is a Mconf Live recorder")
                 deploy_recording_format([ "mconf" ])
@@ -126,12 +126,44 @@ ruby_block "generate recording server keys" do
     only_if do node[:mconf][:recording_server][:enabled] and not File.exists?("#{node[:mconf][:recording_server][:private_key_path]}") end
 end
 
-ruby_block "update server url metadata" do
+Dir["/var/bigbluebutton/published/**/metadata.xml"].each do |filename|
+    execute "update server url metadata" do
+        # extra escape needed
+        command "sed -i 's \\(https\\?://[^/]*\\)/\\(mconf\\|presentation\\)/ #{node[:bbb][:server_url]}/\\2/ g' #{filename}"
+        user "root"
+        action :run
+    end
+end
+
+#ruby_block "update server url metadata" do
+#    block do
+#            Chef::Log.info("Updating server URL on metadata: #{filename}")
+            # this code doesn't work, trying something different
+            #text = File.read(filename)
+            #File.open("#{filename}", "w") { |file| file.puts text.gsub(/http(s?):\/\/([\w+.-]+)(\/mconf|\/playback)/, "#{node[:bbb][:server_url]}\\3") }
+#            if not File.exists?("#{filename}.backup")
+#                FileUtils.cp "#{filename}", "#{filename}.backup"
+#            end
+#            File.open("#{filename}", 'w') do |out|
+#                out << File.open("#{filename}.backup").read.gsub(/http(s?):\/\/([\w+.-]+)(\/mconf|\/playback)/, "#{node[:bbb][:server_url]}\\3")
+#            end
+#        end
+#    end
+#    action :nothing
+#end
+
+# \TODO remove files from non recorded sessions
+# \TODO create cron jobs to handle such files
+ruby_block "remove raw data of encrypted recordings" do
     block do
-        Dir["/var/bigbluebutton/published/**/metadata.xml"].each do |filename|
-            Chef::Log.info("Updating server URL on metadata: #{filename}")
-            text = File.read(filename)
-            File.open("#{filename}", "w") { |file| file.puts text.gsub(/http(s?):\/\/([\w+.-]+)(\/mconf|\/playback)/, "#{node[:bbb][:server_url]}\\3") }
+        Dir["/var/bigbluebutton/published/mconf/*"].each do |dir|
+            meeting_id = File.basename("#{dir}")
+            if not File.exists?("/var/bigbluebutton/recordings/raw/#{meeting_id}")
+                Chef::Log.info "The recording #{meeting_id} is published so the video, audio and deskshare files aren't needed anymore"
+                FileUtils.rm_r [ "/usr/share/red5/webapps/video/streams/#{meeting_id}",
+                                 "/usr/share/red5/webapps/deskshare/streams/#{meeting_id}",
+                                 Dir.glob("/var/freeswitch/meetings/#{meeting_id}*.wav") ], :force => true
+            end
         end
     end
 end

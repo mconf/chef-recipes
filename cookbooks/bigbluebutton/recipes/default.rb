@@ -143,7 +143,12 @@ ruby_block "check meetings running" do
     }
 
     if not res.body.include? "<messageKey>noMeetings</messageKey>"
+      # \TODO create another way to abort the chef run without call the exception 
+      # handler or handling this particular exception into the exception handler 
+      # to not send the nsca message
       raise "Can't continue because there are meetings currently running"
+      #exit 0
+      #Chef::Application.fatal!("Can't continue because there are meetings currently running", 0)
     end
   end
 end

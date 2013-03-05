@@ -11,6 +11,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+require 'digest/sha1'
+require 'net/http'
+
 include_recipe "ruby-1.9.2"
 include_recipe "apt"
 
@@ -128,6 +131,22 @@ cron "remove old bigbluebutton logs" do
 end
 
 include_recipe "bigbluebutton::load-properties"
+
+ruby_block "check meetings running" do
+  block do
+    params = "random=#{rand(99999)}"
+    checksum = Digest::SHA1.hexdigest "getMeetings#{params}#{node[:bbb][:salt]}"
+    url = URI.parse("http://localhost:8080/bigbluebutton/api/getMeetings?#{params}&checksum=#{checksum}")
+    req = Net::HTTP::Get.new(url.to_s)
+    res = Net::HTTP.start(url.host, url.port) { |http|
+      http.request(req)
+    }
+
+    if not res.body.include? "<messageKey>noMeetings</messageKey>"
+      raise "Can't continue because there are meetings currently running"
+    end
+  end
+end
 
 package "bbb-demo" do
 #  version node[:bbb_demo][:version]

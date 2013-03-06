@@ -29,7 +29,7 @@ end
 
 execute "update locale" do
   user "root"
-  command "update-locale LANG=en_US.UTF-8"
+  command "update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8"
   action :nothing
 end
 

@@ -11,7 +11,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-require 'open4'
+# \TODO need to check this compatibility to deploy the version for recordings
+#require 'open4'
 
 execute "bbb-conf --stop" do
   user "root"

@@ -78,9 +78,3 @@ ruby_block "save node properties" do
     node.save unless Chef::Config[:solo]
   end
 end
-
-gem_package "open4" do
-  gem_binary('/usr/local/bin/gem')
-  action :install
-end
-

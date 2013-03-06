@@ -11,8 +11,20 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# \TODO need to check this compatibility to deploy the version for recordings
-#require 'open4'
+begin
+    require 'open4'
+rescue LoadError
+    gem_package "open4" do
+      gem_binary('/usr/local/bin/gem')
+      action :install
+    end
+
+    ruby_block "abort if open4 not loaded" do
+        block do
+            raise "The required gem open4 wasn't installed. Installation will continue on next run."
+        end
+    end
+end
 
 execute "bbb-conf --stop" do
   user "root"

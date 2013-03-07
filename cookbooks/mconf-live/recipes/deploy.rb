@@ -11,19 +11,19 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-def require_or_install(g)
-    begin
-        require "#{g}"
-    rescue LoadError
-        gem_package "#{g}" do
-          gem_binary('/usr/local/bin/gem')
-          action :nothing
-        end.run_action(:install)
-        require "#{g}"
+begin
+    require 'open4'
+rescue LoadError
+    gem_package "open4" do
+      action :install
+    end
+
+    ruby_block "abort if open4 not loaded" do
+        block do
+            raise "The required gem open4 wasn't installed. Installation will continue on next run."
+        end
     end
 end
-
-require_or_install("open4")
 
 execute "bbb-conf --stop" do
   user "root"

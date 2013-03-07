@@ -132,27 +132,6 @@ end
 
 include_recipe "bigbluebutton::load-properties"
 
-ruby_block "check meetings running" do
-  block do
-    params = "random=#{rand(99999)}"
-    checksum = Digest::SHA1.hexdigest "getMeetings#{params}#{node[:bbb][:salt]}"
-    url = URI.parse("http://localhost:8080/bigbluebutton/api/getMeetings?#{params}&checksum=#{checksum}")
-    req = Net::HTTP::Get.new(url.to_s)
-    res = Net::HTTP.start(url.host, url.port) { |http|
-      http.request(req)
-    }
-
-    if not res.body.include? "<messageKey>noMeetings</messageKey>"
-      # \TODO create another way to abort the chef run without call the exception 
-      # handler or handling this particular exception into the exception handler 
-      # to not send the nsca message
-      raise "Can't continue because there are meetings currently running"
-      #exit 0
-      #Chef::Application.fatal!("Can't continue because there are meetings currently running", 0)
-    end
-  end
-end
-
 package "bbb-demo" do
 #  version node[:bbb_demo][:version]
   if node[:bbb][:demo][:enabled]

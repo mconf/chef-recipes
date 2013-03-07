@@ -65,7 +65,7 @@ ruby_block "print deploy flag" do
     action :create
 end
 
-include_recipe "mconf-live::deploy"
+include_recipe "mconf-live::deploy" unless node[:bbb][:handling_meetings]
 
 # delete deploy flag after deployement
 file "delete flag after the deploy" do

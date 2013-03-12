@@ -17,16 +17,9 @@
   end
 end
 
-directory "#{Chef::Config[:file_cache_path]}/psutil" do
-  owner "root"
-  recursive true
-end
-
-subversion "get psutil source code" do
+subversion "#{Chef::Config[:file_cache_path]}/psutil" do
     repository "http://psutil.googlecode.com/svn/trunk"
-#    revision "HEAD"
     revision "1400"
-    destination "#{Chef::Config[:file_cache_path]}/psutil/"
     action :sync
     notifies :run, 'execute[install psutil]', :immediately
 end
@@ -34,6 +27,7 @@ end
 execute "install psutil" do
     action :nothing
     user "root"
-    cwd "#{Chef::Config[:file_cache_path]}/psutil/"
+    cwd "#{Chef::Config[:file_cache_path]}/psutil"
     command "python setup.py install"
+    creates "/usr/local/lib/python2.6/dist-packages/psutil-0.5.1.egg-info"
 end

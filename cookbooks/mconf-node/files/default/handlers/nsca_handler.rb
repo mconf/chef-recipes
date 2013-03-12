@@ -31,7 +31,7 @@ class NscaHandler < Chef::Handler
   def report
     ret = run_status.failed? ? 1 : 0
 
-    perfdata = "elapsed_time=#{run_status.elapsed_time}s"
+    perfdata = "elapsed_time=#{run_status.elapsed_time}s;;;"
     # number of resources is useless for now
 #    perfdata << " all_resources=#{run_status.all_resources.length}"
 #    perfdata << " updated_resources=#{run_status.updated_resources.length}"

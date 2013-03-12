@@ -27,11 +27,11 @@ define_properties = ruby_block "define bigbluebutton properties" do
             properties = Hash[File.read('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
 
             # node[:bbb][:server_url] = "http://<SERVER_IP>:<SERVER_PORT>"
-            if not node[:bbb][:ip].nil? and not "#{node[:bbb][:ip]}".empty?
-                if not "#{node[:bbb][:ip]}".start_with?("http://")
+            if not node[:bbb][:ip].nil? and not node[:bbb][:ip].empty?
+                if not node[:bbb][:ip].start_with?("http://")
                     node.set[:bbb][:ip] = "http://#{node[:bbb][:ip]}"
                 end
-                node.set[:bbb][:server_url] = "#{node[:bbb][:ip]}"
+                node.set[:bbb][:server_url] = node[:bbb][:ip]
             else
                 node.set[:bbb][:server_url] = "http://#{node[:ipaddress]}"
             end
@@ -41,14 +41,14 @@ define_properties = ruby_block "define bigbluebutton properties" do
             # node[:bbb][:server_domain] = "<SERVER_IP>"
             node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
 
-            if not node[:bbb][:enforce_salt].nil? and not "#{node[:bbb][:enforce_salt]}".empty?
+            if not node[:bbb][:enforce_salt].nil? and not node[:bbb][:enforce_salt].empty?
                 node.set[:bbb][:salt] = node[:bbb][:enforce_salt]
             else
                 node.set[:bbb][:salt] = properties["securitySalt"]
             end
             
-            node.set[:bbb][:setsalt_needed] = ("#{node[:bbb][:salt]}" != properties["securitySalt"])
-            node.set[:bbb][:setip_needed] = ("#{node[:bbb][:server_url]}" != properties["bigbluebutton.web.serverURL"])
+            node.set[:bbb][:setsalt_needed] = (node[:bbb][:salt] != properties["securitySalt"])
+            node.set[:bbb][:setip_needed] = (node[:bbb][:server_url] != properties["bigbluebutton.web.serverURL"])
             node.save unless Chef::Config[:solo]
             
             params = "random=#{rand(99999)}"

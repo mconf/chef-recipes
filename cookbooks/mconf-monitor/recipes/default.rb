@@ -33,7 +33,7 @@ include_recipe "bigbluebutton::load-properties"
 t = ruby_block "set nsca properties" do
     block do
         if node[:mconf][:instance_type] == "bigbluebutton"
-            node.set[:nsca][:hostname] = "#{node[:bbb][:server_domain]}"
+            node.set[:nsca][:hostname] = node[:bbb][:server_domain]
         elsif node[:mconf][:instance_type] == "nagios"
             node.set[:nsca][:hostname] = "localhost"
         else
@@ -43,15 +43,15 @@ t = ruby_block "set nsca properties" do
 end
 t.run_action(:create)
 
-directory "#{node[:mconf][:nagios][:dir]}" do
-  owner "#{node[:mconf][:user]}"
+directory node[:mconf][:nagios][:dir] do
+  owner node[:mconf][:user]
   recursive true
 end
 
 # performance reporter template creation
 template "performance_report upstart" do
     path "/etc/init/performance_report.conf"
-    source "performance_report.conf"
+    source "performance_report.conf.erb"
     mode "0644"
     if monitoring_servers and not monitoring_servers.empty?
       notifies :restart, "service[performance_report]", :delayed
@@ -59,9 +59,9 @@ template "performance_report upstart" do
 end
 
 template "#{node[:mconf][:nagios][:dir]}/reporter.sh" do
-    source "reporter.sh"
+    source "reporter.sh.erb"
     mode 0755
-    owner "#{node[:mconf][:user]}"
+    owner node[:mconf][:user]
     variables({
       :nsca_server => monitoring_servers,
       :nsca_dir => node[:nsca][:dir],
@@ -77,7 +77,7 @@ end
 cookbook_file "#{node[:mconf][:nagios][:dir]}/performance_report.py" do
     source "performance_report.py"
     mode 0755
-    owner "#{node[:mconf][:user]}"
+    owner node[:mconf][:user]
     action :create
     if monitoring_servers and not monitoring_servers.empty?
       notifies :restart, "service[performance_report]", :delayed

@@ -6,9 +6,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+name             "psutil"
 maintainer       "mconf.org"
 maintainer_email "mconf@mconf.org"
 license          "MPL v2.0"
-description      "get source, build it and install psutil"
+description      "Install psutil"
+long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.0.1"
 supports         "ubuntu"

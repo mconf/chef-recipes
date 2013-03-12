@@ -6,6 +6,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+name             "bigbluebutton"  
 maintainer       "mconf"
 maintainer_email "mconf@mconf.org"
 license          "MPL v2.0"

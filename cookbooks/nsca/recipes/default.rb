@@ -44,7 +44,7 @@ script "build nsca" do
     action :nothing
     interpreter "bash"
     user "root"
-    cwd "#{Chef::Config[:file_cache_path]}"
+    cwd Chef::Config[:file_cache_path]
     code <<-EOH
         tar xzf "nsca-#{node[:nsca][:version]}.tar.gz"
         cd "nsca-#{node[:nsca][:version]}"

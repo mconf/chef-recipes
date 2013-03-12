@@ -16,8 +16,8 @@ if node[:mconf][:streaming][:enabled]
   node.set[:bbb][:demo][:enabled] = true
 end
 
-directory "#{node[:mconf][:live][:deploy_dir]}" do
-  owner "#{node[:mconf][:user]}"
+directory node[:mconf][:live][:deploy_dir] do
+  owner node[:mconf][:user]
   recursive true
   action :create
   subscribes :create, resources("package[bigbluebutton]"), :immediately
@@ -53,9 +53,9 @@ t.run_action(:create)
 # - file exists but the deployed version is different than the current version
 file "create deploy flag" do
     path "#{node[:mconf][:live][:deploy_dir]}/.deploy_needed"
-    owner "#{node[:mconf][:user]}"
+    owner node[:mconf][:user]
     action :create
-    only_if do node[:mconf][:live][:force_deploy] or not File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed") or (File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed") and File.read("#{node[:mconf][:live][:deploy_dir]}/.deployed") != "#{node[:mconf][:live][:version]}") end
+    only_if do node[:mconf][:live][:force_deploy] or not File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed") or (File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed") and File.read("#{node[:mconf][:live][:deploy_dir]}/.deployed") != node[:mconf][:live][:version]) end
     subscribes :create, resources("package[bigbluebutton]"), :immediately
     subscribes :create, resources("package[bbb-demo]"), :immediately
 end
@@ -83,8 +83,6 @@ template "/var/www/bigbluebutton/client/conf/config.xml" do
   source "config.xml.erb"
   mode "0644"
   variables(
-    :server_url => node[:bbb][:server_url],
-    :server_domain => node[:bbb][:server_domain],
     :module_version => node[:mconf][:live][:version_int],
     :streaming => node[:mconf][:streaming][:enabled]
   )
@@ -93,8 +91,8 @@ end
 { "bbb_api_conf.jsp.erb" => "/var/lib/tomcat6/webapps/demo/bbb_api_conf.jsp",
   "bigbluebutton.properties.erb" => "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties",
   "bigbluebutton.yml.erb" => "/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml" }.each do |k,v|
-  template "#{v}" do
-    source "#{k}"
+  template v do
+    source k
     group "tomcat6"
     owner "tomcat6"
     mode "0644"
@@ -103,15 +101,15 @@ end
       :salt => node[:bbb][:salt]
     )
     notifies :run, "execute[restart bigbluebutton]", :delayed
-    only_if do File.exists?(File.dirname("#{v}")) end
+    only_if do File.exists?(File.dirname(v)) end
   end
 end
 
 { "mconf-default.pdf" => "/var/www/bigbluebutton-default/mconf-default.pdf",
   "layout.xml" => "/var/www/bigbluebutton/client/conf/layout.xml",
   "layout-streaming.xml" => "/var/www/bigbluebutton/client/conf/layout-streaming.xml" }.each do |k,v|
-    cookbook_file "#{v}" do
-      source "#{k}"
+    cookbook_file v do
+      source k
       mode "0644"
     end
 end
@@ -154,15 +152,15 @@ end
 if not node[:mconf][:streaming][:enabled]
   [ "/var/lib/tomcat6/webapps/demo/mconf_event.jsp", 
     "/var/lib/tomcat6/webapps/demo/mconf_event_conf.jsp"].each do |f|
-      file "#{f}" do
+      file f do
         action :delete
       end
   end
 end
 
 { "bigbluebutton-sip.properties.erb" => "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties" }.each do |k,v|
-  template "#{v}" do
-    source "#{k}"
+  template v do
+    source k
     mode "0644"
     notifies :run, "execute[restart bigbluebutton]", :delayed
   end
@@ -187,7 +185,7 @@ end
   "/var/bigbluebutton/recording/status/processed/",
   "/var/bigbluebutton/recording/status/sanity/"
 ].each do |dir|
-    directory "#{dir}" do
+    directory dir do
         owner "tomcat6"
         group "tomcat6"
         recursive true

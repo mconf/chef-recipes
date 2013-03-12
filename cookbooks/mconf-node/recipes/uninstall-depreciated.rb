@@ -17,14 +17,14 @@ if File.exists?("/var/www/bigbluebutton/client/conf/config.xml")
 end
 
 # remove some stuff related to the previous deploy bbb0.8-mconf-0.1
-if "#{version}" == "bbb0.8-mconf-0.1 - Mconf Node (mconf.org)"
+if version == "bbb0.8-mconf-0.1 - Mconf Node (mconf.org)"
     users = `cat /etc/passwd | cut -d: -f1`.split()
 
     # remove the cron jobs
     users.each do |usr|
       %w{ /usr/bin/live-notes-server.sh ~/tools/nagios-etc/cli/performance_report.py ~/tools/nagios-etc/cli/check_bbb_salt.sh }.each do |cmd|
         execute "remove #{cmd} cronjob as #{usr}" do
-          user "#{usr}"
+          user usr
           command "crontab -l | grep -v '#{cmd}' > /tmp/cron.jobs; crontab /tmp/cron.jobs; rm /tmp/cron.jobs"
           action :run
         end
@@ -41,7 +41,7 @@ if "#{version}" == "bbb0.8-mconf-0.1 - Mconf Node (mconf.org)"
 
     # remove the applications placed into /usr/bin
     %w{ /usr/bin/sbt-launch.jar /usr/bin/sbt /usr/bin/live-notes-server.sh }.each do |f|
-      file "#{f}" do
+      file f do
         action :delete
       end
     end

@@ -28,20 +28,20 @@ end
 
 node.set[:mconf][:live][:url] = "#{node[:mconf][:live][:repo]}/#{node[:mconf][:live][:file]}"
 
-if "#{node[:mconf][:live][:repo]}".start_with? "http://"
+if node[:mconf][:live][:repo].start_with? "http://"
   remote_file "#{Chef::Config[:file_cache_path]}/#{node[:mconf][:live][:file]}" do
-    source "#{node[:mconf][:live][:url]}"
+    source node[:mconf][:live][:url]
     mode "0644"
     only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
   end
 else
   # this is a workaround to be able to install Mconf-Live from a local file instead of a remote one
-  FileUtils.cp "#{node[:mconf][:live][:url]}", "#{Chef::Config[:file_cache_path]}/#{node[:mconf][:live][:file]}"
+  FileUtils.cp node[:mconf][:live][:url], "#{Chef::Config[:file_cache_path]}/#{node[:mconf][:live][:file]}"
 end
 
 execute "untar mconf-live" do
-  user "#{node[:mconf][:user]}"
-  cwd "#{Chef::Config[:file_cache_path]}"
+  user node[:mconf][:user]
+  cwd Chef::Config[:file_cache_path]
   command "tar xzf #{node[:mconf][:live][:file]} --directory #{node[:mconf][:live][:deploy_dir]}/"
   action :run
   only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end
@@ -67,8 +67,8 @@ ruby_block "deploy record-and-playback" do
                 formats.each do |format|
                     playback_dir = "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/#{format}/playback/#{format}"
                     scripts_dir = "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/#{format}/scripts"
-                    FileUtils.cp_r "#{playback_dir}", "/var/bigbluebutton/playback/" unless not ::File.exists?("#{playback_dir}")
-                    FileUtils.cp_r Dir.glob("#{scripts_dir}/*"), "/usr/local/bigbluebutton/core/scripts/" unless not ::File.exists?("#{scripts_dir}")
+                    FileUtils.cp_r playback_dir, "/var/bigbluebutton/playback/" unless not ::File.exists?(playback_dir)
+                    FileUtils.cp_r Dir.glob("#{scripts_dir}/*"), "/usr/local/bigbluebutton/core/scripts/" unless not ::File.exists?(scripts_dir)
                     FileUtils.mkdir_p "/var/log/bigbluebutton/#{format}"
                 end
             end
@@ -130,7 +130,7 @@ ruby_block "generate recording server keys" do
         #public_key = rsa_key.public_key.to_pem
         #node.set[:keys][:recording_server_public] = "#{public_key}"
     end
-    only_if do node[:mconf][:recording_server][:enabled] and not File.exists?("#{node[:mconf][:recording_server][:private_key_path]}") end
+    only_if do node[:mconf][:recording_server][:enabled] and not File.exists?(node[:mconf][:recording_server][:private_key_path]) end
 end
 
 Dir["/var/bigbluebutton/published/**/metadata.xml"].each do |filename|
@@ -164,7 +164,7 @@ end
 ruby_block "remove raw data of encrypted recordings" do
     block do
         Dir["/var/bigbluebutton/published/mconf/*"].each do |dir|
-            meeting_id = File.basename("#{dir}")
+            meeting_id = File.basename(dir)
             if not File.exists?("/var/bigbluebutton/recordings/raw/#{meeting_id}")
                 Chef::Log.info "The recording #{meeting_id} is published so the video, audio and deskshare files aren't needed anymore"
                 FileUtils.rm_r [ "/usr/share/red5/webapps/video/streams/#{meeting_id}",
@@ -273,7 +273,7 @@ end
 # register deployed version
 file "#{node[:mconf][:live][:deploy_dir]}/.deployed" do
   action :create
-  content "#{node[:mconf][:live][:version]}"
+  content node[:mconf][:live][:version]
 end
 
 # restore salt and IP

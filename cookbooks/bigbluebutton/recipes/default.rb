@@ -16,7 +16,7 @@
 %w( build-essential git-core checkinstall yasm texi2html libopencore-amrnb-dev 
     libopencore-amrwb-dev libsdl1.2-dev libtheora-dev libvorbis-dev libx11-dev 
     libxfixes-dev libxvidcore-dev zlib1g-dev ).each do |pkg|
-  package "#{pkg}" do
+  package pkg do
     action :install
   end
 end
@@ -121,8 +121,8 @@ end
 { "vars.xml" => "/opt/freeswitch/conf/vars.xml",
   "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml",
   "conference.conf.xml" => "/opt/freeswitch/conf/autoload_configs/conference.conf.xml" }.each do |k,v|
-  cookbook_file "#{v}" do
-    source "#{k}"
+  cookbook_file v do
+    source k
     group "daemon"
     owner "freeswitch"
     mode "0755"

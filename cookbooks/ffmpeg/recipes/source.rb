@@ -28,8 +28,12 @@ ffmpeg_packages.each do |pkg|
   end
 end
 
-include_recipe "x264::source"
-include_recipe "libvpx::source"
+if node[:ffmpeg][:compile_flags].include? '--enable-libx264'
+  include_recipe "x264::source"
+end
+if node[:ffmpeg][:compile_flags].include? '--enable-libvpx'
+  include_recipe "libvpx::source"
+end
 
 yasm_package = value_for_platform(
   [ "ubuntu" ] => { "default" => "yasm" },

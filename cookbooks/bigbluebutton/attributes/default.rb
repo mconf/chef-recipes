@@ -13,6 +13,6 @@ default[:bbb][:ip] = nil
 default[:bbb][:force_restart] = false
 default[:bbb][:enforce_salt] = nil
 
-#default[:bigbluebutton][:version] = "0.80ubuntu4"
+#default[:bbb][:version] = "0.80ubuntu4"
 #default[:bbb_demo][:version] = "0.80ubuntu76"
 

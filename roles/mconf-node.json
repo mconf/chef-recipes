@@ -16,7 +16,23 @@
         "dir": "/var/mconf/log"
       },
       "live": {
+        "version": "mconf-live0.3beta4",
+        "version_int": 4,
+        "file": "mconf-live0.3beta4.tar.gz"
       }
+    },
+    "libvpx": {
+      "git_revision": "b9ce43029298182668d4dcb0e0814189e4a63c2a",
+      "comment": "tag v1.2.0"
+    },
+    "ffmpeg": {
+      "git_revision": "b06903e6c56d2e08c3b79f67a1e81e24e90c60ac",
+      "comment": "tag n0.11.2"
+    },
+    "yasm": {
+      "install_method": "source",
+      "git_revision": "0f5e8ebdb5a273d8fd61e00e90d0c9778b7814cf",
+      "comment": "tag v1.2.0"
     }
   },
   "description": "This role is to install and update a Mconf-Node",
@@ -24,6 +40,21 @@
   },
   "json_class": "Chef::Role",
   "override_attributes": {
+    "ffmpeg": {
+      "compile_flags": [
+        "--enable-version3",
+        "--enable-postproc",
+        "--enable-libopencore-amrnb",
+        "--enable-libopencore-amrwb",
+        "--enable-libtheora",
+        "--enable-libvorbis",
+        "--enable-libvpx",
+
+        "--disable-debug",
+        "--enable-pthreads"
+      ],
+      "comment": "Couldn't set the compile flags using default attributes =/"
+    }
   },
   "name": "mconf-node",
   "chef_type": "role",

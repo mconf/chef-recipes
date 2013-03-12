@@ -11,15 +11,18 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-require 'digest/sha1'
-require 'net/http'
-
-include_recipe "ruby-1.9.2"
-include_recipe "apt"
-
-link "/usr/bin/ruby1.9.2" do
-  to "/usr/local/bin/ruby"
+# dependencies of libvpx and ffmpeg
+# http://code.google.com/p/bigbluebutton/wiki/081InstallationUbuntu#3.__Install_ffmpeg
+%w( build-essential git-core checkinstall yasm texi2html libopencore-amrnb-dev 
+    libopencore-amrwb-dev libsdl1.2-dev libtheora-dev libvorbis-dev libx11-dev 
+    libxfixes-dev libxvidcore-dev zlib1g-dev ).each do |pkg|
+  package "#{pkg}" do
+    action :install
+  end
 end
+
+# include_recipe "yasm::source"
+include_recipe "ffmpeg"
 
 # https://groups.google.com/d/topic/bigbluebutton-setup/zL5Lwbj46TY/discussion
 package "language-pack-en" do
@@ -33,23 +36,10 @@ execute "update locale" do
   action :nothing
 end
 
-%w( god builder bundler ).each do |g|
-  gem_package g do
-    action :install
-    gem_binary('/usr/local/bin/gem')
-  end
-end
-
 # add ubuntu repo
 apt_repository "ubuntu" do
   uri "http://archive.ubuntu.com/ubuntu/"
   components ["lucid" , "multiverse"]
-end
-
-# create the cache directory
-directory "#{Chef::Config[:file_cache_path]}" do
-  recursive true
-  action :create
 end
 
 # add bigbluebutton repo
@@ -57,52 +47,7 @@ apt_repository "bigbluebutton" do
   key "http://ubuntu.bigbluebutton.org/bigbluebutton.asc"
   uri "http://ubuntu.bigbluebutton.org/lucid_dev_08"
   components ["bigbluebutton-lucid" , "main"]
-  # it definitely doesn't work
-#  notifies :run, 'execute[apt-get update]', :immediately
-end
-
-execute "apt-get update" do
-  user "root"
-  action :run
-end
-
-# dependencies of libvpx and ffmpeg
-# http://code.google.com/p/bigbluebutton/wiki/081InstallationUbuntu#3.__Install_ffmpeg
-%w( build-essential git-core checkinstall yasm texi2html libopencore-amrnb-dev 
-    libopencore-amrwb-dev libsdl1.2-dev libtheora-dev libvorbis-dev libx11-dev 
-    libxfixes-dev libxvidcore-dev zlib1g-dev ).each do |pkg|
-  package "#{pkg}" do
-    action :install
-  end
-end
-
-script "install libvpx" do
-  interpreter "bash"
-  user "root"
-  cwd "/usr/local/src"
-  code <<-EOH
-    git clone http://git.chromium.org/webm/libvpx.git
-    cd libvpx
-    ./configure
-    make
-    make install
-  EOH
-  only_if do not File.exists?("/usr/local/src/libvpx") end
-end
-
-script "install ffmpeg" do
-  interpreter "bash"
-  user "root"
-  cwd "/usr/local/src"
-  code <<-EOH
-    wget http://ffmpeg.org/releases/ffmpeg-0.11.2.tar.gz
-    tar -xvzf ffmpeg-0.11.2.tar.gz
-    cd ffmpeg-0.11.2
-    ./configure  --enable-version3 --enable-postproc  --enable-libopencore-amrnb --enable-libopencore-amrwb --enable-libtheora --enable-libvorbis  --enable-libvpx
-    make
-    checkinstall --pkgname=ffmpeg --pkgversion="5:$(./version.sh)" --backup=no --deldoc=yes --default
-  EOH
-  only_if do not File.exists?("/usr/local/src/ffmpeg-0.11.2") end
+  notifies :run, 'execute[apt-get update]', :immediately
 end
 
 package "bigbluebutton" do
@@ -113,6 +58,12 @@ package "bigbluebutton" do
   action :install
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end
+
+#link "/etc/nginx/sites-enabled/bigbluebutton" do
+#  to "/etc/nginx/sites-available/bigbluebutton"
+#end
+
+include_recipe "bigbluebutton::load-properties"
 
 logrotate_app "tomcat" do
   cookbook "logrotate"
@@ -130,8 +81,6 @@ cron "remove old bigbluebutton logs" do
   action :create
 end
 
-include_recipe "bigbluebutton::load-properties"
-
 package "bbb-demo" do
 #  version node[:bbb_demo][:version]
   if node[:bbb][:demo][:enabled]
@@ -143,7 +92,7 @@ end
 
 template "deploy red5 deskshare conf" do
   path "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml"
-  source "red5-web-deskshare.xml"
+  source "red5-web-deskshare.xml.erb"
   mode "0644"
   variables(
     :record_deskshare => node[:bbb][:recording][:deskshare]
@@ -153,7 +102,7 @@ end
 
 template "deploy red5 video conf" do
   path "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml"
-  source "red5-web-video.xml"
+  source "red5-web-video.xml.erb"
   mode "0644"
   variables(
     :record_video => node[:bbb][:recording][:video]

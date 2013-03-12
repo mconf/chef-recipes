@@ -11,6 +11,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+require 'digest/sha1'
+require 'net/http'
+
 ruby_block "print warning" do
     block do
         Chef::Log.info("This is being printed on execution phase")

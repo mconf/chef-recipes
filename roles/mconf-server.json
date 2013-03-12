@@ -1,15 +1,16 @@
 {
   "default_attributes": {
-    "chef_client": {
-      "interval": "1800",
-      "server_url": "http://chef.mconf.org:4000"
-    }
   },
   "description": "Basic role applied to every server configured by the Mconf Chef Server",
   "env_run_lists": {
   },
   "json_class": "Chef::Role",
   "override_attributes": {
+    "chef_client": {
+      "init_style": "upstart",
+      "interval": "1800",
+      "server_url": "http://chef.mconf.org:4000"
+    }
   },
   "name": "mconf-server",
   "chef_type": "role",

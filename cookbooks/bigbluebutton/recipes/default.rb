@@ -161,6 +161,10 @@ ruby_block "reset restart flag" do
     notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
+service "bbb-record-core" do
+  action :start
+end
+
 execute "restart bigbluebutton" do
   user "root"
   command "bbb-conf --clean || echo 'Return successfully'"

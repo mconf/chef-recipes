@@ -3,23 +3,24 @@ chef-recipes
 
 Storage of chef recipes for the Mconf plataform.
 
-To run the recipes in a development environment, set solo.rb according to your environment. Then execute:
-```
-sudo shef --solo --config solo.rb -j runlist.json
-```
+These recipes are developed and tested using the chef gem version 10.24.0.
 
-On shef, execute:
+To install cookbooks from the Opscode Community:
 
 ```
-chef > recipe
-chef:recipe > load_recipe "<cookbook>::<recipe>"
-chef:recipe > run_chef
+knife cookbook site install COOKBOOK_NAME --cookbook-path cookbooks/ --use-current-branch
 ```
 
-If you want to reload your recipe after a change, execute:
+To install cookbooks from arbitrary GitHub repositories, first you need the gem knife-github-cookbooks:
 
 ```
-chef:recipe > run_context.resource_collection = Chef::ResourceCollection.new
+sudo gem install knife-github-cookbooks
 ```
 
-Then load your recipe again and run it normally.
+Then execute:
+
+```
+knife cookbook github install Youscribe/hostname-cookbook --cookbook-path cookbooks/ --use-current-branch
+```
+
+The above command will install the cookbook from https://github.com/Youscribe/hostname-cookbook.

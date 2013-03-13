@@ -48,11 +48,8 @@ script "build nsca" do
     code <<-EOH
         tar xzf "nsca-#{node[:nsca][:version]}.tar.gz"
         cd "nsca-#{node[:nsca][:version]}"
-        # for some reason, patch isn't working properly
-        # \TODO instead of using the complete file patched, use only the patch
-#        mv #{Chef::Config[:file_cache_path]}/nsca.c.patch src/
-#        patch src/nsca.c < src/nsca.c.patch
 
+        # \TODO instead of using the complete file patched, use only the patch
         if [ "#{node[:nsca][:version]}" == "2.9.1" ]; then
           mv #{Chef::Config[:file_cache_path]}/nsca.c.v2.9.1.patched src/nsca.c
         fi

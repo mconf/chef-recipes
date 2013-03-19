@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: mconf-monitor
-# Recipe:: default
+# Recipe:: client
 # Author:: Felipe Cecagno (<felipe@mconf.org>)
 # Author:: Mauricio Cruz (<brcruz@gmail.com>)
 #

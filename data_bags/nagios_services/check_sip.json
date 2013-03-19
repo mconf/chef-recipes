@@ -1,0 +1,7 @@
+{
+    "id": "check_sip",
+    "service_template": "default-service",
+    "hostgroup_name": "mconf-live-servers",
+    "description": "Port check - SIP",
+    "use_existing_command": "check_sip"
+}

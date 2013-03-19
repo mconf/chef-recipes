@@ -1,0 +1,7 @@
+{
+    "id": "check_bbb_api",
+    "service_template": "default-service",
+    "hostgroup_name": "mconf-live-servers",
+    "description": "BigBlueButton API",
+    "use_existing_command": "check_bbb_api"
+}

@@ -1,0 +1,7 @@
+{
+    "id": "passive_network",
+    "service_template": "generic-passive-service",
+    "hostgroup_name": "mconf-live-servers",
+    "description": "Network Report",
+    "use_existing_command": "service_out_of_date"
+}

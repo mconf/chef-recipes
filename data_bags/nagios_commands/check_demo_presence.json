@@ -1,0 +1,4 @@
+{
+    "id": "check_demo_presence",
+    "command_line": "$USER1$/negate --ok WARNING --warning OK --critical CRITICAL --unknown UNKNOWN $USER1$/check_http --hostname $HOSTADDRESS$ --port $_HOSTBBB_PORT$ --url /demo/demo1.jsp"
+}

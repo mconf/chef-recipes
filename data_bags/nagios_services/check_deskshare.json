@@ -1,0 +1,7 @@
+{
+    "id": "check_deskshare",
+    "service_template": "default-service",
+    "hostgroup_name": "mconf-live-servers",
+    "description": "Port check - Desktop Sharing",
+    "use_existing_command": "check_deskshare"
+}

@@ -55,8 +55,8 @@ default['nagios']['ssl_req'] = '/C=US/ST=Several/L=Locality/O=Example/OU=Operati
 
 # for server from source installation
 default['nagios']['server']['url']      = 'http://prdownloads.sourceforge.net/sourceforge/nagios'
-default['nagios']['server']['version']  = '3.4.3'
-default['nagios']['server']['checksum'] = '2d5c0cc56bafb08a71840a6efa349afc1eebb2761fea0d403e1b929e7c801b10'
+default['nagios']['server']['version']  = '3.4.4'
+default['nagios']['server']['checksum'] = 'cf6c4c82c4d8dd42e5daae92c20682574f001f03d062600327372c8274fc338e'
 
 default['nagios']['notifications_enabled']   = 0
 default['nagios']['check_external_commands'] = true
@@ -84,6 +84,7 @@ default['nagios']['ldap_authoritative'] = nil
 
 default['nagios']['templates'] = Mash.new
 default['nagios']['interval_length'] = 1
+default['nagios']['process_perf_data'] = false
 
 # Provide all interval values in seconds
 default['nagios']['default_host']['check_interval']     = 15
@@ -91,12 +92,14 @@ default['nagios']['default_host']['retry_interval']     = 15
 default['nagios']['default_host']['max_check_attempts'] = 1
 default['nagios']['default_host']['notification_interval'] = 300
 default['nagios']['default_host']['flap_detection'] = true
+default['nagios']['default_host']['perfdata_command'] = "process_host_perfdata_for_nagiosgraph"
 
 default['nagios']['default_service']['check_interval']     = 60
 default['nagios']['default_service']['retry_interval']     = 15
 default['nagios']['default_service']['max_check_attempts'] = 3
 default['nagios']['default_service']['notification_interval'] = 1200
 default['nagios']['default_service']['flap_detection'] = true
+default['nagios']['default_service']['perfdata_command'] = "process_service_perfdata_for_nagiosgraph"
 
 default['nagios']['server']['web_server'] = :apache
 default['nagios']['server']['nginx_dispatch'] = :cgi

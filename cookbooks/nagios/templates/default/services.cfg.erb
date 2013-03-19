@@ -24,7 +24,9 @@ define service {
   check_command check_<%= service['id'] %>
   <% end -%>
   use <% if service['service_template'].nil? -%>default-service<% else -%><%= service['service_template'] %> <% end -%>
-  <% unless service['event_handler'].nil? -%>event_handler <%= service['event_handler'] %><% end -%>
+  <% unless service['event_handler'].nil? %>
+  event_handler <%= service['event_handler'] %>
+  <% end %>
   <% %w{check_interval retry_interval notification_interval}.each do |conf| %>
     <% unless service[conf].nil? %>
   <%= conf %> <%= nagios_interval(service[conf]) %>

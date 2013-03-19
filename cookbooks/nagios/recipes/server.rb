@@ -101,10 +101,12 @@ Chef::Log.info("Beginning search for nodes.  This may take some time depending o
 nodes = Array.new
 hostgroups = Array.new
 
-if node['nagios']['multi_environment_monitoring']
-  nodes = search(:node, "hostname:[* TO *]")
-else
-  nodes = search(:node, "hostname:[* TO *] AND chef_environment:#{node.chef_environment}")
+if node['nagios']['monitor_chef_nodes']
+  if node['nagios']['multi_environment_monitoring']
+    nodes = search(:node, "hostname:[* TO *]")
+  else
+    nodes = search(:node, "hostname:[* TO *] AND chef_environment:#{node.chef_environment}")
+  end
 end
 
 if nodes.empty?
@@ -125,7 +127,7 @@ search(:role, "*:*") do |r|
 end
 
 # if using multi environment monitoring add all environments to the array of hostgroups
-if node['nagios']['multi_environment_monitoring']
+if node['nagios']['monitor_chef_nodes'] and node['nagios']['multi_environment_monitoring']
   search(:environment, "*:*") do |e|
     hostgroups << e.name
     nodes.select {|n| n.chef_environment == e.name }.each do |n|
@@ -143,6 +145,7 @@ end
 
 nagios_bags = NagiosDataBags.new
 services = nagios_bags.get('nagios_services')
+commands = nagios_bags.get('nagios_commands')
 templates = nagios_bags.get('nagios_templates')
 eventhandlers = nagios_bags.get('nagios_eventhandlers')
 unmanaged_hosts = nagios_bags.get('nagios_unmanagedhosts')
@@ -245,7 +248,8 @@ nagios_conf "templates" do
 end
 
 nagios_conf "commands" do
-  variables(:services => services,
+  variables(:commands => commands,
+            :services => services,
             :eventhandlers => eventhandlers)
 end
 

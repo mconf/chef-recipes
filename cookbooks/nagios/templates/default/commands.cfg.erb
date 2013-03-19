@@ -16,14 +16,14 @@ define command {
 
 # nrpe remote host checks
 define command {
-	command_name    check_nrpe_alive
-	command_line    $USER1$/check_nrpe -H $HOSTADDRESS$ -t 20
-	}
+  command_name    check_nrpe_alive
+  command_line    $USER1$/check_nrpe -H $HOSTADDRESS$ -t 20
+}
 
 define command {
-	command_name    check_nrpe
-	command_line    $USER1$/check_nrpe -H $HOSTADDRESS$ -c $ARG1$ -t 20
-	}
+  command_name    check_nrpe
+  command_line    $USER1$/check_nrpe -H $HOSTADDRESS$ -c $ARG1$ -t 20
+}
 
 # Notification
 define command {
@@ -41,6 +41,14 @@ define command {
   command_name    service-notify-by-email
   command_line    /usr/bin/printf "%b" "$LONGDATETIME$ - $SERVICEDESC$ $SERVICESTATE$\n\n$HOSTALIAS$  $NOTIFICATIONTYPE$\n\n$SERVICEOUTPUT$\n\nLogin: ssh://$HOSTNAME$" | <%=node['nagios']['server']['mail_command']%> -s "** $NOTIFICATIONTYPE$ - $HOSTALIAS$ - $SERVICEDESC$ - $SERVICESTATE$" $CONTACTEMAIL$
 }
+
+# Commands added through nagios_commands data bags
+<% @commands.each do |command| -%>
+define command {
+  command_name    <%= command['id'] %>
+  command_line    <%= command['command_line'] %>
+}
+<% end -%>
 
 # Commands added through nagios_services data bags
 <% @services.each do |service| -%>

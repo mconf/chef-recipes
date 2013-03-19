@@ -1,0 +1,73 @@
+Nagios check_sip plugin (C)Copyright 2005-2006,2008 Bashton Ltd
+---------------------------------------------------------------
+
+A Nagios plugin to test SIP servers.
+Licensed under the GNU GPL v2.0 or later (at your option).  For
+full copyright and warranty details, please see the COPYING file included in
+this package.
+
+By Sam Bashton, Bashton Ltd - sam@bashton.com www.bashton.com
+   Michael Hirschbichler, Institute of Broadband Communications, 
+                          Vienna University of Technology
+
+Comments, bug reports etc are welcome.
+
+Pre-Requisites
+--------------
+
+- Working Nagios install
+- Perl 5 (tested with Perl 5.6.1 and 5.8)
+
+Installation
+------------
+
+- Copy to your nagios plugins directory (possibly /usr/lib/nagios/plugins)
+- Add check_sip to your nagios config.  This may be in the file 
+  'checkcommands.cfg', or under /etc/nagios-plugins/config (under Debian) 
+  An example:
+
+/etc/nagios-plugins/config/sip.cfg
+define command{
+        command_name    /usr/lib/nagios/plugins/check_sip
+	command_line    $USER1$/check_sip -u $ARG1$ -H $HOSTADDRESS$ -w 5
+}
+
+- Alter your services.cfg to include a check against the check_sip command, 
+e.g.:
+
+define service{
+        use                             generic-service
+        host_name                       bubblegum
+        service_description             SIP test
+        check_command                   check_sip!sip:sip@voip.bashton.com
+        contact_groups                  voip-admins
+        max_check_attempts              4
+        normal_check_interval           5
+        retry_check_interval            1
+        notification_interval           240
+        check_period                    24x7
+        notification_period             24x7
+        notification_options            c,r
+}
+
+Variables
+---------
+
+check_sip requires the following variable:
+
+  -u  Full SIP uri, eg sip:uri@example.com
+
+The following optional variables are also available:
+
+  -f From SIP uri
+  -H Host to connect to
+  -p Port to connect to
+  -w Seconds after which to respond with a warning
+  -s Switch off standard behavior: after this, all SIP-responses are counted 
+      as success
+
+Known bugs/issues
+-----------------
+
+check_sip does not presently support SRV records.  You can use the -H and -p
+options to query the correct host.

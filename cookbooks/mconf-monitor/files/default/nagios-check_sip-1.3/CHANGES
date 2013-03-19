@@ -1,0 +1,40 @@
+Change log
+
+v1.3
+  Added SIP Re-tranmission
+  (Ryanny Lin)
+  Fixed negative RTT problem
+  (Ryanny Lin)
+
+v1.2
+  Added the output of a "code"-performance data according to
+  http://nagiosplug.sourceforge.net/developer-guidelines.html#AEN203 
+  (Michael Hirschbichler)
+  Added a -f parameter to change the "From"-Uri
+  (Michael Hirschbichler)
+  Added a -s parameter to change the standard behaviour: without -s, only
+  1xx and 2xx responses are counted as success, with -s, every SIP-reponse
+  is a succcess
+  (Michael Hirschbichler)
+  Changed response checking: when a provisional "100 Trying" arrives, the 
+  next response will be analysed
+  (Michael Hirschbichler)
+  Extended the -h - parameter
+  (Michael Hirschbichler)
+  Fixed a typo in the "Contact:"-Header
+  (Michael Hirschbichler)
+
+v1.1
+
+  Fixed CRLF issues (Michael Hirschbichler)
+  Added the output of a "rtt"-performance data according to
+  http://nagiosplug.sourceforge.net/developer-guidelines.html#AEN203 
+  (Michael Hirschbichler)
+  Changed response checking to allow for '100 Trying' (Michael Hirschbichler/
+  Sam Bashton)
+
+v1.01
+  Typos in SIP contact and from field corrected by Okan Demirmen
+
+v1.0
+  Initial Release

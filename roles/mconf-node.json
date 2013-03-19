@@ -23,6 +23,6 @@
     "recipe[bigbluebutton]",
     "recipe[mconf-live]",
     "recipe[live-notes-server]",
-    "recipe[mconf-monitor]"
+    "recipe[mconf-monitor::client]"
   ]
 }

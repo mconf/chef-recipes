@@ -1,0 +1,17 @@
+The unmanaged hosts should be defined as follows:
+
+{
+    "id": "HOST_ID",
+    "use": "generic-passive-host",
+    "hostgroups": [
+        "mconf-live-servers",
+        "mconf-network-members"
+    ],
+    "custom_variables": {
+        "bbb_url": "BIGBLUEBUTTON_URL",
+        "bbb_port": "BIGBLUEBUTTON_PORT",
+        "bbb_salt": "BIGBLUEBUTTON_SALT"
+    },
+    "host_name": "HOST_NAME",
+    "address": "HOST_ADDRESS"
+}

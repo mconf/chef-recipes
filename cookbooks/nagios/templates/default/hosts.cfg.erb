@@ -52,9 +52,12 @@ define host {
 define host {
   use server
   address <%= n['address'] %>
-  host_name <%= n['id'] %>
+  host_name <%= n['host_name'] %>
   hostgroups <%= n['hostgroups'].join(",") %>
   notifications_enabled <%= n['notifications'] %>
+  <% n['custom_variables'].each do |custom_key, custom_value| -%>
+  _<%= custom_key %> <%= custom_value %>
+  <% end -%>
 }
 <% end -%>
 <% end -%>

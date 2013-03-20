@@ -11,19 +11,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-def require_or_install(g)
-    begin
-        require "#{g}"
-    rescue LoadError
-        gem_package "#{g}" do
-          gem_binary('/usr/local/bin/gem')
-          action :nothing
-        end.run_action(:install)
-        require "#{g}"
-    end
+# http://chrisa.github.com/blog/2012/07/05/custom-chef-gem-resources/
+
+chef_gem "open4" do
+  version "1.3.0"
+  action :install
 end
 
-require_or_install("open4")
+require 'open4'
 
 execute "bbb-conf --stop" do
   user "root"

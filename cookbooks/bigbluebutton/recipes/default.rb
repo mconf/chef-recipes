@@ -14,12 +14,7 @@
 require 'digest/sha1'
 require 'net/http'
 
-include_recipe "ruby-1.9.2"
 include_recipe "apt"
-
-link "/usr/bin/ruby1.9.2" do
-  to "/usr/local/bin/ruby"
-end
 
 # https://groups.google.com/d/topic/bigbluebutton-setup/zL5Lwbj46TY/discussion
 package "language-pack-en" do
@@ -31,13 +26,6 @@ execute "update locale" do
   user "root"
   command "update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8"
   action :nothing
-end
-
-%w( god builder bundler ).each do |g|
-  gem_package g do
-    action :install
-    gem_binary('/usr/local/bin/gem')
-  end
 end
 
 # add ubuntu repo

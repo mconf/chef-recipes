@@ -11,19 +11,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-begin
-    require 'open4'
-rescue LoadError
-    gem_package "open4" do
-      action :install
-    end
+# http://chrisa.github.com/blog/2012/07/05/custom-chef-gem-resources/
 
-    ruby_block "abort if open4 not loaded" do
-        block do
-            raise "The required gem open4 wasn't installed. Installation will continue on next run."
-        end
-    end
+chef_gem "open4" do
+  version "1.3.0"
+  action :install
 end
+
+require 'open4'
 
 execute "bbb-conf --stop" do
   user "root"

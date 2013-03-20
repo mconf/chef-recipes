@@ -1,13 +1,15 @@
 name "monitoring"
 description "Monitoring Server"
 run_list(
-    "recipe[apt::default]",
+    "role[mconf-server]",
+    "recipe[nsca::server]",
     "recipe[nagios::client]",
     "recipe[nagios::server]",
     "recipe[mconf-monitor::json_interface]",
     "recipe[mconf-monitor::nagios_plugins]",
     "recipe[nagiosgraph]",
-    "recipe[postfix]"
+    "recipe[postfix]",
+    "recipe[postfix::sasl_auth]"
 )
 override_attributes(
     "apache" => {
@@ -20,7 +22,7 @@ default_attributes(
         "enable_ssl" => true,
         "https" => true,
         "http_port" => 8080,
-        "sysadmin_email" => "your@email.com",
+        "sysadmin_email" => "[your@email.com]",
         "server" => {
             "install_method" => "source",
             "service_name" => "nagios",
@@ -32,7 +34,7 @@ default_attributes(
         },
         "server_auth_method" => "htauth",
         "notifications_enabled" => 1,
-        "interval_length" => 60,
+        "interval_length" => 1,
         "process_perf_data" => true,
         "default_host" => {
             "check_interval" => 300, # in seconds
@@ -50,7 +52,12 @@ default_attributes(
         "host_name_attribute" => "fqdn"
     },
     "postfix" => {
-        "myhostname" => "my_fake_hostname",
-        "mydomain" => "fake.domain.com"
+        "relayhost" => "smtp.gmail.com:587",
+        "smtp_sasl_auth_enable" => "yes",
+        "smtp_sasl_user_name" => "[your@email.com]",
+        "smtp_sasl_passwd" => "[your_password]",
+        "smtp_tls_cafile" => "/etc/ssl/certs/ca-certificates.crt",
+        "myhostname" => "[ubuntu]",
+        "mydomain" => "[localhost]"
     }
 )

@@ -20,6 +20,8 @@ directory "#{node[:mconf][:live][:deploy_dir]}" do
   owner "#{node[:mconf][:user]}"
   recursive true
   action :create
+  subscribes :create, resources("package[bigbluebutton]"), :immediately
+  subscribes :create, resources("package[bbb-demo]"), :immediately
 end
 
 ruby_block "print conditions to deploy during execution phase" do

@@ -18,6 +18,7 @@
 # limitations under the License.
 #
 
+default['nagios']['monitor_chef_nodes'] = true
 # Allow a Nagios server to monitor hosts in multiple environments.  Impacts NRPE configs as well
 default['nagios']['multi_environment_monitoring'] = false
 

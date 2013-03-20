@@ -17,7 +17,7 @@
   "run_list": [
     "recipe[apt::default]",
     "recipe[chef_handler::default]",
-    "recipe[nsca]",
+    "recipe[nsca::client]",
     "recipe[chef-client::config]",
     "recipe[chef-client::service]"
   ]

@@ -1,0 +1,4 @@
+{
+    "id": "check_sip",
+    "command_line": "$USER1$/nagios-check_sip-1.3/check_sip -u sip:mconf@$HOSTNAME$ -H $HOSTNAME$ -p 5060 -w 5"
+}

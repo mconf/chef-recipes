@@ -1,0 +1,13 @@
+{
+    "id": "webconf_info",
+    "service_template": "mconf-service",
+    "hostgroup_name": "mconf-live-servers", 
+    "description": "BigBlueButton Info",
+    "use_existing_command": "get_bigbluebutton_info",
+    "initial_state": "u",
+    "max_check_attempts": 1,
+    "check_interval": 60,
+    "check_period": "24x7",
+    "active_checks_enabled": 1,
+    "first_notification_delay": 5
+}

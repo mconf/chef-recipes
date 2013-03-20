@@ -1,0 +1,4 @@
+{
+    "id": "get_bigbluebutton_info",
+    "command_line": "$USER1$/bigbluebutton/get-bigbluebutton-info.py --host $_HOSTBBB_URL$ --salt $_HOSTBBB_SALT$ # (removing the limits)--limits 5,10,5,5:10,20,10,10"
+}

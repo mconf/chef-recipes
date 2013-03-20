@@ -1,0 +1,7 @@
+{
+    "id": "passive_processor",
+    "service_template": "generic-passive-service",
+    "hostgroup_name": "mconf-live-servers",
+    "description": "Processor Report",
+    "use_existing_command": "service_out_of_date"
+}

@@ -1,0 +1,6 @@
+{
+    "id": "mconf-service",
+    "use": "default-service",
+    "action_url": "/nagiosgraph/cgi-bin/show.cgi?host=$HOSTNAME$&service=$SERVICEDESC$&$_SERVICE_GRAPH_OPTIONS$' onMouseOver='showGraphPopup(this)' onMouseOut='hideGraphPopup()' rel='/nagiosgraph/cgi-bin/showgraph.cgi?host=$HOSTNAME$&service=$SERVICEDESC$",
+    "process_perf_data": "1"
+}

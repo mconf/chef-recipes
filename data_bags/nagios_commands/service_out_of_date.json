@@ -1,0 +1,4 @@
+{
+    "id": "service_out_of_date",
+    "command_line": "$USER1$/check_dummy 3 \"This service is out-of-date\""
+}

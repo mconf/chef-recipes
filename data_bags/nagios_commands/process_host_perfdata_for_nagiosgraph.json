@@ -1,0 +1,4 @@
+{
+    "id": "process_host_perfdata_for_nagiosgraph",
+    "command_line": "/usr/lib/nagiosgraph/insert.pl \"$LASTHOSTCHECK$||$HOSTNAME$||PING||$HOSTOUTPUT$||$HOSTPERFDATA$\""
+}

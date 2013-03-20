@@ -1,0 +1,4 @@
+{
+    "id": "check_deskshare",
+    "command_line": "$USER1$/check_tcp -H $HOSTNAME$ -p 9123"
+}

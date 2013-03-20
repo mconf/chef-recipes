@@ -1,0 +1,4 @@
+{
+    "id": "check_rtmp",
+    "command_line": "$USER1$/check_tcp -H $HOSTNAME$ -p 1935"
+}

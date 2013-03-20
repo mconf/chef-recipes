@@ -1,0 +1,21 @@
+--- Makefile.original	2013-03-15 16:25:45.376248746 -0300
++++ Makefile	2013-03-15 16:26:55.894821187 -0300
+@@ -39,7 +39,7 @@
+ LDFLAGS=
+ LIBS=
+ 
+-CGIS=avail.cgi cmd.cgi config.cgi extinfo.cgi history.cgi notifications.cgi outages.cgi showlog.cgi status.cgi statuswml.cgi summary.cgi tac.cgi $(CGIEXTRAS)
++CGIS=avail.cgi cmd.cgi config.cgi extinfo.cgi history.cgi notifications.cgi outages.cgi showlog.cgi status.cgi status-json.cgi statuswml.cgi summary.cgi tac.cgi $(CGIEXTRAS)
+ 
+ # External data I/O code and headers
+ XSDC=xsddefault.c
+@@ -159,6 +159,9 @@
+ status.cgi: status.c $(CGIDEPS) $(CDATADEPS)
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ status.c $(CGILIBS) $(CDATALIBS) $(LIBS)
+ 
++status-json.cgi: status-json.c $(CGIDEPS) $(CDATADEPS)
++	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ status-json.c $(CGILIBS) $(CDATALIBS) $(LIBS)
++
+ statuswml.cgi: statuswml.c $(CGIDEPS)
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ statuswml.c $(CGILIBS) $(LIBS)
+ 

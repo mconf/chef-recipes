@@ -13,6 +13,5 @@ description      "Installs a specific bbb server for a mconf-node"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.0.4"
 supports         "ubuntu", "= 10.04"
-depends          "ruby-1.9.2"
 depends          "apt"
 depends          "logrotate"

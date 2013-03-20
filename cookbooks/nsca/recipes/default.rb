@@ -36,12 +36,10 @@ end
 remote_file "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}.tar.gz" do
     source "http://prdownloads.sourceforge.net/sourceforge/nagios/nsca-#{node[:nsca][:version]}.tar.gz"
     mode "0644"
-    notifies :run, 'script[build nsca]', :immediately
 end
 
 # build nsca and call installer
 script "build nsca" do
-    action :nothing
     interpreter "bash"
     user "root"
     cwd Chef::Config[:file_cache_path]
@@ -57,19 +55,7 @@ script "build nsca" do
         make all
         make install
     EOH
-    notifies :run, 'script[install nsca]', :immediately
-end
-
-# nsca install procedure 
-script "install nsca" do
-    action :nothing
-    interpreter "bash"
-    user "root"
-    cwd "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}"
-    code <<-EOH
-        mkdir -p #{node[:nsca][:dir]} #{node[:nsca][:config_dir]}
-        cp src/send_nsca #{node[:nsca][:dir]}
-        cp sample-config/send_nsca.cfg #{node[:nsca][:config_dir]}/
-        chmod +r #{node[:nsca][:config_dir]}/send_nsca.cfg
-    EOH
+    action :run
+    creates "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}/src/nsca"
+    notifies :run, 'script[install nsca sender]', :immediately
 end

@@ -15,6 +15,9 @@ cookbook_file "#{Chef::Config[:file_cache_path]}/nagios/cgi/status-json.c" do
   owner node[:nagios][:user]
   group node[:nagios][:group]
   mode 00664
+  only_if do
+    not File.exists?("/usr/lib/cgi-bin/nagios3/status-json.cgi")
+  end
 end
 
 cookbook_file "#{Chef::Config[:file_cache_path]}/nagios/cgi/status-json.patch" do
@@ -23,6 +26,9 @@ cookbook_file "#{Chef::Config[:file_cache_path]}/nagios/cgi/status-json.patch" d
   group node[:nagios][:group]
   mode 00664
   notifies :run, "execute[patch Makefile]", :immediately
+  only_if do
+    not File.exists?("/usr/lib/cgi-bin/nagios3/status-json.cgi")
+  end
 end
 
 execute "patch Makefile" do

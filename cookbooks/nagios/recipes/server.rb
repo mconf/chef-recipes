@@ -153,6 +153,11 @@ serviceescalations = nagios_bags.get('nagios_serviceescalations')
 contacts = nagios_bags.get('nagios_contacts')
 contactgroups = nagios_bags.get('nagios_contactgroups')
 
+hosts_transformation = Hash.new
+search(:nagios_hostgroups, '*:*') do |hg|
+  hosts_transformation[hg['id']] = hg['transformation_map']
+end
+
 # Add unmanaged host hostgroups to the hostgroups array if they don't already exist
 unmanaged_hosts.each do |host|
   host['hostgroups'].each do |hg|
@@ -276,7 +281,8 @@ end
 nagios_conf "hosts" do
   variables(:nodes => nodes,
             :unmanaged_hosts => unmanaged_hosts,
-            :hostgroups => hostgroups)
+            :hostgroups => hostgroups,
+            :hosts_transformation => hosts_transformation)
 end
 
 service "nagios" do

@@ -14,6 +14,21 @@ define host {
 <% unless n.name == node.name -%>
 define host {
   use server
+  <%
+  attributes_defined = Array.new
+  n.run_list.roles.each do |role|
+    if !@hosts_transformation[role].nil?
+      @hosts_transformation[role].each_pair do |k,v|
+        if !attributes_defined.include?(k)
+          attributes_defined << k
+    -%>
+  <%= k %> <%= eval(v) %>
+  <%
+        end
+      end
+    end
+  end
+  -%>
   <% # decide whether to use internal or external IP addresses for this node
   # if the nagios server is not in the cloud, always use public IP addresses for cloud nodes.
   # if the nagios server is in the cloud, use private IP addresses for any
@@ -23,13 +38,17 @@ define host {
   #   for OHAI incorrectly identifying systems on Cisco hardware as being in Rackspace
   if node['cloud'].nil? && !n['cloud'].nil?
     ip = node['ipaddress'].include?('.') ? n['cloud']['public_ipv4'] : n['ipaddress']
-  elsif !node['cloud'].nil? && n['cloud']['provider'] != node['cloud']['provider']
+  elsif !node['cloud'].nil? && !n['cloud'].nil? && n['cloud']['provider'] != node['cloud']['provider']
     ip = node['ipaddress'].include?('.') ? n['cloud']['public_ipv4'] : n['ipaddress']
   else
     ip = n['ipaddress']
   end %>
+  <% if !attributes_defined.include?('address') -%>
   address <%= ip %>
+  <% end -%>
+  <% if !attributes_defined.include?('host_name') -%>
   host_name <%= n[node['nagios']['host_name_attribute']] %>
+  <% end -%>
   <% if node['nagios']['multi_environment_monitoring'] -%>
   <% if n.run_list.roles.nil? || n.run_list.roles.length == 0 -%>
   hostgroups all,<%= n.os %>, <%= n.chef_environment %>

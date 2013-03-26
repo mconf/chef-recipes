@@ -18,19 +18,6 @@ end
 
 service "xinetd"
 
-# nsca install procedure 
-script "install nsca receiver" do
-    interpreter "bash"
-    user "root"
-    cwd "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}"
-    code <<-EOH
-        mkdir -p #{node[:nsca][:dir]}
-        cp src/nsca #{node[:nsca][:dir]}
-    EOH
-    action :run
-    creates "#{node[:nsca][:dir]}/nsca"
-end
-
 template "#{node[:nsca][:config_dir]}/nsca.cfg" do
   source "nsca.cfg.erb"
   mode 00644

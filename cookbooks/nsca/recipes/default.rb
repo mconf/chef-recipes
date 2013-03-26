@@ -17,11 +17,7 @@
 end
 
 if node[:nsca][:force_reinstall]
-  file "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}.tar.gz" do
-    action :delete
-  end
-  directory "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}" do
-    recursive true
+  file "#{node[:nsca][:dir]}/nsca" do
     action :delete
   end
   node.set[:nsca][:force_reinstall] = false
@@ -34,8 +30,10 @@ end
 
 # get nsca file from server and call build script if there is a new file
 remote_file "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}.tar.gz" do
-    source "http://prdownloads.sourceforge.net/sourceforge/nagios/nsca-#{node[:nsca][:version]}.tar.gz"
+    source "#{node[:nsca][:url]}/nsca-#{node[:nsca][:version]}.tar.gz"
+    checksum node[:nsca][:checksum]
     mode "0644"
+    action :create_if_missing
 end
 
 # build nsca and call installer
@@ -54,8 +52,12 @@ script "build nsca" do
         ./configure
         make all
         make install
+
+        mkdir -p #{node[:nsca][:dir]} #{node[:nsca][:config_dir]}
+        cp src/nsca src/send_nsca #{node[:nsca][:dir]}
+        cp sample-config/send_nsca.cfg sample-config/nsca.cfg #{node[:nsca][:config_dir]}/
+        chmod +r #{node[:nsca][:config_dir]}/*.cfg
     EOH
     action :run
-    creates "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}/src/nsca"
-    notifies :run, 'script[install nsca sender]', :immediately
+    creates "#{node[:nsca][:dir]}/nsca"
 end

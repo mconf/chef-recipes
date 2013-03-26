@@ -10,14 +10,22 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+file "/usr/sbin/nagios" do
+  action :delete
+  only_if do
+    not ::File.exists?("/usr/lib/cgi-bin/nagios3/status-json.cgi") and
+    not ::File.exists?("#{Chef::Config[:file_cache_path]}/nagios/cgi")
+  end
+  notifies :run, "bash[compile-nagios]", :immediately
+end
+
 cookbook_file "#{Chef::Config[:file_cache_path]}/nagios/cgi/status-json.c" do
   source "status-json.c"
   owner node[:nagios][:user]
   group node[:nagios][:group]
   mode 00664
-  only_if do
-    not File.exists?("/usr/lib/cgi-bin/nagios3/status-json.cgi")
-  end
+  action :create_if_missing
+  only_if { ::File.exists?("#{Chef::Config[:file_cache_path]}/nagios/cgi") }
 end
 
 cookbook_file "#{Chef::Config[:file_cache_path]}/nagios/cgi/status-json.patch" do
@@ -25,24 +33,18 @@ cookbook_file "#{Chef::Config[:file_cache_path]}/nagios/cgi/status-json.patch" d
   owner node[:nagios][:user]
   group node[:nagios][:group]
   mode 00664
-  notifies :run, "execute[patch Makefile]", :immediately
-  only_if do
-    not File.exists?("/usr/lib/cgi-bin/nagios3/status-json.cgi")
-  end
-end
-
-execute "patch Makefile" do
-  cwd "#{Chef::Config[:file_cache_path]}/nagios/cgi"
-  command "patch Makefile < status-json.patch"
-  action :nothing
-  notifies :run, "bash[rebuild nagios]", :immediately
+  action :create_if_missing
+  only_if { ::File.exists?("#{Chef::Config[:file_cache_path]}/nagios/cgi") }
 end
 
 bash "rebuild nagios" do
   cwd "#{Chef::Config[:file_cache_path]}/nagios/cgi"
   code <<-EOH
+    patch Makefile < status-json.patch
     make all
     make install
   EOH
+  action :run
+  only_if { ::File.exists?("#{Chef::Config[:file_cache_path]}/nagios/cgi") }
   creates "/usr/lib/cgi-bin/nagios3/status-json.cgi"
 end

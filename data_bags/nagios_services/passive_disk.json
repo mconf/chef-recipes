@@ -1,7 +1,7 @@
 {
     "id": "passive_disk",
     "service_template": "generic-passive-service",
-    "hostgroup_name": "mconf-live-servers",
+    "hostgroup_name": "mconf-node",
     "description": "Disk Report",
     "use_existing_command": "service_out_of_date"
 }

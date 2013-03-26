@@ -1,7 +1,7 @@
 {
     "id": "check_demo_presence",
     "service_template": "default-service",
-    "hostgroup_name": "mconf-live-servers",
+    "hostgroup_name": "mconf-node",
     "description": "BigBlueButton Demo Installed",
     "use_existing_command": "check_demo_presence"
 }

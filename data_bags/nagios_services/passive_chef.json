@@ -1,7 +1,7 @@
 {
     "id": "passive_chef",
     "service_template": "generic-passive-service",
-    "hostgroup_name": "mconf-live-servers",
+    "hostgroup_name": "mconf-node",
     "description": "Chef client run status",
     "freshness_threshold": 21600,
     "use_existing_command": "service_out_of_date"

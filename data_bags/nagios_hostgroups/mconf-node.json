@@ -1,0 +1,12 @@
+{
+    "id": "mconf-node",
+    "hostgroup_name": "mconf-node",
+    "transformation_map": {
+        "host_name": "n['bbb']['server_domain']",
+        "address": "n['bbb']['server_domain']",
+        "_BBB_SALT": "n['bbb']['salt']",
+        "_BBB_URL": "\"#{n['bbb']['server_url']}/bigbluebutton/\"",
+        "_BBB_PORT": "80"
+    },
+    "search_query": "mconf-node"
+}

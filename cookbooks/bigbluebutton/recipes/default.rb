@@ -81,6 +81,13 @@ cron "remove old bigbluebutton logs" do
   action :create
 end
 
+template "/etc/cron.daily/bigbluebutton" do
+  source "bigbluebutton.erb"
+  variables(
+    :keep_files_newer_than => node[:bbb][:keep_files_newer_than]
+  )
+end
+
 package "bbb-demo" do
 #  version node[:bbb_demo][:version]
   if node[:bbb][:demo][:enabled]

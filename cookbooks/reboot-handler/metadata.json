@@ -1,0 +1,33 @@
+{
+  "name": "reboot-handler",
+  "description": "Installs/Configures reboot-handler",
+  "long_description": "Description\n===========\n\nInstalls/Configures reboot-handler\n\nAllows one to reboot the server after a successfull chef run, while\nin a given role.\n\nRequirements\n============\n\n* Chef 10.12.0+\n\nchef_handler\n----\n\nInstalls/Configures chef-handler\n\nAttributes\n==========\n\n* `default['reboot-handler']['reboot_command']` - Reboot command to execute.\n* `default['reboot-handler']['enabled_role']` - Role to enable the handler on (default: booted).\n* `default['reboot-handler']['post_boot_runlist']` - If set will redefine `node['run_list']` to it's value.\n\nUsage\n=====\n\n```json\n\"run_list\": [\n    \"recipe[reboot-handler]\"\n]\n```\n\nSimply set the following attribute while chef is executing.\n\n    node.run_state['reboot'] = true\n\ndefault\n----\n\nInstalls/Configures reboot-handler\n\nLicense and Author\n==================\n\nAuthor:: John Dewey (<john@dewey.ws>)\n\nCopyright 2012, John Dewey\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n",
+  "maintainer": "John Dewey",
+  "maintainer_email": "john@dewey.ws",
+  "license": "Apache 2.0",
+  "platforms": {
+    "debian": ">= 0.0.0",
+    "ubuntu": ">= 0.0.0"
+  },
+  "dependencies": {
+    "chef_handler": ">= 0.0.0"
+  },
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
+  "attributes": {
+  },
+  "groupings": {
+  },
+  "recipes": {
+    "reboot-handler": "Installs/Configures reboot-handler"
+  },
+  "version": "0.2.0"
+}

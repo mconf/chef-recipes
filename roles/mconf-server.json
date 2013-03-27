@@ -8,7 +8,7 @@
   "override_attributes": {
     "chef_client": {
       "init_style": "upstart",
-      "interval": "1800",
+      "interval": "3600",
       "server_url": "http://chef.mconf.org:4000"
     }
   },

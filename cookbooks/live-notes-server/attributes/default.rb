@@ -13,4 +13,4 @@ default[:notes][:notes_server][:name] = "live-notes-server"
 default[:notes][:notes_server][:dir] = "#{node[:mconf][:tools][:dir]}/#{node[:notes][:notes_server][:name]}"
 default[:notes][:notes_server][:port] = "8095"
 default[:notes][:sbt_launch][:url] = "http://typesafe.artifactoryonline.com/typesafe/ivy-releases/org.scala-tools.sbt/sbt-launch/#{node[:notes][:xsbt][:version]}/sbt-launch.jar"
-
+default[:notes][:sbt_launch][:checksum] = "5618d112a1cea1ddfca2fcb49b62c0191f61ed51c570fbf1badc181dd6fecb91"

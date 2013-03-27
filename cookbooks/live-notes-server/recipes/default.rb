@@ -35,8 +35,10 @@ end
 
 remote_file "/usr/local/bin/sbt-launch.jar" do
   source node[:notes][:sbt_launch][:url]
+  checksum node[:notes][:sbt_launch][:checksum]
   owner node[:mconf][:user]
   mode "0644"
+  action :create_if_missing
 end
 
 cookbook_file "/usr/local/bin/sbt" do

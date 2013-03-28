@@ -59,9 +59,9 @@ package "bigbluebutton" do
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
-#link "/etc/nginx/sites-enabled/bigbluebutton" do
-#  to "/etc/nginx/sites-available/bigbluebutton"
-#end
+link "/etc/nginx/sites-enabled/bigbluebutton" do
+  to "/etc/nginx/sites-available/bigbluebutton"
+end
 
 include_recipe "bigbluebutton::load-properties"
 

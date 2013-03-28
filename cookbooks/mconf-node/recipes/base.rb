@@ -78,3 +78,14 @@ ruby_block "save node properties" do
     node.save unless Chef::Config[:solo]
   end
 end
+
+if tagged?("reboot")
+  node.run_state['reboot'] = true
+  untag("reboot")
+end
+
+execute "service chef-client stop || echo 'Return successfully'" do
+  only_if do
+    not node[:chef_client].nil? and node[:chef_client][:init_style] == "cron"
+  end
+end

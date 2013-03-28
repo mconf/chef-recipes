@@ -7,9 +7,16 @@
   "json_class": "Chef::Role",
   "override_attributes": {
     "chef_client": {
-      "init_style": "upstart",
-      "interval": "3600",
+      "cron": {
+        "log_file": "/var/log/chef/client.log",
+        "hour": "*",
+        "minute": "0,30"
+      },
+      "init_style": "cron",
       "server_url": "http://chef.mconf.org:4000"
+    },
+    "reboot-handler": {
+      "enabled_role": "mconf-server"
     }
   },
   "name": "mconf-server",
@@ -17,8 +24,9 @@
   "run_list": [
     "recipe[apt::default]",
     "recipe[chef_handler::default]",
+    "recipe[reboot-handler]",
     "recipe[nsca::client]",
     "recipe[chef-client::config]",
-    "recipe[chef-client::service]"
+    "recipe[chef-client::cron]"
   ]
 }

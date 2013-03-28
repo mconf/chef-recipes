@@ -51,23 +51,28 @@ define_properties = ruby_block "define bigbluebutton properties" do
             node.set[:bbb][:setip_needed] = (node[:bbb][:server_url] != properties["bigbluebutton.web.serverURL"])
             node.save unless Chef::Config[:solo]
             
-            params = "random=#{rand(99999)}"
-            checksum = Digest::SHA1.hexdigest "getMeetings#{params}#{node[:bbb][:salt]}"
-            url = URI.parse("http://localhost:8080/bigbluebutton/api/getMeetings?#{params}&checksum=#{checksum}")
-            req = Net::HTTP::Get.new(url.to_s)
-            res = Net::HTTP.start(url.host, url.port) { |http|
-              http.request(req)
-            }
-            if res.body.include? "<returncode>SUCCESS</returncode>" and not res.body.include? "<messageKey>noMeetings</messageKey>"
-              # \TODO create another way to abort the chef run without call the exception 
-              # handler or handling this particular exception into the exception handler 
-              # to not send the nsca message
-              #raise "Can't continue because there are meetings currently running"
-              #exit 0
-              #Chef::Application.fatal!("Can't continue because there are meetings currently running", 0)
-              node.set[:bbb][:handling_meetings] = true
-            else
-              node.set[:bbb][:handling_meetings] = false
+            begin
+                params = "random=#{rand(99999)}"
+                checksum = Digest::SHA1.hexdigest "getMeetings#{params}#{node[:bbb][:salt]}"
+                url = URI.parse("http://localhost:8080/bigbluebutton/api/getMeetings?#{params}&checksum=#{checksum}")
+                req = Net::HTTP::Get.new(url.to_s)
+                res = Net::HTTP.start(url.host, url.port) { |http|
+                  http.request(req)
+                }
+                if res.body.include? "<returncode>SUCCESS</returncode>" and not res.body.include? "<messageKey>noMeetings</messageKey>"
+                  # \TODO create another way to abort the chef run without call the exception 
+                  # handler or handling this particular exception into the exception handler 
+                  # to not send the nsca message
+                  #raise "Can't continue because there are meetings currently running"
+                  #exit 0
+                  #Chef::Application.fatal!("Can't continue because there are meetings currently running", 0)
+                  node.set[:bbb][:handling_meetings] = true
+                else
+                  node.set[:bbb][:handling_meetings] = false
+                end
+            rescue
+                Chef::Log.fatal("Cannot access the BigBlueButton API")
+                node.set[:bbb][:handling_meetings] = false
             end
 
             Chef::Log.info("\tserver_url       : #{node[:bbb][:server_url]}")
@@ -76,7 +81,6 @@ define_properties = ruby_block "define bigbluebutton properties" do
             Chef::Log.info("\tsalt             : #{node[:bbb][:salt]}")
             Chef::Log.info("\t--setip needed?    #{node[:bbb][:setip_needed]}")
             Chef::Log.info("\thandling_meetings: #{node[:bbb][:handling_meetings]}")
-
         end
     end
     action :create

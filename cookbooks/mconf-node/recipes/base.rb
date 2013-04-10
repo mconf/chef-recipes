@@ -84,8 +84,3 @@ if tagged?("reboot")
   untag("reboot")
 end
 
-execute "service chef-client stop || echo 'Return successfully'" do
-  only_if do
-    not node[:chef_client].nil? and node[:chef_client][:init_style] == "cron"
-  end
-end

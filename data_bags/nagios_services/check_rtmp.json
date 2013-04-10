@@ -1,7 +1,7 @@
 {
     "id": "check_rtmp",
     "service_template": "default-service",
-    "hostgroup_name": "mconf-node",
+    "hostgroup_name": ["mconf-node"],
     "description": "Port check - RTMP",
     "use_existing_command": "check_rtmp"
 }

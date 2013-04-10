@@ -1,7 +1,7 @@
 {
     "id": "webconf_info",
     "service_template": "mconf-service",
-    "hostgroup_name": "mconf-node", 
+    "hostgroup_name": ["mconf-node"], 
     "description": "BigBlueButton Info",
     "use_existing_command": "get_bigbluebutton_info",
     "initial_state": "u",

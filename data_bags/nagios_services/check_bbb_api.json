@@ -1,7 +1,7 @@
 {
     "id": "check_bbb_api",
     "service_template": "default-service",
-    "hostgroup_name": "mconf-node",
+    "hostgroup_name": ["mconf-node","mconf-recording-server"],
     "description": "BigBlueButton API",
     "use_existing_command": "check_bbb_api"
 }

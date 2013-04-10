@@ -1,7 +1,7 @@
 {
     "id": "passive_memory",
     "service_template": "generic-passive-service",
-    "hostgroup_name": "mconf-node",
+    "hostgroup_name": ["mconf-node","mconf-recording-server"],
     "description": "Memory Report",
     "use_existing_command": "service_out_of_date"
 }

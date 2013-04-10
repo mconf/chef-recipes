@@ -1,7 +1,7 @@
 {
     "id": "check_bbb_version",
     "service_template": "default-service",
-    "hostgroup_name": "mconf-node",
+    "hostgroup_name": ["mconf-node","mconf-recording-server"],
     "description": "Mconf-Live Version",
     "use_existing_command": "check_bbb_version"
 }

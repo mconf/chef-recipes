@@ -1,0 +1,20 @@
+{
+  "default_attributes": {
+    "mconf": {
+      "recording_server": {
+        "enabled": true
+      }
+    }
+  },
+  "description": "Setup a Mconf Recording Server",
+  "env_run_lists": {
+  },
+  "json_class": "Chef::Role",
+  "override_attributes": {
+  },
+  "name": "mconf-recording-server",
+  "chef_type": "role",
+  "run_list": [
+    "role[mconf-node]"
+  ]
+}

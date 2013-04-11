@@ -7,7 +7,7 @@
 #
 
 file_cache_path "/var/chef/cache"
-cookbook_path [ File.join(Dir.pwd, '../cookbooks') ]
-role_path File.join(Dir.pwd, '../roles')
+cookbook_path [ File.join(File.dirname(__FILE__), '../cookbooks') ]
+role_path File.join(File.dirname(__FILE__), '../roles')
 log_level :info
 

@@ -131,7 +131,7 @@ template "/opt/freeswitch/conf/vars.xml" do
   owner "freeswitch"
   mode "0755"
   variables(
-    :external_ip => node[:bbb][:external_ip]
+    :external_ip => node[:bbb][:external_ip] == node[:bbb][:internal_ip]? "auto-nat": node[:bbb][:external_ip]
   )
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end

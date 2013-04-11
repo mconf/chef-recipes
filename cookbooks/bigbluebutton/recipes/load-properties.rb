@@ -44,6 +44,7 @@ define_properties = ruby_block "define bigbluebutton properties" do
             node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
             # http://stackoverflow.com/questions/5742521/finding-the-ip-address-of-a-domain
             node.set[:bbb][:external_ip] = IPSocket::getaddress(node[:bbb][:server_domain])
+            node.set[:bbb][:internal_ip] = node[:ipaddress]
 
             if not node[:bbb][:enforce_salt].nil? and not node[:bbb][:enforce_salt].empty?
                 node.set[:bbb][:salt] = node[:bbb][:enforce_salt]
@@ -86,6 +87,8 @@ define_properties = ruby_block "define bigbluebutton properties" do
             Chef::Log.info("\tserver_url       : #{node[:bbb][:server_url]}")
             Chef::Log.info("\tserver_addr      : #{node[:bbb][:server_addr]}")
             Chef::Log.info("\tserver_domain    : #{node[:bbb][:server_domain]}")
+            Chef::Log.info("\tinternal_ip      : #{node[:bbb][:internal_ip]}")
+            Chef::Log.info("\texternal_ip      : #{node[:bbb][:external_ip]}")
             Chef::Log.info("\tsalt             : #{node[:bbb][:salt]}")
             Chef::Log.info("\t--setip needed?    #{node[:bbb][:setip_needed]}")
             Chef::Log.info("\thandling_meetings: #{node[:bbb][:handling_meetings]}")

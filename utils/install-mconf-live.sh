@@ -43,4 +43,11 @@ chef_server_url  "http://chef.mconf.org:4000"
 EOF
 sudo mv client.rb /etc/chef/
 
-sudo chef-client
+cat > first_run.json << EOF
+{
+  "run_list": [ "role[mconf-server]" ]
+}
+EOF
+
+sudo chef-client -j first_run.json
+

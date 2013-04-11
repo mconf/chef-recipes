@@ -125,8 +125,18 @@ directory "video streams dir" do
   action :create
 end
 
-{ "vars.xml" => "/opt/freeswitch/conf/vars.xml",
-  "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml",
+template "/opt/freeswitch/conf/vars.xml" do
+  source "vars.xml.erb"
+  group "daemon"
+  owner "freeswitch"
+  mode "0755"
+  variables(
+    :external_ip => node[:bbb][:external_ip]
+  )
+  notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+
+{ "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml",
   "conference.conf.xml" => "/opt/freeswitch/conf/autoload_configs/conference.conf.xml" }.each do |k,v|
   cookbook_file v do
     source k

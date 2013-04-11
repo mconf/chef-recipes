@@ -11,6 +11,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+require 'socket'
+require 'securerandom'
 require 'digest/sha1'
 require 'net/http'
 
@@ -40,6 +42,8 @@ define_properties = ruby_block "define bigbluebutton properties" do
             node.set[:bbb][:server_addr] = node[:bbb][:server_url].gsub("http://", "")
             # node[:bbb][:server_domain] = "<SERVER_IP>"
             node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
+            # http://stackoverflow.com/questions/5742521/finding-the-ip-address-of-a-domain
+            node.set[:bbb][:external_ip] = IPSocket::getaddress(node[:bbb][:server_domain])
 
             if not node[:bbb][:enforce_salt].nil? and not node[:bbb][:enforce_salt].empty?
                 node.set[:bbb][:salt] = node[:bbb][:enforce_salt]
@@ -47,6 +51,10 @@ define_properties = ruby_block "define bigbluebutton properties" do
                 node.set[:bbb][:salt] = properties["securitySalt"]
             end
             
+            if node[:bbb][:salt].nil? or node[:bbb][:salt].empty?
+                # http://stackoverflow.com/questions/88311/how-best-to-generate-a-random-string-in-ruby
+                node.set[:bbb][:salt] = SecureRandom.hex(16)
+            end
             node.set[:bbb][:setsalt_needed] = (node[:bbb][:salt] != properties["securitySalt"])
             node.set[:bbb][:setip_needed] = (node[:bbb][:server_url] != properties["bigbluebutton.web.serverURL"])
             node.save unless Chef::Config[:solo]

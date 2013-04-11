@@ -57,12 +57,10 @@
     -->
     <param name="rtp-ip" value="$${local_ip_v4}"/>
     <param name="sip-ip" value="$${local_ip_v4}"/>
-    <!-- modified by fcecagno -->
-    <!--param name="ext-rtp-ip" value="$${local_ip_v4}"/>
-    <param name="ext-sip-ip" value="$${local_ip_v4}"/-->
-    <param name="ext-rtp-ip" value="auto-nat"/>
-    <param name="ext-sip-ip" value="auto-nat"/>
-    <!-- end modification -->
+    <!-- fcecagno 2013/04/11 -->
+    <param name="ext-rtp-ip" value="$${external_ip_v4}"/>
+    <param name="ext-sip-ip" value="$${external_ip_v4}"/>
+
     <!--
        Set the RTP timeout for 3 hours to prevent FS from hanging up bbb clients
        who are muted and not sending any audio.

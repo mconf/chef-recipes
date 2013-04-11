@@ -24,9 +24,8 @@
       affect the sip authentication.  Please review conf/directory/default.xml for more
       information on this topic.
   -->
-  <!-- modified by fcecagno -->
-  <!--X-PRE-PROCESS cmd="set" data="local_ip_v4=127.0.0.1"/-->
-  <!-- end modification -->
+  <!-- fcecagno 2013/04/11 -->
+  <X-PRE-PROCESS cmd="set" data="external_ip_v4=<%= @external_ip %>"/>
 
   <X-PRE-PROCESS cmd="set" data="domain=$${local_ip_v4}"/>
   <X-PRE-PROCESS cmd="set" data="domain_name=$${domain}"/>

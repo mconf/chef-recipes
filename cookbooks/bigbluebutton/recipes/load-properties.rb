@@ -44,6 +44,7 @@ define_properties = ruby_block "define bigbluebutton properties" do
             # node[:bbb][:server_domain] = "<SERVER_IP>"
             node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
 
+            node.set[:bbb][:internal_ip] = node[:ipaddress]
             begin
                 body = Net::HTTP.get(URI.parse("http://dig.jsondns.org/IN/#{node[:bbb][:server_domain]}/A"))
                 dns_query = JSON.parse(body)
@@ -54,8 +55,11 @@ define_properties = ruby_block "define bigbluebutton properties" do
                     node.set[:bbb][:external_ip] = IPSocket::getaddress(node[:bbb][:server_domain])
                 end
             rescue
+                # if something goes wrong with the jsondns server and the external_ip isn't filled yet, it will be filled with the internal_ip
+                if node[:bbb][:external_ip].nil? or node[:bbb][:external_ip].empty?
+                    node.set[:bbb][:external_ip] = node[:bbb][:internal_ip]
+                end
             end
-            node.set[:bbb][:internal_ip] = node[:ipaddress]
 
             if not node[:bbb][:enforce_salt].nil? and not node[:bbb][:enforce_salt].empty?
                 node.set[:bbb][:salt] = node[:bbb][:enforce_salt]
@@ -63,6 +67,7 @@ define_properties = ruby_block "define bigbluebutton properties" do
                 node.set[:bbb][:salt] = properties["securitySalt"]
             end
             
+            # this is just an extra check in case that the salt doesn't get saved properly on the node
             if node[:bbb][:salt].nil? or node[:bbb][:salt].empty?
                 # http://stackoverflow.com/questions/88311/how-best-to-generate-a-random-string-in-ruby
                 node.set[:bbb][:salt] = SecureRandom.hex(16)

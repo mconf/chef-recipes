@@ -16,6 +16,7 @@ require 'securerandom'
 require 'digest/sha1'
 require 'net/http'
 require 'json'
+require 'ipaddress'
 
 ruby_block "print warning" do
     block do
@@ -44,19 +45,28 @@ define_properties = ruby_block "define bigbluebutton properties" do
             # node[:bbb][:server_domain] = "<SERVER_IP>"
             node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
 
-            node.set[:bbb][:internal_ip] = node[:ipaddress]
-            begin
-                body = Net::HTTP.get(URI.parse("http://dig.jsondns.org/IN/#{node[:bbb][:server_domain]}/A"))
+            def getExternalIP(server_domain)
+                body = Net::HTTP.get(URI.parse("http://dig.jsondns.org/IN/#{server_domain}/A"))
                 dns_query = JSON.parse(body)
                 if dns_query['header']['rcode'] == 'NOERROR' and dns_query['header']['ancount'] > 0
-                    node.set[:bbb][:external_ip] = dns_query['answer'][0]['rdata']
-                else
-                    # http://stackoverflow.com/questions/5742521/finding-the-ip-address-of-a-domain
-                    node.set[:bbb][:external_ip] = IPSocket::getaddress(node[:bbb][:server_domain])
+                    for answer in dns_query['answer']
+                        if answer['type'] == "A" and IPAddress.valid? answer['rdata']
+                            return answer['rdata']
+                        end
+                    end
                 end
+
+                # if couldn't be retrieved using jsondns
+                # http://stackoverflow.com/questions/5742521/finding-the-ip-address-of-a-domain
+                return IPSocket::getaddress(server_domain)
+            end
+
+            node.set[:bbb][:internal_ip] = node[:ipaddress]
+            begin
+                node.set[:bbb][:external_ip] = getExternalIP(node[:bbb][:server_domain])
             rescue
-                # if something goes wrong with the jsondns server and the external_ip isn't filled yet, it will be filled with the internal_ip
                 if node[:bbb][:external_ip].nil? or node[:bbb][:external_ip].empty?
+                    # if something goes wrong with the jsondns server and the external_ip isn't filled yet, it will be filled with the internal_ip
                     node.set[:bbb][:external_ip] = node[:bbb][:internal_ip]
                 end
             end

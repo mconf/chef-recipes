@@ -85,7 +85,7 @@ ruby_block "deploy record-and-playback" do
             end
 
             FileUtils.mv Dir.glob("/usr/local/bigbluebutton/core/scripts/*.nginx"), "/etc/bigbluebutton/nginx/"
-            FileUtils.chown_R "tomcat6", "tomcat6", [ "/var/bigbluebutton/", "/var/log/bigbluebutton/" ], :verbose => true
+            FileUtils.chown_R "tomcat6", "tomcat6", [ "/var/bigbluebutton/playback/", "/var/log/bigbluebutton/" ], :verbose => true
         end
     end
     only_if do File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed") end

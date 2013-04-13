@@ -192,3 +192,14 @@ end
         action :create
     end
 end
+
+[
+  "/var/bigbluebutton/deskshare/"
+].each do |dir|
+    directory dir do
+        owner "red5"
+        group "red5"
+        recursive true
+        action :create
+    end
+end

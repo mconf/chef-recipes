@@ -58,6 +58,7 @@
       <!--<param name="ack-sound" value="beep.wav"/>-->
       <!-- File to play to acknowledge failure -->
       <!--<param name="nack-sound" value="beeperr.wav"/>-->
+      <% if @enable_freeswitch_sounds -%>
       <!-- File to play to acknowledge muted -->
       <param name="muted-sound" value="conference/conf-muted.wav"/>
       <!-- File to play to acknowledge unmuted -->
@@ -66,8 +67,11 @@
       <param name="alone-sound" value="conference/conf-alone.wav"/>
       <!-- File to play endlessly (nobody will ever be able to talk) -->
       <!--<param name="perpetual-sound" value="perpetual.wav"/>-->
+      <% end -%>
+      <% if @enable_freeswitch_alone_music -%>
       <!-- File to play when you're alone (music on hold)-->
       <param name="moh-sound" value="$${hold_music}"/>
+      <% end -%>
       <!-- File to play when you join the conference -->
       <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
       <!-- File to play when you leave the conference -->
@@ -93,10 +97,7 @@
       <!-- Suppress start and stop talking events -->
       <!-- <param name="suppress-events" value="start-talking,stop-talking"/> -->
       <!-- enable comfort noise generation -->
-      <!-- modified by fcecagno -->
-      <!--param name="comfort-noise" value="true"/-->
-      <param name="comfort-noise" value="false"/>
-      <!-- end modification -->
+      <param name="comfort-noise" value="<%= @enable_comfort_noise %>"/>
       <!-- Uncomment auto-record to toggle recording every conference call. -->
       <!-- Another valid value is   shout://user:pass@server.com/live.mp3   -->
       <!--
@@ -111,12 +112,16 @@
       <param name="energy-level" value="50"/>
       <param name="member-flags" value="waste"/>
       <param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/>
+      <% if @enable_freeswitch_sounds -%>
       <param name="muted-sound" value="conference/conf-muted.wav"/>
       <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>
       <param name="alone-sound" value="conference/conf-alone.wav"/>
-      <!-- param name="moh-sound" value="$${hold_music}"/>
+      <% end -%>
+      <% if @enable_freeswitch_alone_music -%>
+      <param name="moh-sound" value="$${hold_music}"/>
+      <% end -%>
       <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
-      <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/-->
+      <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
       <param name="kicked-sound" value="conference/conf-kicked.wav"/>
       <param name="locked-sound" value="conference/conf-locked.wav"/>
       <param name="is-locked-sound" value="conference/conf-is-locked.wav"/>
@@ -125,10 +130,7 @@
       <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
-      <!-- modified by fcecagno -->
-      <!--param name="comfort-noise" value="true"/-->
-      <param name="comfort-noise" value="false"/>
-      <!-- end modification -->
+      <param name="comfort-noise" value="<%= @enable_comfort_noise %>"/>
       <!--<param name="tts-engine" value="flite"/>-->
       <!--<param name="tts-voice" value="kal16"/>-->
     </profile>
@@ -139,10 +141,14 @@
       <param name="interval" value="20"/>
       <param name="energy-level" value="300"/>
       <param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/>
+      <% if @enable_freeswitch_sounds -%>
       <param name="muted-sound" value="conference/conf-muted.wav"/>
       <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>
       <param name="alone-sound" value="conference/conf-alone.wav"/>
+      <% end -%>
+      <% if @enable_freeswitch_alone_music -%>
       <param name="moh-sound" value="$${hold_music}"/>
+      <% end -%>
       <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
       <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
       <param name="kicked-sound" value="conference/conf-kicked.wav"/>
@@ -153,10 +159,7 @@
       <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
-      <!-- modified by fcecagno -->
-      <!--param name="comfort-noise" value="true"/-->
-      <param name="comfort-noise" value="false"/>
-      <!-- end modification -->
+      <param name="comfort-noise" value="<%= @enable_comfort_noise %>"/>
       <!--<param name="tts-engine" value="flite"/>-->
       <!--<param name="tts-voice" value="kal16"/>-->
     </profile>
@@ -167,10 +170,14 @@
       <param name="interval" value="10"/>
       <param name="energy-level" value="300"/>
       <param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/>
+      <% if @enable_freeswitch_sounds -%>
       <param name="muted-sound" value="conference/conf-muted.wav"/>
       <param name="unmuted-sound" value="conference/conf-unmuted.wav"/>
       <param name="alone-sound" value="conference/conf-alone.wav"/>
+      <% end -%>
+      <% if @enable_freeswitch_alone_music -%>
       <param name="moh-sound" value="$${hold_music}"/>
+      <% end -%>
       <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
       <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
       <param name="kicked-sound" value="conference/conf-kicked.wav"/>
@@ -181,10 +188,7 @@
       <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
-      <!-- modified by fcecagno -->
-      <!--param name="comfort-noise" value="true"/-->
-      <param name="comfort-noise" value="false"/>
-      <!-- end modification -->
+      <param name="comfort-noise" value="<%= @enable_comfort_noise %>"/>
     </profile>
 
     <profile name="sla">
@@ -194,10 +198,7 @@
       <param name="caller-controls" value="none"/>
       <param name="energy-level" value="200"/>
       <param name="moh-sound" value="silence"/>
-      <!-- modified by fcecagno -->
-      <!--param name="comfort-noise" value="true"/-->
-      <param name="comfort-noise" value="false"/>
-      <!-- end modification -->
+      <param name="comfort-noise" value="<%= @enable_comfort_noise %>"/>
     </profile>
 
   </profiles>

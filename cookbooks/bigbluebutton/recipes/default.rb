@@ -136,8 +136,20 @@ template "/opt/freeswitch/conf/vars.xml" do
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
-{ "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml",
-  "conference.conf.xml" => "/opt/freeswitch/conf/autoload_configs/conference.conf.xml" }.each do |k,v|
+template "/opt/freeswitch/conf/autoload_configs/conference.conf.xml" do
+  source "conference.conf.xml.erb"
+  group "daemon"
+  owner "freeswitch"
+  mode "0755"
+  variables(
+    :enable_comfort_noise => node[:bbb][:enable_comfort_noise],
+    :enable_freeswitch_sounds => node[:bbb][:enable_freeswitch_sounds],
+    :enable_freeswitch_alone_music => node[:bbb][:enable_freeswitch_alone_music]
+  )
+  notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+
+{ "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml" }.each do |k,v|
   cookbook_file v do
     source k
     group "daemon"

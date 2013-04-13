@@ -44,20 +44,17 @@ define_properties = ruby_block "define bigbluebutton properties" do
             # node[:bbb][:server_domain] = "<SERVER_IP>"
             node.set[:bbb][:server_domain] = node[:bbb][:server_addr].split(":")[0]
 
-            external_ip = ""
             begin
                 body = Net::HTTP.get(URI.parse("http://dig.jsondns.org/IN/#{node[:bbb][:server_domain]}/A"))
                 dns_query = JSON.parse(body)
-                if dns_query['header']['rcode'] != 'NOERROR' or dns_query['header']['ancount'] <= 0
-                    raise "DNS Query returned an error: #{dns_query['header']['rcode']}"
+                if dns_query['header']['rcode'] == 'NOERROR' and dns_query['header']['ancount'] > 0
+                    node.set[:bbb][:external_ip] = dns_query['answer'][0]['rdata']
+                else
+                    # http://stackoverflow.com/questions/5742521/finding-the-ip-address-of-a-domain
+                    node.set[:bbb][:external_ip] = IPSocket::getaddress(node[:bbb][:server_domain])
                 end
-
-                external_ip = dns_query['answer'][0]['rdata']
             rescue
-                # http://stackoverflow.com/questions/5742521/finding-the-ip-address-of-a-domain
-                external_ip = IPSocket::getaddress(node[:bbb][:server_domain])
             end
-            node.set[:bbb][:external_ip] = external_ip
             node.set[:bbb][:internal_ip] = node[:ipaddress]
 
             if not node[:bbb][:enforce_salt].nil? and not node[:bbb][:enforce_salt].empty?

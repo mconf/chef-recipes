@@ -32,3 +32,4 @@ default[:mconf][:streaming][:maxUsers] = ""
 default[:mconf][:streaming][:record] = ""
 default[:mconf][:streaming][:logoutURL] = ""
 default[:mconf][:streaming][:welcomeMsg] = ""
+default[:mconf][:streaming][:metadata] = {}

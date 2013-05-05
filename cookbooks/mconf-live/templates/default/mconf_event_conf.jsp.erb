@@ -1,6 +1,26 @@
 <%= "<%" %>@ page language="java" contentType="text/html; charset=UTF-8"
   pageEncoding="UTF-8"<%= "%\>" %>
+<%= "<%" %>@ page import="java.util.HashMap"<%= "%\>" %>
+<%= "<%" %>@ page import="java.util.Map"<%= "%\>" %>
 <%= "<%" %>!
+  public class RecordingMetadata {
+    Map<String, String> metadata = new HashMap<String, String>();
+
+    public RecordingMetadata() {
+      init();
+    }
+
+    private void init() {
+      <% @metadata.each do |key, value| -%>
+      metadata.put("<%= key %>", "<%= value %>");
+      <% end %>
+    }
+
+    public Map<String, String> getMap() {
+      return metadata;
+    }
+  }
+
   String meetingID = "<%= @meetingID %>";
   String moderatorPW = "<%= @moderatorPW %>";
   String attendeePW = "<%= @attendeePW %>";
@@ -8,4 +28,6 @@
   String record = "<%= @record %>";
   String logoutURL = "<%= @logoutURL %>";
   String welcomeMsg = "<%= @welcomeMsg %>";
+  RecordingMetadata recordingMetadata = new RecordingMetadata();
+
 <%= "%\>" %>

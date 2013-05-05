@@ -14,11 +14,12 @@
   try {
     String data = getMeetingInfo(meetingID, moderatorPW);
     doc = parseXml(data);
-     if (doc.getElementsByTagName("returncode").item(0).getTextContent().trim().equals("SUCCESS")) {
-       String tmp = doc.getElementsByTagName("participantCount").item(0).getTextContent().trim();
-       usersNow = Integer.parseInt(tmp);
+    if (doc.getElementsByTagName("returncode").item(0).getTextContent().trim().equals("SUCCESS")) {
+      String tmp = doc.getElementsByTagName("participantCount").item(0).getTextContent().trim();
+      usersNow = Integer.parseInt(tmp);
     }
   } catch (Exception e) {
+  
     e.printStackTrace();
   }
 
@@ -188,7 +189,7 @@ public String createMeeting(String meetingID, String welcome, String moderatorPa
     }
 
     String createResult = createMeeting(meetingID, welcomeMsg, moderatorPW, 
-            attendeePW, null, logoutURL, record, null);
+            attendeePW, null, logoutURL, record, recordingMetadata.getMap());
     if (!createResult.equals(meetingID)) {
 %>
 

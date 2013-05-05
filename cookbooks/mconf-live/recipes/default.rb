@@ -134,7 +134,8 @@ template "/var/lib/tomcat6/webapps/demo/mconf_event_conf.jsp" do
     :maxUsers => node[:mconf][:streaming][:maxUsers],
     :record => node[:mconf][:streaming][:record],
     :logoutURL => node[:mconf][:streaming][:logoutURL],
-    :welcomeMsg => node[:mconf][:streaming][:welcomeMsg]
+    :welcomeMsg => node[:mconf][:streaming][:welcomeMsg],
+    :metadata => node[:mconf][:streaming][:metadata]
   )
   notifies :run, "execute[restart bigbluebutton]", :delayed
   only_if do File.exists?("/var/lib/tomcat6/webapps/demo/") and node[:mconf][:streaming][:enabled] end
@@ -193,13 +194,16 @@ end
     end
 end
 
-[
-  "/var/bigbluebutton/deskshare/"
-].each do |dir|
-    directory dir do
-        owner "red5"
-        group "red5"
-        recursive true
-        action :create
-    end
+directory "/var/bigbluebutton/deskshare/" do
+    owner "red5"
+    group "red5"
+    recursive true
+    action :create
+end
+
+directory "/var/bigbluebutton/meetings/" do
+    owner "freeswitch"
+    group "daemon"
+    recursive true
+    action :create
 end

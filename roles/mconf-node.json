@@ -2,9 +2,9 @@
   "default_attributes": {
     "mconf": {
       "live": {
-        "version": "mconf-live0.3beta5",
-        "version_int": 5,
-        "file": "mconf-live0.3beta5.tar.gz"
+        "version": "mconf-live0.3.1",
+        "version_int": 6,
+        "file": "mconf-live0.3.1.tar.gz"
       }
     }
   },

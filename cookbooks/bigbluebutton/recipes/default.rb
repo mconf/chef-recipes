@@ -50,10 +50,6 @@ apt_repository "bigbluebutton" do
   notifies :run, 'execute[apt-get update]', :immediately
 end
 
-ohai "reload" do
-  action :nothing
-end
-
 package "bigbluebutton" do
   # we won't use the version for bigbluebutton and bbb-demo because the 
   # BigBlueButton folks don't keep the older versions
@@ -61,7 +57,6 @@ package "bigbluebutton" do
   response_file "bigbluebutton.seed"
   action :install
   notifies :run, "execute[restart bigbluebutton]", :delayed
-  notifies :reload, "ohai[reload]", :immediately
 end
 
 link "/etc/nginx/sites-enabled/bigbluebutton" do
@@ -122,28 +117,18 @@ template "deploy red5 video conf" do
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
-%w( red5 freeswitch ).each do |k|
-  user node[k][:user] do
-    gid node[k][:group]
-    home node[k][:home]
-    system true
-    shell "/bin/false"
-    action :create
-  end
-end
-
 directory "video streams dir" do
   path "/usr/share/red5/webapps/video/streams"
+  user "red5"
   group "adm"
-  owner node[:red5][:user]
   mode "0755"
   action :create
 end
 
 template "/opt/freeswitch/conf/vars.xml" do
   source "vars.xml.erb"
-  group node[:freeswitch][:group]
-  owner node[:freeswitch][:user]
+  group "daemon"
+  owner "freeswitch"
   mode "0755"
   variables(
     :external_ip => node[:bbb][:external_ip] == node[:bbb][:internal_ip]? "auto-nat": node[:bbb][:external_ip]
@@ -153,8 +138,8 @@ end
 
 template "/opt/freeswitch/conf/autoload_configs/conference.conf.xml" do
   source "conference.conf.xml.erb"
-  group node[:freeswitch][:group]
-  owner node[:freeswitch][:user]
+  group "daemon"
+  owner "freeswitch"
   mode "0755"
   variables(
     :enable_comfort_noise => node[:bbb][:enable_comfort_noise],
@@ -167,8 +152,8 @@ end
 { "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml" }.each do |k,v|
   cookbook_file v do
     source k
-    group node[:freeswitch][:group]
-    owner node[:freeswitch][:user]
+    group "daemon"
+    owner "freeswitch"
     mode "0755"
     notifies :run, "execute[restart bigbluebutton]", :delayed
   end

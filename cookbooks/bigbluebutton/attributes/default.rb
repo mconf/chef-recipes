@@ -23,9 +23,3 @@ default[:bbb][:enable_freeswitch_alone_music] = false
 #default[:bbb][:version] = "0.80ubuntu4"
 #default[:bbb_demo][:version] = "0.80ubuntu76"
 
-default[:red5][:user] = "red5"
-default[:red5][:group] = "red5"
-default[:red5][:home] = "/usr/share/red5"
-default[:freeswitch][:user] = "freeswitch"
-default[:freeswitch][:group] = "daemon"
-default[:freeswitch][:home] = "/opt/freeswitch"

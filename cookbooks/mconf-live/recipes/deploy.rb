@@ -74,13 +74,13 @@ ruby_block "deploy record-and-playback" do
             end
 
             if not node[:mconf][:recording_server][:enabled].nil? and node[:mconf][:recording_server][:enabled]
-                Chef::Log.info("This is a Mconf Live recording server")
+                Chef::Log.info("This is a Mconf-Live recording server")
                 FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/mconf/scripts/mconf-god-conf.rb", "/etc/bigbluebutton/god/conf/"
                 FileUtils.cp_r "#{node[:mconf][:live][:deploy_dir]}/record-and-playback/mconf/scripts/mconf-decrypt.rb", "/usr/local/bigbluebutton/core/scripts/"
 
                 deploy_recording_format(node[:mconf][:live][:default_playback])
             else
-                Chef::Log.info("This is a Mconf Live recorder")
+                Chef::Log.info("This is a Mconf-Live recorder")
                 deploy_recording_format([ "mconf" ])
             end
 

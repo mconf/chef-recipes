@@ -176,28 +176,31 @@ class MemoryReporter(Reporter):
         state = self.checkStatus(list_avg)
         return message, state
 
+
 class DiskReporter(Reporter):
-    def __init__(self, config):
+    def __init__(self, config, path):
         Reporter.__init__(self, config)
-        self.service = "Disk Report"
+        self.service = "Disk Report "
+	self.mountedDiskPath = path
         self.list = CircularList(self.config.send_rate)
-        self.maximum = psutil.disk_usage('/').total / (1024 * 1024 * 1024)
+        self.maximum = float(psutil.disk_usage(self.mountedDiskPath).total) / (1024 * 1024)
         self.warning = (self.config.disk_warning * self.maximum) / 100
         self.critical = (self.config.disk_critical * self.maximum) / 100
     
     def threadLoop(self):
         time.sleep(1)
-        self.list.append((psutil.disk_usage('/').percent * self.maximum) / 100)
+        self.list.append((psutil.disk_usage(self.mountedDiskPath).percent * self.maximum) / 100)
         
     def data(self):
         list_avg = self.list.avg()
         # message mount
-        message = "Disk usage: %dGB of %dGB (%d%%)" % (list_avg, \
+        message = "Disk usage: %dMB of %dMB (%d%%)" % (list_avg, \
             self.maximum, (list_avg * 100) / self.maximum) \
-            + "|" + self.formatMessage(self.list, "disk", "GB")
+            + "|" + self.formatMessage(self.list, "disk", "MB")
         # state mount
         state = self.checkStatus(list_avg)
         return message, state
+
 
 class ProcessorReporter(Reporter):
     '''reporter class to collect and report processor data'''
@@ -221,6 +224,8 @@ class ProcessorReporter(Reporter):
         # state mount
         state = self.checkStatus(list_avg)
         return message, state
+
+
 
 class NetworkReporter(Reporter):
     '''reporter class to collect and report network data'''
@@ -329,6 +334,7 @@ def parse_args():
         help="define the critical limit in %", dest="disk_critical", 
         metavar="<disk_critical>")
     return parser.parse_args()
+	
 
 class Configuration:
     def __init__(self, args):
@@ -359,12 +365,17 @@ if __name__ == '__main__':
     threadsList = []
     
     config = Configuration(parse_args())
-    
+
     # here we should have the main call to the reporter threads
     threadsList.append(NetworkReporter(config))
     threadsList.append(ProcessorReporter(config))
     threadsList.append(MemoryReporter(config))
-    threadsList.append(DiskReporter(config))
+
+    #create a disk reporter for each VALID mounted disk
+    for partition in psutil.disk_partitions(all=True):
+	if psutil.disk_usage(partition.mountpoint).total > 0:
+        	threadsList.append(DiskReporter(config,partition.mountpoint))
+
     #processesAnalyzer thread
 #    threadsList.append(processesAnalyzer(config))
 
@@ -377,4 +388,3 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
     print 'Press Ctrl+C'
     signal.pause()
-    

@@ -177,30 +177,74 @@ class MemoryReporter(Reporter):
         return message, state
 
 
+
 class DiskReporter(Reporter):
     def __init__(self, config, path):
         Reporter.__init__(self, config)
         self.service = "Disk Report "
 	self.mountedDiskPath = path
-        self.list = CircularList(self.config.send_rate)
         self.maximum = float(psutil.disk_usage(self.mountedDiskPath).total) / (1024 * 1024)
         self.warning = (self.config.disk_warning * self.maximum) / 100
         self.critical = (self.config.disk_critical * self.maximum) / 100
-    
-    def threadLoop(self):
-        time.sleep(1)
-        self.list.append((psutil.disk_usage(self.mountedDiskPath).percent * self.maximum) / 100)
-        
-    def data(self):
-        list_avg = self.list.avg()
-        # message mount
-        message = "Disk usage: %dMB of %dMB (%d%%)" % (list_avg, \
-            self.maximum, (list_avg * 100) / self.maximum) \
-            + "|" + self.formatMessage(self.list, "disk", "MB")
-        # state mount
-        state = self.checkStatus(list_avg)
-        return message, state
 
+        
+    def data(self):	
+	currentUsageInMB = (psutil.disk_usage(self.mountedDiskPath).percent * self.maximum) / 100
+        state = self.checkStatus(currentUsageInMB)
+
+	humamMessage = "%s usage: %dMB of %dMB (%d%%)" % (self.mountedDiskPath, currentUsageInMB, \
+            self.maximum, (currentUsageInMB * 100) / self.maximum) \
+
+	nagiosMessage = self.formatMessage(currentUsageInMB, self.mountedDiskPath, "MB")
+        return humamMessage, nagiosMessage, state
+
+
+    def formatMessage(self, usage, label, unit):
+    	format = "%s%%s=%%.2f%s;%d;%d;%d;%d " % (label, unit.replace("%", "%%"), self.warning, self.critical, self.minimum, self.maximum)
+        return format % ("", usage)
+
+
+class MountedDisksReporter(Reporter):
+	def __init__(self, config): 
+        	Reporter.__init__(self, config)
+        	self.service = "Mounted Disks Report "
+
+		self.mountedDiskReporters = []	
+
+		#get all VALID mounted disks
+		for partition in psutil.disk_partitions(all=True):
+			if psutil.disk_usage(partition.mountpoint).total > 0:
+				self.mountedDiskReporters.append(DiskReporter(config,partition.mountpoint))
+
+
+		#starts all disk reporters
+		for diskReporter in self.mountedDiskReporters:
+			diskReporter.start()
+
+	def data(self):
+		humamMessages = []
+		nagiosMessages = []
+		diskStates = []
+		
+		for diskReporter in self.mountedDiskReporters:
+			humamMessage, nagiosMessage, state = diskReporter.data()
+			humamMessages.append(humamMessage + "; ")
+			nagiosMessages.append(nagiosMessage)
+			diskStates.append(state)
+
+		message = self.formatMessage(humamMessages, nagiosMessages)			
+		return message,max(diskStates)
+
+	def formatMessage(self,humamMessages, nagiosMessages):
+		concatenatedHumamMessages = string.join(humamMessages, '')
+		concatenatedNagiosMessages = string.join(nagiosMessages,' ')
+		return concatenatedHumamMessages + "| " + concatenatedNagiosMessages
+
+	def kill(self):
+		for diskReporter in self.mountedDiskReporters:
+			diskReporter.kill()
+        	self.terminate = True
+			
 
 class ProcessorReporter(Reporter):
     '''reporter class to collect and report processor data'''
@@ -370,11 +414,7 @@ if __name__ == '__main__':
     threadsList.append(NetworkReporter(config))
     threadsList.append(ProcessorReporter(config))
     threadsList.append(MemoryReporter(config))
-
-    #create a disk reporter for each VALID mounted disk
-    for partition in psutil.disk_partitions(all=True):
-	if psutil.disk_usage(partition.mountpoint).total > 0:
-        	threadsList.append(DiskReporter(config,partition.mountpoint))
+    threadsList.append(MountedDisksReporter(config))
 
     #processesAnalyzer thread
 #    threadsList.append(processesAnalyzer(config))

@@ -108,6 +108,10 @@ class Sender(Thread):
     def __sendReport(self, service, state, message):
         '''send report to nagios server'''
         print "%s\t%s\t%s\t%s\t" % (self.config.hostname, service, str(state), message)
+
+	#for debug
+	#print "%s" % message
+
         sys.stdout.flush()
 
 class Reporter(Thread):
@@ -256,6 +260,7 @@ class ProcessorReporter(Reporter):
         self.warning = self.config.cpu_warning
         self.critical = self.config.cpu_critical
         self.processor = commands.getoutput("cat /proc/cpuinfo | grep 'model name' | head -n 1 | sed 's:.*\: *\(.*\):\\1:g' | sed 's/  */\ /g'")
+	self.numberOfCores = psutil.NUM_CPUS
         
     def threadLoop(self):
         self.list.append(psutil.cpu_percent(1, percpu=False))
@@ -263,8 +268,8 @@ class ProcessorReporter(Reporter):
     def data(self):
         list_avg = self.list.avg()
         # message mount
-        message = "CPU usage: %.1f%% Model: %s" % (list_avg, self.processor) \
-            + "|" + self.formatMessage(self.list, "cpu", "%")
+        message = "CPU usage: %.1f%% Model: %s (%s cores) " % (list_avg, self.processor, self.numberOfCores) \
+            + "|" + self.formatMessage(self.list, "cpu", "%") + "cores=" + str(self.numberOfCores) + ";;;;"
         # state mount
         state = self.checkStatus(list_avg)
         return message, state

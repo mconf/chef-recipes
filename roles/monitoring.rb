@@ -18,7 +18,7 @@ override_attributes(
 )
 default_attributes(
     "nagios" => {
-        "monitor_chef_nodes" => false,
+        "monitor_chef_nodes" => true,
         "enable_ssl" => true,
         "https" => true,
         "http_port" => 8080,
@@ -33,7 +33,7 @@ default_attributes(
             "install_method" => "source"
         },
         "server_auth_method" => "htauth",
-        "notifications_enabled" => 1,
+        "notifications_enabled" => 0,
         "interval_length" => 1,
         "process_perf_data" => true,
         "default_host" => {

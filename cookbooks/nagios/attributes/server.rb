@@ -66,6 +66,10 @@ default['nagios']['sysadmin_sms_email']      = "root@localhost"
 default['nagios']['server_auth_method']      = "openid"
 default['nagios']['users_databag_group']     = "sysadmin"
 default['nagios']['host_name_attribute']     = "hostname"
+default['nagios']['log_external_commands']   = true
+default['nagios']['log_passive_checks']      = true
+default['nagios']['notification_sender_address'] = node['nagios']['sysadmin_email']
+default['nagios']['notification_sender_name']    = "Nagios"
 
 # for cas authentication
 default['nagios']['cas_login_url'] = "https://example.com/cas/login"

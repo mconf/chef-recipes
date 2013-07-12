@@ -33,7 +33,7 @@ default_attributes(
             "install_method" => "source"
         },
         "server_auth_method" => "htauth",
-        "notifications_enabled" => 0,
+        "notifications_enabled" => 1,
         "interval_length" => 1,
         "process_perf_data" => true,
         "default_host" => {
@@ -49,15 +49,12 @@ default_attributes(
             "notification_interval" => 0, # in seconds
             "perfdata_command" => "process_service_perfdata_for_nagiosgraph"
         },
-        "host_name_attribute" => "fqdn"
+        "host_name_attribute" => "fqdn",
+        "log_external_commands" => false,
+        "log_passive_checks" => false
     },
     "postfix" => {
-        "relayhost" => "smtp.gmail.com:587",
         "smtp_sasl_auth_enable" => "yes",
-        "smtp_sasl_user_name" => "[your@email.com]",
-        "smtp_sasl_passwd" => "[your_password]",
         "smtp_tls_cafile" => "/etc/ssl/certs/ca-certificates.crt",
-        "myhostname" => "[ubuntu]",
-        "mydomain" => "[localhost]"
     }
 )

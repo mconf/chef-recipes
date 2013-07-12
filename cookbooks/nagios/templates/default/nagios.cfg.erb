@@ -327,7 +327,7 @@ log_initial_states=0
 # checks - see the option below for controlling whether or not
 # passive checks are logged.
 
-log_external_commands=1
+log_external_commands=<%= nagios_boolean(node['nagios']['log_external_commands']) %>
 
 
 
@@ -336,7 +336,7 @@ log_external_commands=1
 # this value to 0.  If passive checks should be logged, set
 # this value to 1.
 
-log_passive_checks=1
+log_passive_checks=<%= nagios_boolean(node['nagios']['log_passive_checks']) %>
 
 
 

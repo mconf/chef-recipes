@@ -10,7 +10,7 @@ define command {
 
 # Service checks
 define command {
-  command_name    check-nagios
+  command_name    check_nagios
   command_line    $USER1$/check_nrpe -H $HOSTADDRESS$ -c check_nagios -t 20
 }
 
@@ -28,7 +28,7 @@ define command {
 # Notification
 define command {
   command_name    host-notify-by-email
-  command_line    /usr/bin/printf "%b" "$LONGDATETIME$\n\n$HOSTALIAS$ $NOTIFICATIONTYPE$ $HOSTSTATE$\n\n$HOSTOUTPUT$\n\nLogin: ssh://$HOSTNAME$" | <%=node['nagios']['server']['mail_command']%> -s "$NOTIFICATIONTYPE$ - $HOSTALIAS$ $HOSTSTATE$!" $CONTACTEMAIL$
+  command_line    /usr/bin/printf "%b" "Notification Type: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nState: $HOSTSTATE$\nAddress: $HOSTADDRESS$\nInfo: $HOSTOUTPUT$\n\nDate/Time: $LONGDATETIME$\n" | <%=node['nagios']['server']['mail_command']%> -s "$NOTIFICATIONTYPE$ - $HOSTALIAS$ is $HOSTSTATE$" $CONTACTEMAIL$ -- -r "<%=node['nagios']['notification_sender_address']%>" -F "<%=node['nagios']['notification_sender_name']%>"
 }
 
 define command {
@@ -39,7 +39,7 @@ define command {
 # 'notify-by-email' command definition
 define command {
   command_name    service-notify-by-email
-  command_line    /usr/bin/printf "%b" "$LONGDATETIME$ - $SERVICEDESC$ $SERVICESTATE$\n\n$HOSTALIAS$  $NOTIFICATIONTYPE$\n\n$SERVICEOUTPUT$\n\nLogin: ssh://$HOSTNAME$" | <%=node['nagios']['server']['mail_command']%> -s "** $NOTIFICATIONTYPE$ - $HOSTALIAS$ - $SERVICEDESC$ - $SERVICESTATE$" $CONTACTEMAIL$
+  command_line    /usr/bin/printf "%b" "Notification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\n\nDate/Time: $LONGDATETIME$\n\nAdditional Info:\n\n$SERVICEOUTPUT$\n" | <%=node['nagios']['server']['mail_command']%> -s "$NOTIFICATIONTYPE$ - $SERVICEDESC$ on $HOSTALIAS$ is $SERVICESTATE$" $CONTACTEMAIL$ -- -r "<%=node['nagios']['notification_sender_address']%>" -F "<%=node['nagios']['notification_sender_name']%>"
 }
 
 # Commands added through nagios_commands data bags

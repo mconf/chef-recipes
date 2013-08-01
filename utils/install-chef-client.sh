@@ -28,7 +28,7 @@ else
 fi
 
 # http://code.google.com/p/bigbluebutton/wiki/InstallationUbuntu#2._Install_Ruby
-sudo apt-get update && sudo apt-get -y install $DEPENDENCIES_PKGS
+sudo apt-get update && sudo apt-get -y install $DEPENDENCIES_PKGS wget
 
 cd /tmp
 wget -N http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-p290.tar.gz

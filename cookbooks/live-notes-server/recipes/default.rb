@@ -72,7 +72,9 @@ end
 service "live-notes-server" do
   provider Chef::Provider::Service::Upstart
   supports :restart => true, :start => true, :stop => true
-  action [ :enable, :start ]
+  # since mconf-live0.3.4, the live-notes-server isn't used anymore
+  # action [ :enable, :start ]
+  action [ :stop, :disable ]
   subscribes :restart, resources()
 end
 

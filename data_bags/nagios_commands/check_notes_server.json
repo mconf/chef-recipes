@@ -1,4 +1,4 @@
 {
     "id": "check_notes_server",
-    "command_line": "$USER1$/check_http --hostname $HOSTADDRESS$ --port $_HOSTBBB_PORT$ --url /bigbluebutton/notes.jsp --timeout 15 --verbose --regex \"Read timed out.*\""
+    "command_line": "$USER1$/check_dummy 0 \"Live notes server isn't used anymore\""
 }

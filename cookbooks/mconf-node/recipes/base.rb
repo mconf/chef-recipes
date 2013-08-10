@@ -84,3 +84,11 @@ if tagged?("reboot")
   untag("reboot")
 end
 
+# this is an extra protection to avoid the use of the chef-client daemon
+# it returns 1 if the service isn't running
+execute "stop chef-client daemon" do
+  command "service chef-client stop"
+  action :run
+  return [ 0, 1 ]
+end
+

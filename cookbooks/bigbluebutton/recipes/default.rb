@@ -194,6 +194,17 @@ service "bbb-record-core" do
   action :start
 end
 
+template "/usr/local/bigbluebutton/core/scripts/presentation.yml" do
+  source "presentation.yml.erb"
+  mode "0644"
+  variables(
+    :video_output_width => node[:bbb][:recording][:presentation][:video_output_width],
+    :video_output_height => node[:bbb][:recording][:presentation][:video_output_height],
+    :audio_offset => node[:bbb][:recording][:presentation][:audio_offset],
+    :include_deskshare => node[:bbb][:recording][:presentation][:include_deskshare]
+  )
+end
+
 execute "restart bigbluebutton" do
   user "root"
   command "bbb-conf --clean || echo 'Return successfully'"

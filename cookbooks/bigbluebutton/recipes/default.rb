@@ -199,3 +199,12 @@ execute "restart bigbluebutton" do
   command "bbb-conf --clean || echo 'Return successfully'"
   action :nothing
 end
+
+node[:bbb][:recording][:rebuild].each do |record_id|
+  execute "rebuild recording" do
+    user "root"
+    command "bbb-record --rebuild #{record_id}"
+    action :run
+  end
+end
+node.set[:bbb][:recording][:rebuild] = []

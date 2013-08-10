@@ -145,6 +145,7 @@ Dir["/var/bigbluebutton/published/**/metadata.xml"].each do |filename|
         command "sed -i 's \\(https\\?://[^/]*\\)/\\(mconf\\|presentation\\)/ #{node[:bbb][:server_url]}/\\2/ g' #{filename}"
         user "root"
         action :run
+        only_if do File.exists?(filename) end
     end
 end
 

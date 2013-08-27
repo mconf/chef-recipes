@@ -8,7 +8,7 @@
 
 default[:mconf][:tools][:dir] = "/var/mconf/tools"
 default[:mconf][:instance_type] = "bigbluebutton"
-default[:mconf][:interval] = "10"
+default[:mconf][:interval] = "20"
 default[:mconf][:nagios][:dir] = "#{node[:mconf][:tools][:dir]}/nagios"
 # it should be a list, ex: ["server1","server2"]
 # if nil, it will use the attribute node[:nsca_handler][:nsca_server] instead

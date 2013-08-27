@@ -9,3 +9,4 @@ done
 knife role from file ../roles/*.rb
 knife role from file ../roles/*.json
 knife environment from file ../environments/*.rb
+knife environment from file ../environments/*.json

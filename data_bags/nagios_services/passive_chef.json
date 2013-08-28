@@ -3,6 +3,6 @@
     "service_template": "generic-passive-service",
     "hostgroup_name": ["mconf-node","mconf-recording-server"],
     "description": "Chef client run status",
-    "freshness_threshold": 21600,
+    "freshness_threshold": 86400,
     "use_existing_command": "service_out_of_date"
 }

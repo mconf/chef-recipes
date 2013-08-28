@@ -24,18 +24,6 @@ end
 # include_recipe "yasm::source"
 include_recipe "ffmpeg"
 
-# https://groups.google.com/d/topic/bigbluebutton-setup/zL5Lwbj46TY/discussion
-package "language-pack-en" do
-  action :install
-  notifies :run, "execute[update locale]", :immediately
-end
-
-execute "update locale" do
-  user "root"
-  command "update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8"
-  action :nothing
-end
-
 # add ubuntu repo
 apt_repository "ubuntu" do
   uri "http://archive.ubuntu.com/ubuntu/"

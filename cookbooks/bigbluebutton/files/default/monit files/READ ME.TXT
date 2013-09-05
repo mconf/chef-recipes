@@ -1,0 +1,6 @@
+1. Install monit and give it root permissions
+2. Put the .conf files at "/etc/monit/conf.d"
+3. Create folder "scripts" at "/etc/monit/conf.d" (maybe you have to give root permissions to "scripts" afterwards)
+3. Inside "scripts", put bbb_services.sh and give it root permissions.
+4. Inside "scripts", create folder "logs" (maybe you have to give root permissions to "logs" afterwards)
+4. Inside "logs", put the bbb_log_monit file and give it root permissions.

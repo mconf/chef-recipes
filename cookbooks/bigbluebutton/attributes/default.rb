@@ -6,6 +6,24 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+default[:bbb][:ffmpeg][:install_method] = "source"
+default[:bbb][:ffmpeg][:version] = "2.0.1"
+default[:bbb][:ffmpeg][:filename] = nil
+default[:bbb][:ffmpeg][:repo_url] = nil
+
+default[:bbb][:libvpx][:install_method] = "source"
+default[:bbb][:libvpx][:version] = "1.2.0"
+default[:bbb][:libvpx][:filename] = nil
+default[:bbb][:libvpx][:repo_url] = nil
+
+default[:bbb][:openoffice][:filename] = "openoffice.org_1.0.4_all.deb"
+default[:bbb][:openoffice][:repo_url] = nil
+
+default[:bbb][:bigbluebutton][:repo_url] = "http://ubuntu.bigbluebutton.org/lucid_dev_081"
+default[:bbb][:bigbluebutton][:key_url] = "http://ubuntu.bigbluebutton.org/bigbluebutton.asc"
+default[:bbb][:bigbluebutton][:components] = ["bigbluebutton-lucid" , "main"]
+default[:bbb][:bigbluebutton][:package_name] = "bigbluebutton"
+
 default[:bbb][:recording][:video] = true
 default[:bbb][:recording][:deskshare] = true
 default[:bbb][:recording][:rebuild] = []

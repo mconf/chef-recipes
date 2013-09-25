@@ -8,7 +8,7 @@
 
 override[:libvpx][:git_revision] = "b9ce43029298182668d4dcb0e0814189e4a63c2a" # tag v1.2.0
 
-override[:ffmpeg][:git_revision] = "b06903e6c56d2e08c3b79f67a1e81e24e90c60ac" # tag n0.11.2
+override[:ffmpeg][:git_revision] = "acf511de34e0b79fff0183e06ed37f1aa8dc3d94" # tag n2.0.1
 override[:ffmpeg][:compile_flags] = [ "--enable-version3",
                                       "--enable-postproc",
                                       "--enable-libopencore-amrnb",

@@ -11,18 +11,77 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# dependencies of libvpx and ffmpeg
-# http://code.google.com/p/bigbluebutton/wiki/081InstallationUbuntu#3.__Install_ffmpeg
-%w( build-essential git-core checkinstall yasm texi2html libopencore-amrnb-dev 
-    libopencore-amrwb-dev libsdl1.2-dev libtheora-dev libvorbis-dev libx11-dev 
-    libxfixes-dev libxvidcore-dev zlib1g-dev ).each do |pkg|
-  package pkg do
+if node[:bbb][:ffmpeg][:install_method] == "package"
+  current_ffmpeg_version = `ffmpeg -version | grep 'ffmpeg version' | cut -d' ' -f3`.strip!
+  ffmpeg_update_needed = (current_ffmpeg_version != node[:bbb][:ffmpeg][:version])
+
+  remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:ffmpeg][:filename]}" do
+    source "#{node[:bbb][:ffmpeg][:repo_url]}/#{node[:bbb][:ffmpeg][:filename]}"
+    action :create_if_missing
+    only_if { ffmpeg_update_needed }
+  end
+
+  dpkg_package "ffmpeg" do
+    source "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:ffmpeg][:filename]}"
     action :install
+    only_if { ffmpeg_update_needed }
+  end
+else
+  # dependencies of libvpx and ffmpeg
+  # http://code.google.com/p/bigbluebutton/wiki/081InstallationUbuntu#3.__Install_ffmpeg
+  %w( build-essential git-core checkinstall yasm texi2html libopencore-amrnb-dev 
+      libopencore-amrwb-dev libsdl1.2-dev libtheora-dev libvorbis-dev libx11-dev 
+      libxfixes-dev libxvidcore-dev zlib1g-dev ).each do |pkg|
+    package pkg do
+      action :install
+    end
+  end
+
+  # ffmpeg already includes libvpx
+  include_recipe "ffmpeg"
+end
+
+if node[:bbb][:libvpx][:install_method] == "package"
+  remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:libvpx][:filename]}" do
+    source "#{node[:bbb][:libvpx][:repo_url]}/#{node[:bbb][:libvpx][:filename]}"
+    action :create_if_missing
+  end
+
+  dpkg_package "libvpx" do
+    source "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:libvpx][:filename]}"
+    action :install
+  end
+else
+  if node[:bbb][:ffmpeg][:install_method] == "source"
+    # do nothing because ffmpeg already installed libvpx
+  else
+    include_recipe "libvpx::source"
   end
 end
 
-# include_recipe "yasm::source"
-include_recipe "ffmpeg"
+remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}" do
+  source "#{node[:bbb][:libvpx][:repo_url]}/#{node[:bbb][:openoffice][:filename]}"
+  action :create_if_missing
+end
+
+dpkg_package "openoffice" do
+  source "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}"
+  action :install
+  # removes the old installation of openoffice if this is an update
+  notifies :run, 'execute[apt-get autoremove]', :immediately
+end
+
+package "python-software-properties"
+
+apt_repository "libreoffice" do
+  uri "http://ppa.launchpad.net/libreoffice/libreoffice-4-0/ubuntu"
+  components ["lucid", "main"]
+  keyserver "keyserver.ubuntu.com"
+  key "1378B444"
+end
+
+package "libreoffice-common"
+package "libreoffice"
 
 # add ubuntu repo
 apt_repository "ubuntu" do
@@ -31,20 +90,34 @@ apt_repository "ubuntu" do
 end
 
 # add bigbluebutton repo
-apt_repository "bigbluebutton" do
-  key "http://ubuntu.bigbluebutton.org/bigbluebutton.asc"
-  uri "http://ubuntu.bigbluebutton.org/lucid_dev_08"
-  components ["bigbluebutton-lucid" , "main"]
+apt_repository node[:bbb][:bigbluebutton][:package_name] do
+  key node[:bbb][:bigbluebutton][:key_url]
+  uri node[:bbb][:bigbluebutton][:repo_url]
+  components node[:bbb][:bigbluebutton][:components]
   notifies :run, 'execute[apt-get update]', :immediately
 end
 
-package "bigbluebutton" do
-  # we won't use the version for bigbluebutton and bbb-demo because the 
-  # BigBlueButton folks don't keep the older versions
-#  version node[:bbb][:version]
+# install bigbluebutton package
+package node[:bbb][:bigbluebutton][:package_name] do
   response_file "bigbluebutton.seed"
+  # it will force the maintainer's version of the configuration files
+  options "-o Dpkg::Options::=\"--force-confnew\""
   action :install
-  notifies :run, "execute[restart bigbluebutton]", :delayed
+  notifies :run, "execute[clean bigbluebutton]", :delayed
+end
+
+# if anything goes wrong with the command above, it won't fail,
+# so I will make it fail here
+execute "force apt fix" do
+  command "apt-get -f install"
+  action :run
+end
+
+ruby_block "Early exit" do
+  block do
+    raise "Early exit"
+  end
+  action :nothing
 end
 
 link "/etc/nginx/sites-enabled/bigbluebutton" do
@@ -193,9 +266,15 @@ template "/usr/local/bigbluebutton/core/scripts/presentation.yml" do
   )
 end
 
-execute "restart bigbluebutton" do
+execute "clean bigbluebutton" do
   user "root"
   command "bbb-conf --clean || echo 'Return successfully'"
+  action :nothing
+end
+
+execute "restart bigbluebutton" do
+  user "root"
+  command "bbb-conf --restart || echo 'Return successfully'"
   action :nothing
 end
 

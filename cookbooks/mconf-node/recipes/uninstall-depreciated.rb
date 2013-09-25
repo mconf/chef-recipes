@@ -56,3 +56,20 @@ if version == "bbb0.8-mconf-0.1 - Mconf Node (mconf.org)"
       end
     end
 end
+
+if version == "mconf-live0.3.3RC2" or version == "mconf-live0.3.4RC2"
+    # remove BigBlueButton repo
+    apt_repository "bigbluebutton" do
+      action :remove
+    end
+
+    execute "stop bigbluebutton" do
+      user "root"
+      command "bbb-conf --stop"
+      action :run
+    end
+
+    package "bigbluebutton" do
+      action :purge
+    end
+end

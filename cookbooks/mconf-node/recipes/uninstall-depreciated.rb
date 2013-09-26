@@ -63,13 +63,33 @@ if version == "mconf-live0.3.3RC2" or version == "mconf-live0.3.4RC2"
       action :remove
     end
 
-    execute "stop bigbluebutton" do
-      user "root"
-      command "bbb-conf --stop"
-      action :run
+    %w{ red5 bbb-openoffice-headless }.each do |s|
+      service s do
+        action :stop
+      end
     end
 
-    package "bigbluebutton" do
-      action :purge
+    service "live-notes-server" do
+      provider Chef::Provider::Service::Upstart
+      action [:stop, :disable]
+    end
+
+    # we need to do it here because the apt-get autoremove mess everything after purge the bigbluebutton package
+    remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}" do
+      source "#{node[:bbb][:openoffice][:repo_url]}/#{node[:bbb][:openoffice][:filename]}"
+      action :create_if_missing
+    end
+
+    dpkg_package "openoffice" do
+      source "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}"
+      action :install
+      # removes the old installation of openoffice if this is an update
+      notifies :run, 'execute[apt-get autoremove]', :immediately
+    end
+
+    %w{ bigbluebutton bbb-freeswitch bbb-playback-slides bbb-demo }.each do |pkg|
+      package pkg do
+        action :purge
+      end
     end
 end

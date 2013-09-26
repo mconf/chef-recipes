@@ -60,15 +60,13 @@ else
 end
 
 remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}" do
-  source "#{node[:bbb][:libvpx][:repo_url]}/#{node[:bbb][:openoffice][:filename]}"
+  source "#{node[:bbb][:openoffice][:repo_url]}/#{node[:bbb][:openoffice][:filename]}"
   action :create_if_missing
 end
 
 dpkg_package "openoffice" do
   source "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}"
   action :install
-  # removes the old installation of openoffice if this is an update
-  notifies :run, 'execute[apt-get autoremove]', :immediately
 end
 
 package "python-software-properties"
@@ -97,13 +95,30 @@ apt_repository node[:bbb][:bigbluebutton][:package_name] do
   notifies :run, 'execute[apt-get update]', :immediately
 end
 
+package "red5" do
+  options "-o Dpkg::Options::=\"--force-confnew\""
+  action :upgrade
+end
+
+execute "upgrade bigbluebutton dependencies" do
+  command "apt-get -y -o Dpkg::Options::=\"--force-confnew\" dist-upgrade"
+  action :nothing
+end
+
 # install bigbluebutton package
 package node[:bbb][:bigbluebutton][:package_name] do
   response_file "bigbluebutton.seed"
   # it will force the maintainer's version of the configuration files
   options "-o Dpkg::Options::=\"--force-confnew\""
-  action :install
+  action :upgrade
+  notifies :run, "execute[upgrade bigbluebutton dependencies]", :immediately
   notifies :run, "execute[clean bigbluebutton]", :delayed
+end
+
+package "bbb-playback-presentation" do
+  options "-o Dpkg::Options::=\"--force-confnew\""
+  action :upgrade
+  only_if { node[:bbb][:recording][:install_presentation] }
 end
 
 # if anything goes wrong with the command above, it won't fail,
@@ -111,13 +126,6 @@ end
 execute "force apt fix" do
   command "apt-get -f install"
   action :run
-end
-
-ruby_block "Early exit" do
-  block do
-    raise "Early exit"
-  end
-  action :nothing
 end
 
 link "/etc/nginx/sites-enabled/bigbluebutton" do
@@ -150,9 +158,8 @@ template "/etc/cron.daily/bigbluebutton" do
 end
 
 package "bbb-demo" do
-#  version node[:bbb_demo][:version]
   if node[:bbb][:demo][:enabled]
-    action :install
+    action :upgrade
   else
     action :purge
   end
@@ -205,7 +212,7 @@ template "/opt/freeswitch/conf/autoload_configs/conference.conf.xml" do
   variables(
     :enable_comfort_noise => node[:bbb][:enable_comfort_noise],
     :enable_freeswitch_sounds => node[:bbb][:enable_freeswitch_sounds],
-    :enable_freeswitch_alone_music => node[:bbb][:enable_freeswitch_alone_music]
+    :enable_freeswitch_hold_music => node[:bbb][:enable_freeswitch_hold_music]
   )
   notifies :run, "execute[restart bigbluebutton]", :delayed
 end

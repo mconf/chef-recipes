@@ -81,12 +81,7 @@ if version == "mconf-live0.3.3RC2" or version == "mconf-live0.3.4RC2"
       end
     end
 
-    service "live-notes-server" do
-      provider Chef::Provider::Service::Upstart
-      action [:stop, :disable]
-    end
-
-    # TODO remove all files related to the live notes server
+    include_recipe "live-notes-server::uninstall"
 
     # we need to do it here because the apt-get autoremove mess everything after purge the bigbluebutton package
     remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}" do

@@ -11,74 +11,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# the streaming system needs the BigBlueButton demo installed
-if node[:mconf][:streaming][:enabled]
-  node.set[:bbb][:demo][:enabled] = true
-end
-
-directory node[:mconf][:live][:deploy_dir] do
-  owner node[:mconf][:user]
-  recursive true
-  action :create
-  subscribes :create, resources("package[bigbluebutton]"), :immediately
-  subscribes :create, resources("package[bbb-demo]"), :immediately
-end
-
-ruby_block "print conditions to deploy during execution phase" do
-    block do
-        Chef::Log.info("This is being printed on execution phase")
-    end
-    action :create
-end  
-
-t = ruby_block "print conditions to deploy" do
-    block do
-        Chef::Log.info("\tForce deploy? #{node[:mconf][:live][:force_deploy]}")
-        if File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed")
-            Chef::Log.info("\t.deployed content? " + File.read("#{node[:mconf][:live][:deploy_dir]}/.deployed"))
-        else
-            Chef::Log.info("\t.deployed doesn't exist")
-        end
-        Chef::Log.info("\tVersion to deploy? #{node[:mconf][:live][:version]}")
-    end
-    action :create
-end
-
-Chef::Log.info("This is being printed on compile phase")
-t.run_action(:create)
-
-# conditions to trigger the deploy procedure
-# - forced by an attribute
-# - deployed version file doesn't exist
-# - file exists but the deployed version is different than the current version
-file "create deploy flag" do
-    path "#{node[:mconf][:live][:deploy_dir]}/.deploy_needed"
-    owner node[:mconf][:user]
-    action :create
-    only_if do node[:mconf][:live][:force_deploy] or not File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed") or (File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deployed") and File.read("#{node[:mconf][:live][:deploy_dir]}/.deployed") != node[:mconf][:live][:version]) end
-    subscribes :create, resources("package[bigbluebutton]"), :immediately
-    subscribes :create, resources("package[bbb-demo]"), :immediately
-end
-
-ruby_block "print deploy flag" do
-    block do
-        Chef::Log.info("\tDeploy needed? #{File.exists?("#{node[:mconf][:live][:deploy_dir]}/.deploy_needed")}")
-    end
-    action :create
-end
-
-include_recipe "mconf-live::deploy" unless node[:bbb][:handling_meetings]
-
-# delete deploy flag after deployement
-file "delete flag after the deploy" do
-    path "#{node[:mconf][:live][:deploy_dir]}/.deploy_needed"
-    action :delete
-end
-
-# restart only tomcat doesn't work because doing it BigBlueButton API doesn't 
-# find anymore the running meetings
-#service "tomcat6"
-
 template "/var/www/bigbluebutton/client/conf/config.xml" do
   source "config.xml.erb"
   mode "0644"
@@ -107,56 +39,12 @@ end
 
 { "mconf-default.pdf" => "/var/www/bigbluebutton-default/mconf-default.pdf",
   "layout.xml" => "/var/www/bigbluebutton/client/conf/layout.xml",
-  "layout-streaming.xml" => "/var/www/bigbluebutton/client/conf/layout-streaming.xml" }.each do |k,v|
+  "layout-streaming.xml" => "/var/www/bigbluebutton/client/conf/layout-streaming.xml",
+  "help.html" => "/var/www/bigbluebutton-default/help.html" }.each do |k,v|
     cookbook_file v do
       source k
       mode "0644"
     end
-end
-
-service "nginx"
-
-cookbook_file "/etc/nginx/mime.types" do
-    source "nginx-mime.types"
-    mode "0644"
-    notifies :restart, "service[nginx]", :immediately
-end
-
-template "/var/lib/tomcat6/webapps/demo/mconf_event_conf.jsp" do
-  source "mconf_event_conf.jsp.erb"
-  group "tomcat6"
-  owner "tomcat6"
-  mode "0644"
-  variables(
-    :meetingID => node[:mconf][:streaming][:meetingID],
-    :moderatorPW => node[:mconf][:streaming][:moderatorPW],
-    :attendeePW => node[:mconf][:streaming][:attendeePW],
-    :maxUsers => node[:mconf][:streaming][:maxUsers],
-    :record => node[:mconf][:streaming][:record],
-    :logoutURL => node[:mconf][:streaming][:logoutURL],
-    :welcomeMsg => node[:mconf][:streaming][:welcomeMsg],
-    :metadata => node[:mconf][:streaming][:metadata]
-  )
-  notifies :run, "execute[restart bigbluebutton]", :delayed
-  only_if do File.exists?("/var/lib/tomcat6/webapps/demo/") and node[:mconf][:streaming][:enabled] end
-end
-
-cookbook_file "/var/lib/tomcat6/webapps/demo/mconf_event.jsp" do
-  source "mconf_event.jsp"
-  group "tomcat6"
-  owner "tomcat6"
-  mode "0644"
-  notifies :run, "execute[restart bigbluebutton]", :delayed
-  only_if do File.exists?("/var/lib/tomcat6/webapps/demo/") and node[:mconf][:streaming][:enabled] end
-end
-
-if not node[:mconf][:streaming][:enabled]
-  [ "/var/lib/tomcat6/webapps/demo/mconf_event.jsp", 
-    "/var/lib/tomcat6/webapps/demo/mconf_event_conf.jsp"].each do |f|
-      file f do
-        action :delete
-      end
-  end
 end
 
 { "bigbluebutton-sip.properties.erb" => "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties" }.each do |k,v|
@@ -167,43 +55,133 @@ end
   end
 end
 
-cookbook_file "/var/www/bigbluebutton-default/index.html" do
-  if node[:bbb][:demo][:enabled]
-    source "index-demo-enabled.html"
-  else
-    source "index-demo-disabled.html"
-  end
+template "/var/www/bigbluebutton-default/index.html" do
+  source "index.html.erb"
   mode "0644"
+  variables(
+    :redirect_url => node[:bbb][:demo][:enabled]? "/demo/demo_mconf.jsp": "http://mconf.org"
+  )
 end
 
-[
-  "/var/bigbluebutton/playback/",
-  "/var/bigbluebutton/recording/raw/",
-  "/var/bigbluebutton/recording/process/",
-  "/var/bigbluebutton/recording/publish/",
-  "/var/bigbluebutton/recording/status/recorded/",
-  "/var/bigbluebutton/recording/status/archived/",
-  "/var/bigbluebutton/recording/status/processed/",
-  "/var/bigbluebutton/recording/status/sanity/"
-].each do |dir|
-    directory dir do
-        owner "tomcat6"
-        group "tomcat6"
-        recursive true
-        action :create
+decrypt_god = "/etc/bigbluebutton/god/conf/mconf-god-conf.rb"
+decrypt_god_disabled = "#{decrypt_god}.disabled"
+ruby_block "configure decrypt" do
+  block do
+    if node[:mconf][:recording_server][:enabled]
+      FileUtils.move decrypt_god_disabled, decrypt_god if File.exists?(decrypt_god_disabled)
+    else
+      FileUtils.move decrypt_god, decrypt_god_disabled if File.exists?(decrypt_god)
+    end
+  end
+  only_if do File.exists?(decrypt_god) != node[:mconf][:recording_server][:enabled] end
+  notifies :restart, "service[bbb-record-core]", :immediately
+end
+
+# the "mconf" playback is the encrypted recording workflow
+execute "configure recording workflow" do
+  if node[:mconf][:recording_server][:enabled]
+    command "bbb-record --enable presentation && bbb-record --disable mconf"
+  else
+    command "bbb-record --enable mconf && bbb-record --disable presentation"
+  end
+  action :run
+end
+
+directory "/var/log/bigbluebutton/mconf" do
+  action :create
+  owner "tomcat6"
+  group "tomcat6"
+  mode 00755
+  only_if do not node[:mconf][:recording_server][:enabled] end
+end
+
+chef_gem "open4" do
+  version "1.3.0"
+  action :install
+end
+
+require 'open4'
+
+ruby_block "generate recording server keys" do
+    block do
+        def execute(command)
+            status = Open4::popen4(command) do | pid, stdin, stdout, stderr|
+                Chef::Log.info("Executing: #{command}")
+
+                output = stdout.readlines
+                Chef::Log.info("stdout: #{Array(output).join()} ") unless output.empty?
+
+                errors = stderr.readlines
+                Chef::Log.error("stderr: #{Array(errors).join()}") unless errors.empty?
+            end
+            if not status.success?
+                raise "Execution failed, raising an exception"
+            end
+        end
+
+        execute("openssl genrsa -out #{node[:mconf][:recording_server][:private_key_path]} 2048")
+        execute("openssl rsa -in #{node[:mconf][:recording_server][:private_key_path]} -out #{node[:mconf][:dir]}/public_key.pem -outform PEM -pubout")
+
+        # The following code doesn't work because the RSA key generated by Ruby 
+        # OpenSSL is formatted in a way that the openssl application doesn't
+        # understand
+        # http://stackoverflow.com/questions/4635837/invalid-public-keys-when-using-the-ruby-openssl-library
+        #rsa_key = OpenSSL::PKey::RSA.new(2048)
+        #private_key = rsa_key.to_pem
+        #File.open("#{node[:mconf][:recording_server][:private_key_path]}", 'w') {|f| f.write(private_key) }
+        #public_key = rsa_key.public_key.to_pem
+        #node.set[:keys][:recording_server_public] = "#{public_key}"
+    end
+    only_if do node[:mconf][:recording_server][:enabled] and not File.exists?(node[:mconf][:recording_server][:private_key_path]) end
+end
+
+ruby_block "save public key" do
+  block do
+    node.set[:keys][:recording_server_public] = File.read("#{node[:mconf][:dir]}/public_key.pem")
+  end
+  only_if do node[:mconf][:recording_server][:enabled] and File.exists?("#{node[:mconf][:dir]}/public_key.pem") end
+end
+
+Dir["/var/bigbluebutton/published/**/metadata.xml"].each do |filename|
+    execute "update server url metadata" do
+        # extra escape needed
+        command "sed -i 's \\(https\\?://[^/]*\\)/\\(mconf\\|presentation\\)/ #{node[:bbb][:server_url]}/\\2/ g' #{filename}"
+        user "root"
+        action :run
+        only_if do File.exists?(filename) end
     end
 end
 
-directory "/var/bigbluebutton/deskshare/" do
-    owner "red5"
-    group "red5"
-    recursive true
-    action :create
+# \TODO remove files from non recorded sessions
+# \TODO create cron jobs to handle such files
+ruby_block "remove raw data of encrypted recordings" do
+    block do
+        Dir["/var/bigbluebutton/published/mconf/*"].each do |dir|
+            meeting_id = File.basename(dir)
+            if not File.exists?("/var/bigbluebutton/recordings/raw/#{meeting_id}")
+                Chef::Log.info "The recording #{meeting_id} is published so the video, audio and deskshare files aren't needed anymore"
+                FileUtils.rm_r [ "/usr/share/red5/webapps/video/streams/#{meeting_id}",
+                                 "/usr/share/red5/webapps/deskshare/streams/#{meeting_id}",
+                                 Dir.glob("/var/freeswitch/meetings/#{meeting_id}*.wav") ], :force => true
+            end
+        end
+    end
+    only_if do not node[:mconf][:recording_server][:enabled] end
 end
 
-directory "/var/bigbluebutton/meetings/" do
-    owner "freeswitch"
-    group "daemon"
-    recursive true
-    action :create
+template "/usr/local/bigbluebutton/core/scripts/mconf.yml" do
+  source "mconf.yml.erb"
+  mode 00644
+  variables(
+    :get_recordings_url => node[:mconf][:recording_server][:get_recordings_url],
+    :private_key => node[:mconf][:recording_server][:private_key_path]
+  )
+  only_if do node[:mconf][:recording_server][:enabled] end
+end
+
+ruby_block "early exit" do
+  block do
+    raise "Early exit!"
+  end
+  action :nothing
 end

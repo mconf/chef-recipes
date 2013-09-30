@@ -43,7 +43,6 @@ default[:bbb][:enable_freeswitch_hold_music] = false
 #default[:bbb][:version] = "0.80ubuntu4"
 #default[:bbb_demo][:version] = "0.80ubuntu76"
 
-default[:bbb][:recording][:install_presentation] = true
 default[:bbb][:recording][:presentation][:video_output_width] = 320
 default[:bbb][:recording][:presentation][:video_output_height] = 240
 default[:bbb][:recording][:presentation][:audio_offset] = 0

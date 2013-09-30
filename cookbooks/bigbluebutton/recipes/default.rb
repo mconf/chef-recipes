@@ -118,7 +118,6 @@ end
 package "bbb-playback-presentation" do
   options "-o Dpkg::Options::=\"--force-confnew\""
   action :upgrade
-  only_if { node[:bbb][:recording][:install_presentation] }
 end
 
 # if anything goes wrong with the command above, it won't fail,

@@ -1,3 +1,3 @@
-get_recordings_url: <% if @get_recordings_url.respond_to? "join" -%>[ <%= @get_recordings_url.join(", ") %> ]<% else -%><%= @get_recordings_url %><% end -%>
+get_recordings_url: [ <% if @get_recordings_url.respond_to? "join" -%><%= @get_recordings_url.join(", ") %><% else -%><%= @get_recordings_url %><% end -%> ]
 private_key: <%= @private_key %>
 

@@ -17,15 +17,27 @@
   end
 end
 
+psutil_version = "1400"
+psutil_version_installed = "nil"
+if File.exists?("#{Chef::Config[:file_cache_path]}/psutil")
+    psutil_version_installed = `svn info #{Chef::Config[:file_cache_path]}/psutil/ | grep 'Revision: ' | cut -d' ' -f2`.strip!
+end
+
+Chef::Log.info("psutil revision to be installed: #{psutil_version}")
+Chef::Log.info("psutil revision currently installed: #{psutil_version_installed}")
+if psutil_version != psutil_version_installed
+    Chef::Log.info("psutil revision will be updated")
+end
+
 subversion "#{Chef::Config[:file_cache_path]}/psutil" do
     repository "http://psutil.googlecode.com/svn/trunk"
-    revision "1400"
+    revision psutil_version
     action :sync
-    notifies :run, 'execute[install psutil]', :immediately
+    only_if do psutil_version != psutil_version_installed end
 end
 
 execute "install psutil" do
-    action :nothing
+    action :run
     user "root"
     cwd "#{Chef::Config[:file_cache_path]}/psutil"
     command "python setup.py install"

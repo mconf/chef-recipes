@@ -120,6 +120,13 @@ package "bbb-playback-presentation" do
   action :upgrade
 end
 
+execute "check freeswitch old version" do
+  command "apt-get remove bbb-freeswitch && apt-get install #{node[:bbb][:bigbluebutton][:package_name]}"
+  action :run
+  notifies :run, "execute[clean bigbluebutton]", :delayed
+  only_if do `bbb-conf --check | grep 'You have an older version of FreeSWITCH installed.' | wc -l`.strip! != "0" end
+end
+
 # if anything goes wrong with the command above, it won't fail,
 # so I will make it fail here
 execute "force apt fix" do

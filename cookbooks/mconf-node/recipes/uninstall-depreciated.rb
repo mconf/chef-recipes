@@ -58,6 +58,18 @@ if version == "bbb0.8-mconf-0.1 - Mconf Node (mconf.org)"
 end
 
 if version == "mconf-live0.3.3RC2" or version == "mconf-live0.3.4RC2"
+    [ "/var/lib/tomcat6/webapps/demo/mconf_event.jsp", 
+      "/var/lib/tomcat6/webapps/demo/mconf_event_conf.jsp"].each do |f|
+        file f do
+          action :delete
+        end
+    end
+
+    directory node[:mconf][:live][:deploy_dir] do
+      recursive true
+      action :delete
+    end
+
     # remove BigBlueButton repo
     apt_repository "bigbluebutton" do
       action :remove
@@ -73,6 +85,8 @@ if version == "mconf-live0.3.3RC2" or version == "mconf-live0.3.4RC2"
       provider Chef::Provider::Service::Upstart
       action [:stop, :disable]
     end
+
+    # TODO remove all files related to the live notes server
 
     # we need to do it here because the apt-get autoremove mess everything after purge the bigbluebutton package
     remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}" do

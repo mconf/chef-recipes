@@ -23,7 +23,7 @@
     "recipe[mconf-node::base]",
     "recipe[bigbluebutton]",
     "recipe[mconf-live]",
-    "recipe[live-notes-server]",
-    "recipe[mconf-monitor::client]"
+    "recipe[mconf-monitor::client]",
+    "recipe[mconf-monitor::nuttcp]"
   ]
 }

@@ -164,9 +164,9 @@ package "bbb-demo" do
   end
 end
 
-execute "touch /var/lib/tomcat6/webapps/demo.war" do
-  action :run
-  only_if do node[:bbb][:demo][:enabled] and `bbb-conf --check | grep 'Error: The updated demo.war did not deploy.' | wc -l`.strip! != 0 end
+file "/var/lib/tomcat6/webapps/demo.war" do
+  action :touch
+  only_if do node[:bbb][:demo][:enabled] and `bbb-conf --check | grep 'Error: The updated demo.war did not deploy.' | wc -l`.strip! != "0" end
 end
 
 template "deploy red5 deskshare conf" do
@@ -263,7 +263,15 @@ ruby_block "reset restart flag" do
 end
 
 service "bbb-record-core" do
+  provider Chef::Provider::Service::Init::Debian
+  pattern "god"
+  supports :start => true, :stop => true, :restart => true
   action :start
+end
+
+execute "service bbb-record-core restart" do
+  action :run
+  only_if do `bbb-conf --check | grep 'Not Running:  bbb-record-core' | wc -l`.strip! != "0" end
 end
 
 template "/usr/local/bigbluebutton/core/scripts/presentation.yml" do

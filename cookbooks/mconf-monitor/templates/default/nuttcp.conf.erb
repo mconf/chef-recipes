@@ -1,0 +1,30 @@
+#!upstart
+
+description "Network Monitoring Service"
+author "fcecagno"
+
+start on (local-filesystems and net-device-up IFACE!=lo)
+stop on shutdown
+
+respawn
+
+env USER=mconf
+env APP=/usr/local/bin/nuttcp-7.2.1
+env OPT="--nofork -S"
+env LOGFILE="<%= node[:mconf][:log][:dir] %>/live-notes-server.log"
+env PIDFILE="/var/run/nuttcp.pid"
+
+script
+  echo $$ > $PIDFILE
+  exec sudo -u $USER $APP $OPT >> $LOGFILE 2>&1
+end script
+
+pre-start script
+    # Date format same as (new Date()).toISOString() for consistency
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> $LOGFILE
+end script
+
+pre-stop script
+    rm $PIDFILE
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping" >> $LOGFILE
+end script

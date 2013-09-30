@@ -164,6 +164,11 @@ package "bbb-demo" do
   end
 end
 
+execute "touch /var/lib/tomcat6/webapps/demo.war" do
+  action :run
+  only_if do node[:bbb][:demo][:enabled] and `bbb-conf --check | grep 'Error: The updated demo.war did not deploy.' | wc -l`.strip! != 0 end
+end
+
 template "deploy red5 deskshare conf" do
   path "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml"
   source "red5-web-deskshare.xml.erb"

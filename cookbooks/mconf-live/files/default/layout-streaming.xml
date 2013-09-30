@@ -1,24 +1,30 @@
 <?xml version="1.0" ?>
-<layouts>
-    <layout name="Streaming" default="true">
-        <window name="ViewersWindow" hidden="true" />
-        <window name="VideoDock" width="0.2923611111111111" height="0.4640957446808511" x="0.7048611111111112" y="0.535904255319149" />
-        <window name="ListenersWindow" hidden="true" />
-        <window name="PresentationWindow" width="0.7027777777777777" height="0.9986702127659575" x="0" y="0" />
-        <window name="ChatWindow" width="0.2923611111111111" height="0.5305851063829787" x="0.7048611111111112" y="0" />
-    </layout>
-    <layout name="Streaming" role="moderator">
-            <window name="VideoDock" width="0.30277777777777776" height="0.3466666666666667" x="0.6972222222222222" y="0.645" />
-            <window name="ListenersWindow" width="0.17708333333333334" height="0.5266666666666666" x="0" y="0.4653333333333333" />
-            <window name="PresentationWindow" width="0.5138888888888888" height="0.9906666666666667" x="0.1801736111111111" y="0" />
-            <window name="ChatWindow" width="0.3034722222222222" height="0.6386666666666667" x="0.6968055555555556" y="0" />
-            <window name="ViewersWindow" width="0.17708333333333334" height="0.46" x="0" y="0" />
-    </layout>
-    <layout name="Padrão">
-            <window name="VideoDock" width="0.30277777777777776" height="0.3466666666666667" x="0.6972222222222222" y="0.645" />
-            <window name="ListenersWindow" width="0.17708333333333334" height="0.5266666666666666" x="0" y="0.4653333333333333" />
-            <window name="PresentationWindow" width="0.5138888888888888" height="0.9906666666666667" x="0.1801736111111111" y="0" />
-            <window name="ChatWindow" width="0.3034722222222222" height="0.6386666666666667" x="0.6968055555555556" y="0" />
-            <window name="ViewersWindow" width="0.17708333333333334" height="0.46" x="0" y="0" />
-    </layout>
+  <layouts>
+  <layout name="Webinar" default="true" >
+    <window name="NotesWindow" hidden="true" />
+    <window name="BroadcastWindow" hidden="true" />
+    <window name="UsersWindow" hidden="true" />
+    <window name="VideoDock" width="0.2923611111111111" height="0.4640957446808511" x="0.7048611111111112" y="0.535904255319149" />
+    <window name="PresentationWindow" width="0.7027777777777777" height="0.9986702127659575" x="0" y="0" />
+    <window name="ChatWindow" width="0.2923611111111111" height="0.5305851063829787" x="0.7048611111111112" y="0" />
+    <window name="SharedNotesWindow" hidden="true" />
+  </layout>
+  <layout name="Webinar" role="moderator">
+    <window name="NotesWindow" hidden="true" />
+    <window name="BroadcastWindow" hidden="true" />
+    <window name="PresentationWindow" width="0.5137481910274964" height="0.9946808510638298" x="0.18017366136034732" y="0" />
+    <window name="VideoDock" width="0.3031837916063676" height="0.41255006675567424" minWidth="-1" x="0.6968162083936325" y="0.582109479305741" order="-1"/>
+    <window name="ChatWindow" width="0.3031837916063676" height="0.5767690253671562" minWidth="-1" x="0.6968162083936325" y="0" order="-1"/>
+    <window name="UsersWindow" width="0.1772793053545586" height="0.9946808510638298" x="0" y="0" minWidth="280" />
+    <window name="SharedNotesWindow" hidden="true" />
+  </layout>
+  <layout name="Padrão">
+    <window name="NotesWindow" hidden="true" />
+    <window name="BroadcastWindow" hidden="true" />
+    <window name="PresentationWindow" width="0.5137481910274964" height="0.9946808510638298" x="0.18017366136034732" y="0" />
+    <window name="VideoDock" width="0.3031837916063676" height="0.41255006675567424" minWidth="-1" x="0.6968162083936325" y="0.582109479305741" order="-1"/>
+    <window name="ChatWindow" width="0.3031837916063676" height="0.5767690253671562" minWidth="-1" x="0.6968162083936325" y="0" order="-1"/>
+    <window name="UsersWindow" width="0.1772793053545586" height="0.9946808510638298" x="0" y="0" minWidth="280" />
+    <window name="SharedNotesWindow" hidden="true" />
+  </layout>
 </layouts>

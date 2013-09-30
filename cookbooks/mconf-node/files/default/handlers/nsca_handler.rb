@@ -8,11 +8,6 @@
 # This code is based on NSCAHandler from ranjibd (https://github.com/ranjibd/nsca_handler)
 #
 
-require 'rubygems'
-require 'chef/log'
-require 'chef'
-require 'chef/config'
-
 class NscaHandler < Chef::Handler
   def initialize(config={})
     @config = config

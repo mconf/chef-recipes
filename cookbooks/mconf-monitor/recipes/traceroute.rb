@@ -53,7 +53,7 @@ ruby_block "collect topology" do
 
         if answered
           entry << {
-            :order => segments[0],
+            :order => segments[0].to_i,
             :peer => segments[1],
             :rtt_min => segments[2],
             :rtt_avg => segments[3],
@@ -80,13 +80,23 @@ ruby_block "collect topology" do
       trace_result
     end
 
+    # TEMPORARY CODE
+    # it will force the topology to be remounted on every run
+    node.set[:mconf][:topology] = {}
+
     list_of_peers = []
     list_of_peers = search(:node, "role:mconf-node AND chef_environment:#{node.chef_environment}") unless Chef::Config[:solo]
     list_of_peers.each do |peer|
-      peer_address = peer[:ipaddress]
-      if peer_address != node[:ipaddress] and not node[:mconf][:topology].has_key? peer_address
-        trace_result = perform_trace(peer_address)
-        node.set[:mconf][:topology]["#{peer_address}"] = trace_result
+      if peer[:ipaddress] != node[:ipaddress] and not node[:mconf][:topology].has_key? peer[:name]
+        trace_result = perform_trace(peer[:ipaddress])
+
+        trace_result << {
+          :order => 0,
+          :peer => node[:ipaddress]
+        }
+        trace_result.sort! {|a,b| a.order <=> b.order }
+
+        node.set[:mconf][:topology]["#{peer[:name]}"] = trace_result
       end
     end
   end

@@ -57,7 +57,7 @@ if version == "bbb0.8-mconf-0.1 - Mconf Node (mconf.org)"
     end
 end
 
-if version == "mconf-live0.3.3RC2" or version == "mconf-live0.3.4RC2"
+if version and version.start_with?("mconf-live0.3.3", "mconf-live0.3.4")
     [ "/var/lib/tomcat6/webapps/demo/mconf_event.jsp", 
       "/var/lib/tomcat6/webapps/demo/mconf_event_conf.jsp"].each do |f|
         file f do

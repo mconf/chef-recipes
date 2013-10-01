@@ -15,3 +15,6 @@ default[:mconf][:nagios][:dir] = "#{node[:mconf][:tools][:dir]}/nagios"
 default[:mconf][:monitor][:servers] = nil
 # if you want to force restart on every execution, set normal[:mconf][:monitor][:force_restart] = true
 default[:mconf][:monitor][:force_restart] = false
+
+# this is to store the topology
+default[:mconf][:topology] = {}

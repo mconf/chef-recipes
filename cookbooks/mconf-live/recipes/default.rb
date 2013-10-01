@@ -21,8 +21,7 @@ template "/var/www/bigbluebutton/client/conf/config.xml" do
 end
 
 { "bbb_api_conf.jsp.erb" => "/var/lib/tomcat6/webapps/demo/bbb_api_conf.jsp",
-  "bigbluebutton.properties.erb" => "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties",
-  "bigbluebutton.yml.erb" => "/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml" }.each do |k,v|
+  "bigbluebutton.properties.erb" => "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties" }.each do |k,v|
   template v do
     source k
     group "tomcat6"
@@ -33,6 +32,20 @@ end
       :salt => node[:bbb][:salt]
     )
     notifies :run, "execute[restart bigbluebutton]", :delayed
+    only_if do File.exists?(File.dirname(v)) end
+  end
+end
+
+{ "bigbluebutton.yml.erb" => "/usr/local/bigbluebutton/core/scripts/bigbluebutton.yml" }.each do |k,v|
+  template v do
+    source k
+    group "tomcat6"
+    owner "tomcat6"
+    mode "0644"
+    variables(
+      :server_url => node[:bbb][:server_url],
+      :salt => node[:bbb][:salt]
+    )
     only_if do File.exists?(File.dirname(v)) end
   end
 end

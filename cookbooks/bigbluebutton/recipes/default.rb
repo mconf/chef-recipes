@@ -292,6 +292,12 @@ template "/usr/local/bigbluebutton/core/scripts/presentation.yml" do
   )
 end
 
+execute "check voice application register" do
+  command "echo 'Restarting because the voice application failed to register with the sip server'"
+  only_if do `bbb-conf --check | grep 'Error: The voice application failed to register with the sip server.' | wc -l`.strip! != "0" end
+  notifies :run, "execute[clean bigbluebutton]", :delayed
+end
+
 execute "clean bigbluebutton" do
   user "root"
   command "bbb-conf --clean || echo 'Return successfully'"

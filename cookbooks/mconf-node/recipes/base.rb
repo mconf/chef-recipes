@@ -92,3 +92,6 @@ execute "stop chef-client daemon" do
   return [ 0, 1 ]
 end
 
+file "/etc/init.d/chef-client" do
+  action :delete
+end

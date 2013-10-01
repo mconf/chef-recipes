@@ -83,9 +83,10 @@ ruby_block "collect topology" do
     list_of_peers = []
     list_of_peers = search(:node, "role:mconf-node AND chef_environment:#{node.chef_environment}") unless Chef::Config[:solo]
     list_of_peers.each do |peer|
-      if not node[:mconf][:topology].has_key? peer
-        trace_result = perform_trace(peer)
-        node.set[:mconf][:topology]["#{peer}"] = trace_result
+      peer_address = peer[:ipaddress]
+      if peer_address != node[:ipaddress] and not node[:mconf][:topology].has_key? peer_address
+        trace_result = perform_trace(peer_address)
+        node.set[:mconf][:topology]["#{peer_address}"] = trace_result
       end
     end
   end

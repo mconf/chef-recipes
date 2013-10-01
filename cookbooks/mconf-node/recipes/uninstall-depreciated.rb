@@ -108,3 +108,18 @@ ruby_block "force-remove bigbluebutton repo" do
     FileUtils.rm Dir.glob("/etc/apt/sources.list.d/*bigbluebutton*.list"), :force => true
   end
 end
+
+# in order to perform the update gracefully, we need to have bbb-record-core running
+# properly AND "bbb-record-core stop" MUST NOT fail
+script "prepare bbb-record-core update" do
+    interpreter "bash"
+    user "root"
+    code <<-EOH
+      killall god
+      rm /var/run/god.pid
+      service bbb-record-core start
+      exit 0
+    EOH
+    action :run
+    only_if do `dpkg -l | grep 'bbb-record-core.*0.80ubuntu' | wc -l`.strip! != "0" end
+end

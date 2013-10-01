@@ -70,11 +70,6 @@ if version == "mconf-live0.3.3RC2" or version == "mconf-live0.3.4RC2"
       action :delete
     end
 
-    # remove BigBlueButton repo
-    apt_repository "bigbluebutton" do
-      action :remove
-    end
-
     %w{ red5 bbb-openoffice-headless }.each do |s|
       service s do
         action :stop
@@ -101,4 +96,15 @@ if version == "mconf-live0.3.3RC2" or version == "mconf-live0.3.4RC2"
         action :purge
       end
     end
+end
+
+# remove BigBlueButton repo
+apt_repository "bigbluebutton" do
+  action :remove
+end
+
+ruby_block "force-remove bigbluebutton repo" do
+  block do
+    FileUtils.rm Dir.glob("/etc/apt/sources.list.d/*bigbluebutton*.list"), :force => true
+  end
 end

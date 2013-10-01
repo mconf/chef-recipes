@@ -61,7 +61,7 @@ ruby_block "collect topology" do
           }
         elsif not_answered
           entry << {
-            :order => segments[0],
+            :order => segments[0].to_i,
             :peer => "UNKNOWN"
           }
         end
@@ -70,7 +70,7 @@ ruby_block "collect topology" do
     end
 
     def perform_trace(peer)
-      trace_result = nil
+      trace_result = []
       begin
         process = execute("traceroute -I -n #{peer}")
         trace_result = process_trace_output(process[:output])
@@ -80,9 +80,10 @@ ruby_block "collect topology" do
       trace_result
     end
 
-    # TEMPORARY CODE
-    # it will force the topology to be remounted on every run
-    node.set[:mconf][:topology] = {}
+    if node[:mconf][:remount_topology]
+      node.set[:mconf][:topology] = {}
+      node.set[:mconf][:remount_topology] = false
+    end
 
     list_of_peers = []
     list_of_peers = search(:node, "role:mconf-node AND chef_environment:#{node.chef_environment}") unless Chef::Config[:solo]
@@ -94,7 +95,7 @@ ruby_block "collect topology" do
           :order => 0,
           :peer => node[:ipaddress]
         }
-        trace_result.sort! {|a,b| a[:order] <=> b[:order] }
+        trace_result.sort_by! { |a| a[:order] }
 
         node.set[:mconf][:topology]["#{peer[:fqdn]}"] = trace_result
       end

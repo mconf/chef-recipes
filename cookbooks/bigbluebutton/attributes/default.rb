@@ -24,6 +24,7 @@ default[:bbb][:bigbluebutton][:repo_url] = "http://ubuntu.bigbluebutton.org/luci
 default[:bbb][:bigbluebutton][:key_url] = "http://ubuntu.bigbluebutton.org/bigbluebutton.asc"
 default[:bbb][:bigbluebutton][:components] = ["bigbluebutton-lucid" , "main"]
 default[:bbb][:bigbluebutton][:package_name] = "bigbluebutton"
+default[:bbb][:bigbluebutton][:packages_version] = {}
 
 default[:bbb][:recording][:video] = true
 default[:bbb][:recording][:deskshare] = true

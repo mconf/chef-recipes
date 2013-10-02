@@ -318,3 +318,18 @@ node[:bbb][:recording][:rebuild].each do |record_id|
   end
 end
 node.set[:bbb][:recording][:rebuild] = []
+
+ruby_block "collect packages version" do
+  block do
+    packages = [ "bbb-*", "red5", node[:bbb][:bigbluebutton][:package_name] ]
+    packages_version = {}
+    packages.each do |pkg|
+      output = `dpkg -l | grep "#{pkg}"`
+      output.split("\n").each do |entry|
+        entry = entry.split()
+        packages_version[entry[1]] = entry[2]
+      end
+    end
+    node.set[:bbb][:bigbluebutton][:packages_version] = packages_version
+  end
+end

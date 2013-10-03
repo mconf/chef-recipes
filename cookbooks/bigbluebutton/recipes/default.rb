@@ -321,7 +321,7 @@ node.set[:bbb][:recording][:rebuild] = []
 
 ruby_block "collect packages version" do
   block do
-    packages = [ "bbb-*", "red5", node[:bbb][:bigbluebutton][:package_name] ]
+    packages = [ "bbb-*", "red5", node[:bbb][:bigbluebutton][:package_name], "ffmpeg*", "libvpx*" ]
     packages_version = {}
     packages.each do |pkg|
       output = `dpkg -l | grep "#{pkg}"`

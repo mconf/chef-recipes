@@ -28,12 +28,12 @@ servers = []
 if node['apt'] && node['apt']['cacher_ipaddress']
   cacher = Chef::Node.new
   cacher.name(node['apt']['cacher_ipaddress'])
-  cacher.set['ipaddress'] = node['apt']['cacher_ipaddress']
+  cacher.ipaddress(node['apt']['cacher_ipaddress'])
   servers << cacher
 end
 
 unless Chef::Config[:solo]
-  query = "apt_caching_server:true NOT name:#{node.name}"
+  query = 'recipes:apt\:\:cacher-ng'
   query += " AND chef_environment:#{node.chef_environment}" if node['apt']['cacher-client']['restrict_environment']
   Chef::Log.debug("apt::cacher-client searching for '#{query}'")
   servers += search(:node, query)
@@ -47,8 +47,7 @@ if servers.length > 0
     group 'root'
     mode 00644
     variables(
-      :proxy => servers[0]['ipaddress'],
-      :port => node['apt']['cacher_port']
+      :proxy => servers[0]['ipaddress']
       )
   end.run_action(:create)
 else

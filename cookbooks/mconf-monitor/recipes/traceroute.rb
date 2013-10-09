@@ -39,31 +39,53 @@ ruby_block "collect topology" do
         process
     end
 
-    def process_trace_output(output)
+    def process_trace_output(peer, output)
       entry = []
       output.each do |line|
         line.gsub!(" ms", "")
         segments = line.split(" ")
-        # the line is valid, we could extract all information
-        # ex: " 1  10.0.3.1  0.087 ms  0.029 ms  0.023 ms"
-        answered = (segments.length == 5)
-        # the line is still valid but the router didn't answer
-        # ex: " 5  * * *"
-        not_answered = (segments.length == 4)
+        ignore_input = (segments.length < 4 or segments.length > 5)
 
-        if answered
+        if ignore_input
+          next
+        end
+
+        order = segments[0].to_i
+
+        if segments[1, 3].join(' ') == "* * *"
+          # ex: " 5  * * *"
           entry << {
-            :order => segments[0].to_i,
+            :order => order,
+            :peer => "UNKNOWN"
+          }
+        elsif segments[1, 2].join(' ') == "* *"
+          #ex: " 1  * * 200.130.35.1  13.567 ms"
+          entry << {
+            :order => order,
+            :peer => segments[3],
+            :rtt_max => segments[4]
+          }
+        elsif segments[1] == "*"
+          #ex: " 1  * 200.130.35.1  10 ms  13.567 ms"
+          entry << {
+            :order => order,
+            :peer => segments[2],
+            :rtt_avg => segments[3],
+            :rtt_max => segments[4]
+          }
+        else
+          # ex: " 1  10.0.3.1  0.087 ms  0.029 ms  0.023 ms"
+          entry << {
+            :order => order,
             :peer => segments[1],
             :rtt_min => segments[2],
             :rtt_avg => segments[3],
             :rtt_max => segments[4]
           }
-        elsif not_answered
-          entry << {
-            :order => segments[0].to_i,
-            :peer => "UNKNOWN"
-          }
+        end
+        if entry.last[:peer] == peer
+          # arrived to the desired peer
+          break
         end
       end
       entry
@@ -73,7 +95,7 @@ ruby_block "collect topology" do
       trace_result = []
       begin
         process = execute("traceroute -I -n #{peer}")
-        trace_result = process_trace_output(process[:output])
+        trace_result = process_trace_output(peer, process[:output])
       rescue
         Chef::Log.info("Couldn't get the trace to #{peer}")
       end
@@ -88,10 +110,10 @@ ruby_block "collect topology" do
     list_of_peers = []
     list_of_peers = search(:node, "role:mconf-node AND chef_environment:#{node.chef_environment}") unless Chef::Config[:solo]
     list_of_peers.each do |peer|
-      if peer[:ipaddress] != node[:ipaddress] and
+      if peer[:bbb][:external_ip] != node[:bbb][:external_ip] and
           (not node[:mconf][:topology].has_key?("#{peer[:fqdn]}") or node[:mconf][:topology]["#{peer[:fqdn]}"].last[:peer] == "UNKNOWN")
 
-        trace_result = perform_trace(peer[:ipaddress])
+        trace_result = perform_trace(peer[:bbb][:external_ip])
 
         trace_result << {
           :order => 0,
@@ -100,8 +122,12 @@ ruby_block "collect topology" do
         trace_result.sort_by! { |a| a[:order] }
 
         node.set[:mconf][:topology]["#{peer[:fqdn]}"] = trace_result
+        # Chef::Log.info("Topology from #{node[:fqdn]} to #{peer[:fqdn]}:\n#{trace_result}")
+
+        # it will make repeated traces less agressive
+        sleep 5
       end
     end
   end
-  only_if do node[:roles].length > 0 and node[:roles][0] == "mconf-node" end
+  only_if do (node[:roles].length > 0 and node[:roles][0] == "mconf-node") or Chef::Config[:solo] end
 end

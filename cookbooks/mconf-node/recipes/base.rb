@@ -79,7 +79,9 @@ ruby_block "save node properties" do
   end
 end
 
-if tagged?("reboot")
+package "update-notifier-common"
+
+if tagged?("reboot") or File.exists? "/var/run/reboot-required"
   node.run_state['reboot'] = true
   untag("reboot")
 end

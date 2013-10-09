@@ -11,13 +11,20 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+ruby_block "check system architecture" do
+  block do
+    raise "This recipe requires a 64 bits machine"
+  end
+  only_if { node[:kernel][:machine] != "x86_64" }
+end
+
 if node[:bbb][:ffmpeg][:install_method] == "package"
   current_ffmpeg_version = `ffmpeg -version | grep 'ffmpeg version' | cut -d' ' -f3`.strip!
   ffmpeg_update_needed = (current_ffmpeg_version != node[:bbb][:ffmpeg][:version])
 
   remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:ffmpeg][:filename]}" do
     source "#{node[:bbb][:ffmpeg][:repo_url]}/#{node[:bbb][:ffmpeg][:filename]}"
-    action :create_if_missing
+    action :create
     only_if { ffmpeg_update_needed }
   end
 
@@ -321,7 +328,7 @@ node.set[:bbb][:recording][:rebuild] = []
 
 ruby_block "collect packages version" do
   block do
-    packages = [ "bbb-*", "red5", node[:bbb][:bigbluebutton][:package_name], "ffmpeg*", "libvpx*" ]
+    packages = [ "bbb-*", "red5", node[:bbb][:bigbluebutton][:package_name], "ffmpeg", "libvpx" ]
     packages_version = {}
     packages.each do |pkg|
       output = `dpkg -l | grep "#{pkg}"`

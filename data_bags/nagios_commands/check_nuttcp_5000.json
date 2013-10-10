@@ -1,0 +1,4 @@
+{
+    "id": "check_nuttcp_5000",
+    "command_line": "$USER1$/check_tcp -H $HOSTNAME$ -p 5000"
+}

@@ -1,0 +1,7 @@
+{
+    "id": "check_nuttcp_5000",
+    "service_template": "default-service",
+    "hostgroup_name": ["mconf-node"],
+    "description": "Port check - Nuttcp 5000",
+    "use_existing_command": "check_nuttcp_5000"
+}

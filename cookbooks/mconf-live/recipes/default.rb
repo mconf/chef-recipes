@@ -11,6 +11,31 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+# \TODO extract this code to a library
+chef_gem "open4" do
+  version "1.3.0"
+  action :install
+end
+
+require 'open4'
+
+def command_execute(command, fail_on_error = false)
+  process = {}
+  process[:status] = Open4::popen4(command) do | pid, stdin, stdout, stderr|
+      Chef::Log.info("Executing: #{command}")
+
+      process[:output] = stdout.readlines
+      Chef::Log.info("stdout: #{Array(process[:output]).join()} ") unless process[:output].empty?
+
+      process[:errors] = stderr.readlines
+      Chef::Log.error("stderr: #{Array(process[:errors]).join()}") unless process[:errors].empty?
+  end
+  if fail_on_error and not process[:status].success?
+    raise "Execution failed: #{Array(process[:errors]).join()}"
+  end
+  process
+end
+
 template "/var/www/bigbluebutton/client/conf/config.xml" do
   source "config.xml.erb"
   mode "0644"
@@ -106,11 +131,6 @@ directory "/var/log/bigbluebutton/mconf" do
   group "tomcat6"
   mode 00755
   only_if do not node[:mconf][:recording_server][:enabled] end
-end
-
-chef_gem "open4" do
-  version "1.3.0"
-  action :install
 end
 
 ruby_block "generate recording server keys" do

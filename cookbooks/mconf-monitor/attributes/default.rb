@@ -19,3 +19,4 @@ default[:mconf][:monitor][:force_restart] = false
 # this is to store the topology
 default[:mconf][:topology] = {}
 default[:mconf][:remount_topology] = false
+default[:mconf][:as_lookup] = nil

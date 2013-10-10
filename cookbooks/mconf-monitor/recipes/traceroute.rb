@@ -12,33 +12,8 @@
 
 package "traceroute"
 
-chef_gem "open4" do
-  version "1.3.0"
-  action :install
-end
-
-require 'open4'
-
 ruby_block "collect topology" do
   block do
-    # \TODO this code is almost duplicated from mconf-live::default
-    def execute(command)
-        process = {}
-        process[:status] = Open4::popen4(command) do | pid, stdin, stdout, stderr|
-            Chef::Log.info("Executing: #{command}")
-
-            process[:output] = stdout.readlines
-            Chef::Log.info("stdout: #{Array(process[:output]).join()} ") unless process[:output].empty?
-
-            process[:errors] = stderr.readlines
-            Chef::Log.error("stderr: #{Array(process[:errors]).join()}") unless process[:errors].empty?
-        end
-        if not process[:status].success?
-            raise "Execution failed, raising an exception"
-        end
-        process
-    end
-
     def process_trace_output(peer, output)
       entry = []
       output.each do |line|
@@ -91,13 +66,13 @@ ruby_block "collect topology" do
       entry
     end
 
-    def perform_trace(peer)
+    def perform_trace(ip)
       trace_result = []
       begin
-        process = execute("traceroute -I -n #{peer}")
-        trace_result = process_trace_output(peer, process[:output])
+        process = command_execute("traceroute -I -n #{ip}")
+        trace_result = process_trace_output(ip, process[:output])
       rescue
-        Chef::Log.info("Couldn't get the trace to #{peer}")
+        Chef::Log.info("Couldn't get the trace to #{ip}")
       end
       trace_result
     end

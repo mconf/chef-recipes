@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: mconf-live
+# Cookbook Name:: mconf-monitor
 # Author:: Felipe Cecagno (<felipe@mconf.org>)
 #
 # This file is part of the Mconf project.
@@ -8,6 +8,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
+
+# \TODO create a single library to be used by mconf-monitor and mconf-live cookbooks
 
 chef_gem "open4" do
   version "1.3.0"

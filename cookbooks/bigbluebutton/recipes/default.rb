@@ -107,24 +107,23 @@ package "red5" do
   action :upgrade
 end
 
-execute "upgrade bigbluebutton dependencies" do
-  command "apt-get -y -o Dpkg::Options::=\"--force-confnew\" dist-upgrade"
-  action :nothing
-end
-
 # install bigbluebutton package
 package node[:bbb][:bigbluebutton][:package_name] do
   response_file "bigbluebutton.seed"
   # it will force the maintainer's version of the configuration files
   options "-o Dpkg::Options::=\"--force-confnew\""
   action :upgrade
-  notifies :run, "execute[upgrade bigbluebutton dependencies]", :immediately
   notifies :run, "execute[clean bigbluebutton]", :delayed
 end
 
-package "bbb-playback-presentation" do
-  options "-o Dpkg::Options::=\"--force-confnew\""
-  action :upgrade
+bash "upgrade bigbluebutton dependencies" do
+  code <<-EOH
+    export LC_ALL=en_US.UTF-8
+    export LANG=en_US.UTF-8
+    export LANGUAGE=en_US.UTF-8
+    apt-get -y -o Dpkg::Options::="--force-confnew" upgrade
+  EOH
+  action :run
 end
 
 execute "check freeswitch old version" do

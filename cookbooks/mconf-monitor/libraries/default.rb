@@ -33,7 +33,8 @@ def process_trace_output(peer, output)
     segments.delete("*")
 
     entry = {
-      :order => segments[0].to_i
+      :order => segments[0].to_i,
+      :address => "UNKNOWN"
     }
     if segments.length > 1
       entry[:name] = segments[1]
@@ -91,7 +92,8 @@ def perform_as_lookup(ip)
   whois_result = {
     :output => nil,
     :errors => nil,
-    :entries => []
+    :entries => [],
+    :simplified => []
   }
   process = command_execute("whois -h whois.radb.net #{ip}")
   whois_result[:output] = process[:output]
@@ -107,6 +109,7 @@ def perform_as_lookup(ip)
           end
         end
       end
+      whois_result[:simplified] << "#{entry[:origin]} (#{entry[:source]})"
       whois_result[:entries] << entry
     end
   else

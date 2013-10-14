@@ -29,25 +29,25 @@ ruby_block "collect topology" do
     end
 
     if node[:mconf][:as_lookup].nil?
-      node.set[:mconf][:as_lookup] = perform_as_lookup(node[:bbb][:internal_ip])
+      begin
+        node.set[:mconf][:as_lookup] = perform_as_lookup(node[:bbb][:internal_ip])
+      rescue
+        
+      end
     end
 
     source_entry = {
       :order => 0,
       :name => node[:bbb][:server_domain],
-      :address => node[:bbb][:internal_ip]
+      :address => node[:bbb][:internal_ip],
+      :as_lookup => node[:mconf][:as_lookup].to_hash
     }
-    begin
-      source_entry[:as_lookup] = node[:mconf][:as_lookup]
-    rescue
-      source_entry[:as_lookup] = nil
-    end
 
     list_of_peers = []
     list_of_peers = search(:node, "role:mconf-node AND chef_environment:#{node.chef_environment}") unless Chef::Config[:solo]
     list_of_peers.each do |peer|
       if peer[:bbb][:external_ip] != node[:bbb][:external_ip] and
-          (not node[:mconf][:topology].has_key?("#{peer[:fqdn]}") or node[:mconf][:topology]["#{peer[:fqdn]}"].last[:peer] == "UNKNOWN")
+          (not node[:mconf][:topology].has_key?("#{peer[:fqdn]}") or node[:mconf][:topology]["#{peer[:fqdn]}"][:entries].last[:address] == "UNKNOWN")
 
         trace_result = perform_trace(peer[:bbb][:external_ip])
 

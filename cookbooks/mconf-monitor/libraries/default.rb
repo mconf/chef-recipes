@@ -109,7 +109,7 @@ def perform_as_lookup(ip)
           end
         end
       end
-      whois_result[:simplified] << "#{entry[:origin]} (#{entry[:source]})"
+      whois_result[:simplified] << "#{entry["origin"]} (#{entry["source"]})"
       whois_result[:entries] << entry
     end
   else

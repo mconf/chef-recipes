@@ -55,8 +55,6 @@ def process_trace_output(peer, output)
         entry[:rtt_avg] = rtt.inject{ |sum, el| sum + el }.to_f / rtt.size
         entry[:rtt_probes] = rtt.size / 10.to_f
       end
-    else
-      entry[:address] = "UNKNOWN"
     end
 
     entries << entry

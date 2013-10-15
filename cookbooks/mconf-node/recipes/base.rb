@@ -86,25 +86,17 @@ if tagged?("reboot") or File.exists? "/var/run/reboot-required"
   untag("reboot")
 end
 
-def chef_daemon_process()
-  `ps aux | grep 'ruby.*chef-client -i' | grep -v 'grep'`.strip!
-end
-
-def chef_daemon_is_running()
-  not chef_daemon_process().nil?
-end
-
 execute "stop init.d chef-client daemon" do
   command "service chef-client stop"
   action :run
-  return [ 0, 1 ]
+  returns [ 0, 1 ]
   only_if do chef_daemon_is_running() end
 end
 
 execute "stop upstart chef-client daemon" do
   command "stop chef-client"
   action :run
-  return [ 0, 1 ]
+  returns [ 0, 1 ]
   only_if do chef_daemon_is_running() end
 end
 

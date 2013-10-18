@@ -113,6 +113,7 @@ package node[:bbb][:bigbluebutton][:package_name] do
   # it will force the maintainer's version of the configuration files
   options "-o Dpkg::Options::=\"--force-confnew\""
   action :upgrade
+  notifies :restart, "service[bbb-record-core]", :delayed
   notifies :run, "execute[clean bigbluebutton]", :delayed
 end
 
@@ -282,9 +283,11 @@ service "bbb-record-core" do
   action :start
 end
 
-execute "service bbb-record-core restart" do
+execute "check bbb-record-core" do
+  command "exit 0"
   action :run
   only_if do `bbb-conf --check | grep 'Not Running:  bbb-record-core' | wc -l`.strip! != "0" end
+  notifies :restart, "service[bbb-record-core]", :delayed
 end
 
 template "/usr/local/bigbluebutton/core/scripts/presentation.yml" do

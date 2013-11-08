@@ -10,7 +10,7 @@ respawn
 
 env USER=mconf
 env APP=/usr/local/bin/nuttcp-7.2.1
-env OPT="--nofork -S"
+env OPT="-S"
 env LOGFILE="<%= node[:mconf][:log][:dir] %>/live-notes-server.log"
 env PIDFILE="/var/run/nuttcp.pid"
 

@@ -17,7 +17,7 @@
 end
 
 subversion "#{Chef::Config[:file_cache_path]}/nagiosgraph" do
-    repository "https://nagiosgraph.svn.sourceforge.net/svnroot/nagiosgraph/trunk/nagiosgraph"
+    repository "https://svn.code.sf.net/p/nagiosgraph/code/trunk/nagiosgraph"
     revision "578"
     action :sync
     notifies :run, "execute[nagiosgraph check prerequisites]", :immediately

@@ -2,7 +2,7 @@
   "default_attributes": {
     "mconf": {
       "live": {
-        "version": "mconf-live0.4.1",
+        "version": "mconf-live0.4.2",
         "version_int": 13
       }
     }

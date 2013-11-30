@@ -64,9 +64,9 @@ default['nagios']['nrpe']['dont_blame_nrpe']   = 0
 default['nagios']['nrpe']['command_timeout']   = 60
 
 # for plugin from source installation
-default['nagios']['plugins']['url']      = 'http://prdownloads.sourceforge.net/sourceforge/nagiosplug'
-default['nagios']['plugins']['version']  = '1.4.16'
-default['nagios']['plugins']['checksum'] = 'b0caf07e0084e9b7f10fdd71cbd3ebabcd85ad78df64da360b51233b0e73b2bd'
+default['nagios']['plugins']['url']      = 'https://www.nagios-plugins.org/download'
+default['nagios']['plugins']['version']  = '1.5'
+default['nagios']['plugins']['checksum'] = '5d426b0e303a5201073c342d8ddde8bafca1432b'
 
 # for nrpe from source installation
 default['nagios']['nrpe']['url']      = 'http://prdownloads.sourceforge.net/sourceforge/nagios'

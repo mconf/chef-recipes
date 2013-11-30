@@ -3,6 +3,7 @@
     <localeversion suppressWarning="false">0.8</localeversion>
     <version><%= node[:mconf][:live][:version] %><% if @streaming -%> - Webinar<% end -%></version>
     <help url="<%= node[:bbb][:server_url] %>/help.html"/>
+    <javaTest url="<%= node[:bbb][:server_url] %>/testjava.html"/>
     <porttest host="<%= node[:bbb][:server_domain] %>" application="video/portTest" timeout="10000"/>    
     <bwMon server="<%= node[:bbb][:server_domain] %>" application="video/bwTest"/>
     <application uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" host="<%= node[:bbb][:server_url] %>/bigbluebutton/api/enter" />

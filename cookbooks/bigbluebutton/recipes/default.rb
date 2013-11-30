@@ -18,6 +18,8 @@ ruby_block "check system architecture" do
   only_if { node[:kernel][:machine] != "x86_64" }
 end
 
+execute "apt-get update"
+
 if node[:bbb][:ffmpeg][:install_method] == "package"
   current_ffmpeg_version = `ffmpeg -version | grep 'ffmpeg version' | cut -d' ' -f3`.strip!
   ffmpeg_update_needed = (current_ffmpeg_version != node[:bbb][:ffmpeg][:version])

@@ -118,9 +118,9 @@ end
 # the "mconf" playback is the encrypted recording workflow
 execute "configure recording workflow" do
   if node[:mconf][:recording_server][:enabled]
-    command "bbb-record --enable presentation && bbb-record --disable mconf"
+    command "bbb-record --enable presentation && bbb-record --enable presentation_export && bbb-record --disable mconf"
   else
-    command "bbb-record --enable mconf && bbb-record --disable presentation"
+    command "bbb-record --enable mconf && bbb-record --disable presentation && bbb-record --disable presentation_export"
   end
   action :run
 end
@@ -161,7 +161,7 @@ end
 Dir["/var/bigbluebutton/published/**/metadata.xml"].each do |filename|
     execute "update server url metadata" do
         # extra escape needed
-        command "sed -i 's \\(https\\?://[^/]*\\)/\\(mconf\\|presentation\\)/ #{node[:bbb][:server_url]}/\\2/ g' #{filename}"
+        command "sed -i 's \\(https\\?://[^/]*\\)/\\(mconf\\|presentation\\|presentation_export\\)/ #{node[:bbb][:server_url]}/\\2/ g' #{filename}"
         user "root"
         action :run
         only_if do File.exists?(filename) end

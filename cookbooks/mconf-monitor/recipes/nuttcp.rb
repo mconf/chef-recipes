@@ -20,12 +20,13 @@ template "nuttcp upstart" do
   path "/etc/init/nuttcp.conf"
   source "nuttcp.conf.erb"
   mode "0644"
-  notifies :restart, "service[nuttcp]", :delayed
+  notifies :stop, "service[nuttcp]", :delayed
+  notifies :start, "service[nuttcp]", :delayed
 end
 
 service "nuttcp" do
   provider Chef::Provider::Service::Upstart
-  supports :restart => true, :start => true, :stop => true
+  supports :start => true, :stop => true
   action [ :enable, :start ]
   subscribes :restart, resources()
 end

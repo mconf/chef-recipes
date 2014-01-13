@@ -1,4 +1,4 @@
 {
     "id": "check_bbb_version",
-    "command_line": "$USER1$/check_http --hostname $HOSTADDRESS$ --port $_HOSTBBB_PORT$ --url /client/conf/config.xml --string \"<version>mconf-live0.4.3</version>\""
+    "command_line": "$USER1$/check_http --hostname $HOSTADDRESS$ --port $_HOSTBBB_PORT$ --url /client/conf/config.xml --string \"<version>mconf-live0.5.0</version>\""
 }

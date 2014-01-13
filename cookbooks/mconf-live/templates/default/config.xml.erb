@@ -53,6 +53,7 @@
 			showButton="true"
 			showSpeakerButton="false"
 			enabledEchoCancel="true"
+			useWebrtcIfAvailable="true"
 			dependsOn="UsersModule"
 		/>
 
@@ -64,17 +65,14 @@
 			controlsForPresenter = "false"
 			resolutions = "160x120,320x240,640x480"
 			autoStart = "false"
+			skipCamSettingsCheck="false"
 			showButton = "true"
 			showCloseButton = "true"
 			publishWindowVisible = "true"
 			viewerWindowMaxed = "false"
 			viewerWindowLocation = "top"
 			camKeyFrameInterval = "30"
-			<% if not @streaming -%>
 			camModeFps = "10"
-			<% else -%>
-			camModeFps = "15"
-			<% end -%>
 			camQualityBandwidth = "0"
 			camQualityPicture = "90"
 			smoothVideo="false"

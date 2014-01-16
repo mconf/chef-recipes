@@ -14,3 +14,8 @@ default[:nsca][:config_dir] = "/usr/local/nagios/etc"
 default[:nsca][:force_reinstall] = false
 default[:nsca][:timeout] = 5
 default[:nsca][:hostname] = node[:fqdn]
+
+default[:chef_handler][:handler_path] = "/var/chef/handlers"
+default[:nsca_handler][:service_name] = "Chef client run status"
+# it should be a list, ex: ["server1","server2"]
+default[:nsca_handler][:nsca_server] = nil

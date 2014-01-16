@@ -1,4 +1,8 @@
 #
+# Recipe:: open4
+# Author:: Felipe Cecagno (<felipe@mconf.org>)
+#
+#
 # This file is part of the Mconf project.
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -6,7 +10,9 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-default[:chef_handler][:handler_path] = "/var/chef/handlers"
-default[:nsca_handler][:service_name] = "Chef client run status"
-# it should be a list, ex: ["server1","server2"]
-default[:nsca_handler][:nsca_server] = nil
+chef_gem "open4" do
+  version "1.3.0"
+  action :install
+end
+
+require 'open4'

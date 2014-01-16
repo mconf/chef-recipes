@@ -11,6 +11,11 @@
   },
   "json_class": "Chef::Role",
   "override_attributes": {
+    "bbb": {
+      "recording": {
+        "playback_formats": ["presentation", "presentation_export"]
+      }
+    }
   },
   "name": "mconf-recording-server",
   "chef_type": "role",

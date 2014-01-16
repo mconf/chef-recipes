@@ -24,8 +24,11 @@
   "run_list": [
     "recipe[apt::default]",
     "recipe[chef_handler::default]",
+    "recipe[mconf-utils::reboot-requestor]",
     "recipe[reboot-handler]",
+    "recipe[mconf-utils::base]",
     "recipe[nsca::client]",
+    "recipe[mconf-utils::chef-daemon-handler]",
     "recipe[chef-client::config]",
     "recipe[chef-client::cron]"
   ]

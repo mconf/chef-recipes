@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: mconf-node
+# Cookbook Name:: mconf-live
 # Recipe:: uninstall-depreciated
 # Author:: Felipe Cecagno (<felipe@mconf.org>)
 # Author:: Mauricio Cruz (<brcruz@gmail.com>)

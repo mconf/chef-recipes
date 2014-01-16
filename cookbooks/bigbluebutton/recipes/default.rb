@@ -278,6 +278,23 @@ ruby_block "reset restart flag" do
     notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
+include_recipe "bigbluebutton::open4"
+
+ruby_block "configure recording workflow" do
+    block do
+        Dir.glob("/usr/local/bigbluebutton/core/scripts/process/*.rb*").each do |filename|
+          format = File.basename(filename).split(".")[0]
+          if node[:bbb][:recording][:playback_formats].include? format
+            Chef::Log.info("Enabling record and playback format #{format}");
+            command_execute("bbb-record --enable #{format}")
+          else
+            Chef::Log.info("Disabling record and playback format #{format}");
+            command_execute("bbb-record --disable #{format}")
+          end
+        end
+    end
+end
+
 service "bbb-record-core" do
   provider Chef::Provider::Service::Init::Debian
   pattern "god"

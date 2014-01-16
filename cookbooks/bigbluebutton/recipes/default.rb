@@ -111,7 +111,10 @@ end
 
 # for some reason, sometimes the log directory isn't created successfully, so
 # the installation of the package fails
-directory "/var/log/bigbluebutton"
+# if the directory exists, we won't change its permissions
+directory "/var/log/bigbluebutton" do
+  only_if do not File.directory?("/var/log/bigbluebutton") end
+end
 
 # install bigbluebutton package
 package node[:bbb][:bigbluebutton][:package_name] do

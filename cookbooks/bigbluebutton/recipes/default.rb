@@ -291,7 +291,7 @@ ruby_block "configure recording workflow" do
     block do
         Dir.glob("/usr/local/bigbluebutton/core/scripts/process/*.rb*").each do |filename|
           format = File.basename(filename).split(".")[0]
-          if node[:bbb][:recording][:playback_formats].include? format
+          if node[:bbb][:recording][:playback_formats].split(",").include? format
             Chef::Log.info("Enabling record and playback format #{format}");
             command_execute("bbb-record --enable #{format}")
           else

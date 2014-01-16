@@ -1,5 +1,10 @@
 {
   "default_attributes": {
+    "bbb": {
+      "recording": {
+        "playback_formats": "mconf"
+      }
+    },
     "mconf": {
       "live": {
         "version": "mconf-live0.4.3",
@@ -12,11 +17,6 @@
   },
   "json_class": "Chef::Role",
   "override_attributes": {
-    "bbb": {
-      "recording": {
-        "playback_formats": ["mconf"]
-      }
-    }
   },
   "name": "mconf-node",
   "chef_type": "role",

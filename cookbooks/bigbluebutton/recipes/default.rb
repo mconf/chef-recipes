@@ -109,6 +109,10 @@ package "red5" do
   action :upgrade
 end
 
+# for some reason, sometimes the log directory isn't created successfully, so
+# the installation of the package fails
+directory "/var/log/bigbluebutton"
+
 # install bigbluebutton package
 package node[:bbb][:bigbluebutton][:package_name] do
   response_file "bigbluebutton.seed"

@@ -1,0 +1,10 @@
+{
+  "description": "This is the JSON file to install an instance of Mconf SIP Proxy using chef-solo",
+  "override_attributes": {
+  },
+  "name": "mconf-sip-proxy-solo",
+  "run_list": [
+    "recipe[mconf-sip-proxy]"
+  ]
+}
+

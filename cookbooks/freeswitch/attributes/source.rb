@@ -1,3 +1,9 @@
+default['freeswitch']['source']['origin'] = "git" # or tar
+
+default['freeswitch']['source']['tar_repo'] = "http://files.freeswitch.org"
+default['freeswitch']['source']['tar_filename'] = "freeswitch-1.4.0.latest.tar.bz2"
+default['freeswitch']['source']['tar_sha256'] = "e08731d5d30e3ddde5b1d7030636c4e0d6a121f318aecf9a88274d4b6cefd75e"
+
 default['freeswitch']['source']['git_uri'] = "git://git.freeswitch.org/freeswitch.git"
 default['freeswitch']['source']['git_branch'] = "v1.2.stable"
 default['freeswitch']['source']['dependencies'] = case node['platform']

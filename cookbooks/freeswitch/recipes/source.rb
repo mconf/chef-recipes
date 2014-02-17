@@ -2,10 +2,31 @@ include_recipe 'apt'
 
 node['freeswitch']['source']['dependencies'].each { |d| package d }
 
-execute "git_clone" do
-  command "git clone --depth 1 -b #{node['freeswitch']['source']['git_branch']} #{node['freeswitch']['source']['git_uri']} freeswitch"
-  cwd "/usr/local/src"
-  creates "/usr/local/src/freeswitch"
+case node['freeswitch']['source']['origin']
+when 'git'
+  execute "git_clone" do
+    command "git clone --depth 1 -b #{node['freeswitch']['source']['git_branch']} #{node['freeswitch']['source']['git_uri']} freeswitch"
+    cwd "/usr/local/src"
+    creates "/usr/local/src/freeswitch"
+  end
+when 'tar'
+  src_filepath = "/tmp/#{node['freeswitch']['source']['tar_filename']}"
+  extract_path = "/usr/local/src/freeswitch"
+
+  remote_file src_filepath do
+    source "#{node['freeswitch']['source']['tar_repo']}/#{node['freeswitch']['source']['tar_filename']}"
+    checksum node['freeswitch']['source']['tar_sha256']
+  end
+
+  script "extract tar" do
+    interpreter "/bin/bash"
+    cwd "/usr/local/src"
+    code <<-EOH
+      mkdir -p #{extract_path}
+      tar -xvf #{src_filepath} -C #{extract_path}
+      mv #{extract_path}/*/* #{extract_path}/
+    EOH
+  not_if { ::File.exists?(extract_path) } end
 end
 
 template "/usr/local/src/freeswitch/modules.conf" do

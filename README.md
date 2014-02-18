@@ -1,7 +1,13 @@
 chef-recipes
 ============
 
-Storage of chef recipes for the Mconf plataform.
+To install the Mconf SIP Proxy, install Ruby and chef-client, then run:
+
+```
+sudo chef-solo -c ~/chef-recipes/config/solo.rb -j ~/chef-recipes/utils/mconf-sip-proxy.json
+```
+
+This repo stores chef cookbooks for the Mconf plataform.
 
 These recipes are developed and tested using the chef gem version 10.24.0.
 

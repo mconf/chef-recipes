@@ -1,5 +1,10 @@
 {
   "default_attributes": {
+    "bbb": {
+      "recording": {
+        "playback_formats": "mconf"
+      }
+    },
     "mconf": {
       "live": {
         "version": "mconf-live0.4.3",
@@ -18,8 +23,8 @@
   "run_list": [
     "recipe[bigbluebutton::abort-if-being-used]",
     "role[mconf-server]",
-    "recipe[mconf-node::uninstall-depreciated]",
-    "recipe[mconf-node::base]",
+    "recipe[nsca::nsca-reporter]",
+    "recipe[mconf-live::uninstall-depreciated]",
     "recipe[bigbluebutton]",
     "recipe[mconf-live]",
     "recipe[mconf-monitor::client]",

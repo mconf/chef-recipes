@@ -109,6 +109,13 @@ package "red5" do
   action :upgrade
 end
 
+# for some reason, sometimes the log directory isn't created successfully, so
+# the installation of the package fails
+# if the directory exists, we won't change its permissions
+directory "/var/log/bigbluebutton" do
+  only_if do not File.directory?("/var/log/bigbluebutton") end
+end
+
 # install bigbluebutton package
 package node[:bbb][:bigbluebutton][:package_name] do
   response_file "bigbluebutton.seed"
@@ -276,6 +283,23 @@ ruby_block "reset restart flag" do
     end
     only_if do node[:bbb][:force_restart] end
     notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+
+include_recipe "bigbluebutton::open4"
+
+ruby_block "configure recording workflow" do
+    block do
+        Dir.glob("/usr/local/bigbluebutton/core/scripts/process/*.rb*").each do |filename|
+          format = File.basename(filename).split(".")[0]
+          if node[:bbb][:recording][:playback_formats].split(",").include? format
+            Chef::Log.info("Enabling record and playback format #{format}");
+            command_execute("bbb-record --enable #{format}")
+          else
+            Chef::Log.info("Disabling record and playback format #{format}");
+            command_execute("bbb-record --disable #{format}")
+          end
+        end
+    end
 end
 
 service "bbb-record-core" do

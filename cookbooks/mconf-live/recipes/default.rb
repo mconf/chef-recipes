@@ -11,31 +11,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# \TODO extract this code to a library
-chef_gem "open4" do
-  version "1.3.0"
-  action :install
-end
-
-require 'open4'
-
-def command_execute(command, fail_on_error = false)
-  process = {}
-  process[:status] = Open4::popen4(command) do | pid, stdin, stdout, stderr|
-      Chef::Log.info("Executing: #{command}")
-
-      process[:output] = stdout.readlines
-      Chef::Log.info("stdout: #{Array(process[:output]).join()} ") unless process[:output].empty?
-
-      process[:errors] = stderr.readlines
-      Chef::Log.error("stderr: #{Array(process[:errors]).join()}") unless process[:errors].empty?
-  end
-  if fail_on_error and not process[:status].success?
-    raise "Execution failed: #{Array(process[:errors]).join()}"
-  end
-  process
-end
-
 template "/var/www/bigbluebutton/client/conf/config.xml" do
   source "config.xml.erb"
   mode "0644"
@@ -115,16 +90,6 @@ ruby_block "configure decrypt" do
   notifies :restart, "service[bbb-record-core]", :immediately
 end
 
-# the "mconf" playback is the encrypted recording workflow
-execute "configure recording workflow" do
-  if node[:mconf][:recording_server][:enabled]
-    command "bbb-record --enable presentation && bbb-record --enable presentation_export && bbb-record --disable mconf"
-  else
-    command "bbb-record --enable mconf && bbb-record --disable presentation && bbb-record --disable presentation_export"
-  end
-  action :run
-end
-
 directory "/var/log/bigbluebutton/mconf" do
   action :create
   owner "tomcat6"
@@ -132,6 +97,8 @@ directory "/var/log/bigbluebutton/mconf" do
   mode 00755
   only_if do not node[:mconf][:recording_server][:enabled] end
 end
+
+include_recipe "bigbluebutton::open4"
 
 ruby_block "generate recording server keys" do
     block do

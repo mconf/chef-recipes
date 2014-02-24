@@ -6,13 +6,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-name             "mconf-node"
+name             "mconf-utils"
 maintainer       "mconf"
 maintainer_email "mconf@mconf.org"
 license          "MPL v2.0"
-description      "Installs/Configures a mconf-node"
+description      "Utility recipes for the Mconf platform"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.0.1"
-supports         "ubuntu", "= 10.04"
-depends          "live-notes-server"
-

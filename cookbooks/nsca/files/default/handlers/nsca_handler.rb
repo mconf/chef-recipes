@@ -19,7 +19,6 @@ class NscaHandler < Chef::Handler
     @config[:send_nsca_config] ||= '/usr/sbin/send_nsca.cfg'
     @config[:service_name] ||= 'Chef client run status'
     @config[:nsca_timeout] ||= 5
-    @config[:hostname] ||= run_status.node[:fqdn]
     @config
   end
 

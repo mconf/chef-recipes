@@ -108,10 +108,6 @@ class Sender(Thread):
     def __sendReport(self, service, state, message):
         '''send report to nagios server'''
         print "%s\t%s\t%s\t%s\t" % (self.config.hostname, service, str(state), message)
-
-	#for debug
-	#print "%s" % message
-
         sys.stdout.flush()
 
 class Reporter(Thread):
@@ -180,75 +176,101 @@ class MemoryReporter(Reporter):
         state = self.checkStatus(list_avg)
         return message, state
 
-
-
 class DiskReporter(Reporter):
+    def __init__(self, config):
+        Reporter.__init__(self, config)
+        self.service = "Disk Report"
+        self.list = CircularList(self.config.send_rate)
+        self.maximum = psutil.disk_usage('/').total / (1024 * 1024 * 1024)
+        self.warning = (self.config.disk_warning * self.maximum) / 100
+        self.critical = (self.config.disk_critical * self.maximum) / 100
+    
+    def threadLoop(self):
+        time.sleep(1)
+        self.list.append((psutil.disk_usage('/').percent * self.maximum) / 100)
+        
+    def data(self):
+        list_avg = self.list.avg()
+        # message mount
+        message = "Disk usage: %dGB of %dGB (%d%%)" % (list_avg, \
+            self.maximum, (list_avg * 100) / self.maximum) \
+            + "|" + self.formatMessage(self.list, "disk", "GB")
+        # state mount
+        state = self.checkStatus(list_avg)
+        return message, state
+
+class MountedDisksReporterHelper(Reporter):
     def __init__(self, config, path):
         Reporter.__init__(self, config)
-        self.service = "Disk Report "
-	self.mountedDiskPath = path
-        self.maximum = float(psutil.disk_usage(self.mountedDiskPath).total) / (1024 * 1024)
+        self.service = "Disk Report"
+        self.mountedDiskPath = path
+        self.maximum, self.unit = self.findBestUnit(float(psutil.disk_usage(self.mountedDiskPath).total))
         self.warning = (self.config.disk_warning * self.maximum) / 100
         self.critical = (self.config.disk_critical * self.maximum) / 100
 
-        
-    def data(self):	
-	currentUsageInMB = (psutil.disk_usage(self.mountedDiskPath).percent * self.maximum) / 100
-        state = self.checkStatus(currentUsageInMB)
+    def findBestUnit(self, value):
+        if value >= 1024 * 1024 * 1024 * 1024:
+            return value / (1024 * 1024 * 1024 * 1024), "TB"
+        if value >= 1024 * 1024 * 1024:
+            return value / (1024 * 1024 * 1024), "GB"
+        if value >= 1024 * 1024:
+            return value / (1024 * 1024), "MB"
+        if value >= 1024:
+            return value / (1024), "KB"
+        return value, "B"
 
-	humamMessage = "%s usage: %dMB of %dMB (%d%%)" % (self.mountedDiskPath, currentUsageInMB, \
-            self.maximum, (currentUsageInMB * 100) / self.maximum) \
+    def data(self): 
+        currentUsage = (psutil.disk_usage(self.mountedDiskPath).percent * self.maximum) / 100
+        state = self.checkStatus(currentUsage)
 
-	nagiosMessage = self.formatMessage(currentUsageInMB, self.mountedDiskPath, "MB")
+        humamMessage = "%s usage: %d%s of %d%s (%d%%)" % (self.mountedDiskPath, currentUsage, self.unit, self.maximum, self.unit, (currentUsage * 100) / self.maximum) \
+
+        nagiosMessage = self.formatMessage(currentUsage, self.mountedDiskPath, self.unit)
         return humamMessage, nagiosMessage, state
 
-
     def formatMessage(self, usage, label, unit):
-    	format = "%s%%s=%%.2f%s;%d;%d;%d;%d " % (label, unit.replace("%", "%%"), self.warning, self.critical, self.minimum, self.maximum)
+        format = "%s%%s=%%.2f%s;%d;%d;%d;%d " % (label, unit.replace("%", "%%"), self.warning, self.critical, self.minimum, self.maximum)
         return format % ("", usage)
 
-
 class MountedDisksReporter(Reporter):
-	def __init__(self, config): 
-        	Reporter.__init__(self, config)
-        	self.service = "Mounted Disks Report "
+    def __init__(self, config): 
+        Reporter.__init__(self, config)
+        self.service = "Mounted Disks Report"
 
-		self.mountedDiskReporters = []	
+        self.mountedDiskReporters = []  
 
-		#get all VALID mounted disks
-		for partition in psutil.disk_partitions(all=True):
-			if psutil.disk_usage(partition.mountpoint).total > 0:
-				self.mountedDiskReporters.append(DiskReporter(config,partition.mountpoint))
+        # get all VALID mounted disks
+        for partition in psutil.disk_partitions(all=True):
+            if psutil.disk_usage(partition.mountpoint).total > 0:
+                self.mountedDiskReporters.append(MountedDisksReporterHelper(config,partition.mountpoint))
 
+        #starts all disk reporters
+        for diskReporter in self.mountedDiskReporters:
+            diskReporter.start()
 
-		#starts all disk reporters
-		for diskReporter in self.mountedDiskReporters:
-			diskReporter.start()
+    def data(self):
+        humamMessages = []
+        nagiosMessages = []
+        diskStates = []
+        
+        for diskReporter in self.mountedDiskReporters:
+            humamMessage, nagiosMessage, state = diskReporter.data()
+            humamMessages.append(humamMessage + "; ")
+            nagiosMessages.append(nagiosMessage)
+            diskStates.append(state)
 
-	def data(self):
-		humamMessages = []
-		nagiosMessages = []
-		diskStates = []
-		
-		for diskReporter in self.mountedDiskReporters:
-			humamMessage, nagiosMessage, state = diskReporter.data()
-			humamMessages.append(humamMessage + "; ")
-			nagiosMessages.append(nagiosMessage)
-			diskStates.append(state)
+        message = self.formatMessage(humamMessages, nagiosMessages)
+        return message,max(diskStates)
 
-		message = self.formatMessage(humamMessages, nagiosMessages)			
-		return message,max(diskStates)
+    def formatMessage(self,humamMessages, nagiosMessages):
+        concatenatedHumamMessages = string.join(humamMessages, '')
+        concatenatedNagiosMessages = string.join(nagiosMessages,' ')
+        return concatenatedHumamMessages + "| " + concatenatedNagiosMessages
 
-	def formatMessage(self,humamMessages, nagiosMessages):
-		concatenatedHumamMessages = string.join(humamMessages, '')
-		concatenatedNagiosMessages = string.join(nagiosMessages,' ')
-		return concatenatedHumamMessages + "| " + concatenatedNagiosMessages
-
-	def kill(self):
-		for diskReporter in self.mountedDiskReporters:
-			diskReporter.kill()
-        	self.terminate = True
-			
+    def kill(self):
+        for diskReporter in self.mountedDiskReporters:
+            diskReporter.kill()
+        self.terminate = True
 
 class ProcessorReporter(Reporter):
     '''reporter class to collect and report processor data'''
@@ -260,7 +282,7 @@ class ProcessorReporter(Reporter):
         self.warning = self.config.cpu_warning
         self.critical = self.config.cpu_critical
         self.processor = commands.getoutput("cat /proc/cpuinfo | grep 'model name' | head -n 1 | sed 's:.*\: *\(.*\):\\1:g' | sed 's/  */\ /g'")
-	self.numberOfCores = psutil.NUM_CPUS
+        self.numberOfCores = psutil.NUM_CPUS
         
     def threadLoop(self):
         self.list.append(psutil.cpu_percent(1, percpu=False))
@@ -273,8 +295,6 @@ class ProcessorReporter(Reporter):
         # state mount
         state = self.checkStatus(list_avg)
         return message, state
-
-
 
 class NetworkReporter(Reporter):
     '''reporter class to collect and report network data'''
@@ -383,7 +403,6 @@ def parse_args():
         help="define the critical limit in %", dest="disk_critical", 
         metavar="<disk_critical>")
     return parser.parse_args()
-	
 
 class Configuration:
     def __init__(self, args):
@@ -414,13 +433,13 @@ if __name__ == '__main__':
     threadsList = []
     
     config = Configuration(parse_args())
-
+    
     # here we should have the main call to the reporter threads
     threadsList.append(NetworkReporter(config))
     threadsList.append(ProcessorReporter(config))
     threadsList.append(MemoryReporter(config))
+    threadsList.append(DiskReporter(config))
     threadsList.append(MountedDisksReporter(config))
-
     #processesAnalyzer thread
 #    threadsList.append(processesAnalyzer(config))
 
@@ -433,3 +452,4 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
     print 'Press Ctrl+C'
     signal.pause()
+    

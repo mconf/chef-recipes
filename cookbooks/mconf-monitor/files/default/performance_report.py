@@ -229,7 +229,7 @@ class MountedDisksReporterHelper(Reporter):
         return humamMessage, nagiosMessage, state
 
     def formatMessage(self, usage, label, unit):
-        format = "%s%%s=%%.2f%s;%d;%d;%d;%d " % (label, unit.replace("%", "%%"), self.warning, self.critical, self.minimum, self.maximum)
+        format = "%s%%s=%%.2f%s;%d;%d;%d;%d" % (label, unit.replace("%", "%%"), self.warning, self.critical, self.minimum, self.maximum)
         return format % ("", usage)
 
 class MountedDisksReporter(Reporter):
@@ -255,7 +255,7 @@ class MountedDisksReporter(Reporter):
         
         for diskReporter in self.mountedDiskReporters:
             humamMessage, nagiosMessage, state = diskReporter.data()
-            humamMessages.append(humamMessage + "; ")
+            humamMessages.append(humamMessage)
             nagiosMessages.append(nagiosMessage)
             diskStates.append(state)
 
@@ -263,7 +263,7 @@ class MountedDisksReporter(Reporter):
         return message,max(diskStates)
 
     def formatMessage(self,humamMessages, nagiosMessages):
-        concatenatedHumamMessages = string.join(humamMessages, '')
+        concatenatedHumamMessages = string.join(humamMessages, ', ')
         concatenatedNagiosMessages = string.join(nagiosMessages,' ')
         return concatenatedHumamMessages + "| " + concatenatedNagiosMessages
 

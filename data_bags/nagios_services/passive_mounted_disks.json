@@ -1,0 +1,7 @@
+{
+    "id": "passive_mounted_disks",
+    "service_template": "generic-passive-service",
+    "hostgroup_name": ["mconf-node","mconf-recording-server"],
+    "description": "Mounted Disks Report",
+    "use_existing_command": "service_out_of_date"
+}

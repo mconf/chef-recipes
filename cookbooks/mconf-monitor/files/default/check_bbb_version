@@ -1,0 +1,13 @@
+#!/bin/bash
+
+CONFIG_XML=$1
+wget -SO- -T 1 -t 1 $CONFIG_XML 2>&1 | egrep -i "200" > /dev/null
+
+if [ $? -eq 0 ]; then
+	VERSION=`curl --max-time 10 --silent $CONFIG_XML | grep '<version>.*</version>' | sed 's:.*<version>\(.*\)</version>.*:\1:g'`
+	printf "System version: %s\n" "$VERSION"
+	exit 0
+else
+	printf "Failed to fetch %s\n" "$CONFIG_XML"
+	exit 2
+fi

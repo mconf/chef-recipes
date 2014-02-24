@@ -199,6 +199,79 @@ class DiskReporter(Reporter):
         state = self.checkStatus(list_avg)
         return message, state
 
+class MountedDisksReporterHelper(Reporter):
+    def __init__(self, config, path):
+        Reporter.__init__(self, config)
+        self.service = "Disk Report"
+        self.mountedDiskPath = path
+        self.maximum, self.unit = self.findBestUnit(float(psutil.disk_usage(self.mountedDiskPath).total))
+        self.warning = (self.config.disk_warning * self.maximum) / 100
+        self.critical = (self.config.disk_critical * self.maximum) / 100
+
+    def findBestUnit(self, value):
+        if value >= 1024 * 1024 * 1024 * 1024:
+            return value / (1024 * 1024 * 1024 * 1024), "TB"
+        if value >= 1024 * 1024 * 1024:
+            return value / (1024 * 1024 * 1024), "GB"
+        if value >= 1024 * 1024:
+            return value / (1024 * 1024), "MB"
+        if value >= 1024:
+            return value / (1024), "KB"
+        return value, "B"
+
+    def data(self): 
+        currentUsage = (psutil.disk_usage(self.mountedDiskPath).percent * self.maximum) / 100
+        state = self.checkStatus(currentUsage)
+
+        humamMessage = "%s usage: %d%s of %d%s (%d%%)" % (self.mountedDiskPath, currentUsage, self.unit, self.maximum, self.unit, (currentUsage * 100) / self.maximum) \
+
+        nagiosMessage = self.formatMessage(currentUsage, self.mountedDiskPath, self.unit)
+        return humamMessage, nagiosMessage, state
+
+    def formatMessage(self, usage, label, unit):
+        format = "%s%%s=%%.2f%s;%d;%d;%d;%d " % (label, unit.replace("%", "%%"), self.warning, self.critical, self.minimum, self.maximum)
+        return format % ("", usage)
+
+class MountedDisksReporter(Reporter):
+    def __init__(self, config): 
+        Reporter.__init__(self, config)
+        self.service = "Mounted Disks Report"
+
+        self.mountedDiskReporters = []  
+
+        # get all VALID mounted disks
+        for partition in psutil.disk_partitions(all=True):
+            if psutil.disk_usage(partition.mountpoint).total > 0:
+                self.mountedDiskReporters.append(MountedDisksReporterHelper(config,partition.mountpoint))
+
+        #starts all disk reporters
+        for diskReporter in self.mountedDiskReporters:
+            diskReporter.start()
+
+    def data(self):
+        humamMessages = []
+        nagiosMessages = []
+        diskStates = []
+        
+        for diskReporter in self.mountedDiskReporters:
+            humamMessage, nagiosMessage, state = diskReporter.data()
+            humamMessages.append(humamMessage + "; ")
+            nagiosMessages.append(nagiosMessage)
+            diskStates.append(state)
+
+        message = self.formatMessage(humamMessages, nagiosMessages)
+        return message,max(diskStates)
+
+    def formatMessage(self,humamMessages, nagiosMessages):
+        concatenatedHumamMessages = string.join(humamMessages, '')
+        concatenatedNagiosMessages = string.join(nagiosMessages,' ')
+        return concatenatedHumamMessages + "| " + concatenatedNagiosMessages
+
+    def kill(self):
+        for diskReporter in self.mountedDiskReporters:
+            diskReporter.kill()
+        self.terminate = True
+
 class ProcessorReporter(Reporter):
     '''reporter class to collect and report processor data'''
     def __init__ (self,config):
@@ -209,6 +282,7 @@ class ProcessorReporter(Reporter):
         self.warning = self.config.cpu_warning
         self.critical = self.config.cpu_critical
         self.processor = commands.getoutput("cat /proc/cpuinfo | grep 'model name' | head -n 1 | sed 's:.*\: *\(.*\):\\1:g' | sed 's/  */\ /g'")
+        self.numberOfCores = psutil.NUM_CPUS
         
     def threadLoop(self):
         self.list.append(psutil.cpu_percent(1, percpu=False))
@@ -216,8 +290,8 @@ class ProcessorReporter(Reporter):
     def data(self):
         list_avg = self.list.avg()
         # message mount
-        message = "CPU usage: %.1f%% Model: %s" % (list_avg, self.processor) \
-            + "|" + self.formatMessage(self.list, "cpu", "%")
+        message = "CPU usage: %.1f%% Model: %s (%s cores) " % (list_avg, self.processor, self.numberOfCores) \
+            + "|" + self.formatMessage(self.list, "cpu", "%") + "cores=" + str(self.numberOfCores) + ";;;;"
         # state mount
         state = self.checkStatus(list_avg)
         return message, state
@@ -365,6 +439,7 @@ if __name__ == '__main__':
     threadsList.append(ProcessorReporter(config))
     threadsList.append(MemoryReporter(config))
     threadsList.append(DiskReporter(config))
+    threadsList.append(MountedDisksReporter(config))
     #processesAnalyzer thread
 #    threadsList.append(processesAnalyzer(config))
 

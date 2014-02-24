@@ -7,10 +7,11 @@ console_log("INFO", "your message here");
 include("PhoneFormat.js");
 
 var calledNumber = argv[0]; //the called number as typed
+var sourceAddr = argv[1];
 
 var fullNumber = formatE164("<%= @default_int_code %>", calledNumber);
 
-console_log("INFO", "##### Número discado convertido para o formato E164(inclui o código do país):" + fullNumber + " #####\n");
+console_log("INFO", "##### Número discado a partir de " + sourceAddr + " convertido para o formato E164(inclui o código do país):" + fullNumber + " #####\n");
 
 var response = fetchUrl("<%= @fetch_url %>"); //the balancer server provides us information about the meetings
 response = response.replace(/\n/g, ""); //'new XML()' doesn't work with strings containing '\n'

@@ -14,9 +14,7 @@
   <context name="public">
 
     <extension name="redirect">
-      <condition field="destination_number" expression="^(.*)$">
-        <action application="javascript" data="mconf_redirect.js $1"/>
-      </condition>
+      <action application="javascript" data="mconf_redirect.js ${destination_number} ${network_addr}"/>
     </extension>
 
   </context>

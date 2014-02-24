@@ -223,7 +223,7 @@ class MountedDisksReporterHelper(Reporter):
         currentUsage = (psutil.disk_usage(self.mountedDiskPath).percent * self.maximum) / 100
         state = self.checkStatus(currentUsage)
 
-        humamMessage = "%s usage: %d%s of %d%s (%d%%)" % (self.mountedDiskPath, currentUsage, self.unit, self.maximum, self.unit, (currentUsage * 100) / self.maximum) \
+        humamMessage = "%s: %d%s of %d%s (%d%%)" % (self.mountedDiskPath, currentUsage, self.unit, self.maximum, self.unit, (currentUsage * 100) / self.maximum) \
 
         nagiosMessage = self.formatMessage(currentUsage, self.mountedDiskPath, self.unit)
         return humamMessage, nagiosMessage, state

@@ -49,3 +49,11 @@ ruby_block "save node properties" do
     node.save unless Chef::Config[:solo]
   end
 end
+
+logrotate_app "rotating logs" do
+  cookbook "logrotate"
+  path [ "/var/log/chef/client.log" ]
+  options [ "missingok", "compress", "copytruncate", "notifempty" ]
+  frequency "daily"
+  rotate 15
+end

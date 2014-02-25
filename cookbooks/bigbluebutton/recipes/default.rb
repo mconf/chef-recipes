@@ -156,12 +156,18 @@ end
 
 include_recipe "bigbluebutton::load-properties"
 
-logrotate_app "rotating bigbluebutton logs" do
+# it can be removed later
+file "/etc/logrotate.d/tomcat" do
+  action :delete
+end
+
+logrotate_app "rotate tomcat6 log" do
   cookbook "logrotate"
-  path [ "/var/log/tomcat6/catalina.out" ]
+  path [ "/var/lib/tomcat6/logs/catalina.out" ]
   options [ "missingok", "compress", "copytruncate", "notifempty" ]
   frequency "daily"
   rotate 15
+  create "644 tomcat6 root"
 end
 
 cron_d "remove old bigbluebutton logs" do

@@ -11,10 +11,10 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-include_recipe "json_interface"
-include_recipe "nagios_plugins"
+include_recipe "mconf-monitor::json_interface"
+include_recipe "mconf-monitor::nagios_plugins"
 
-logrotate_app "rotate nagios log" do
+logrotate_app "rotate-nagios" do
   cookbook "logrotate"
   path "#{node['nagios']['log_dir']}/nagios.log"
   options [ "missingok", "compress", "copytruncate", "notifempty" ]
@@ -23,7 +23,7 @@ logrotate_app "rotate nagios log" do
   create "644 nagios nagios"
 end
 
-logrotate_app "rotate apache log" do
+logrotate_app "rotate-apache" do
   cookbook "logrotate"
   path [ "#{node['nagios']['log_dir']}/apache_access.log", "#{node['nagios']['log_dir']}/apache_error.log" ]
   options [ "missingok", "compress", "copytruncate", "notifempty" ]

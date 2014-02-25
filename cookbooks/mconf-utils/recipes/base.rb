@@ -50,7 +50,7 @@ ruby_block "save node properties" do
   end
 end
 
-logrotate_app "rotating logs" do
+logrotate_app "rotate-chef" do
   cookbook "logrotate"
   path [ "/var/log/chef/client.log" ]
   options [ "missingok", "compress", "copytruncate", "notifempty" ]

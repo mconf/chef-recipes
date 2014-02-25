@@ -161,7 +161,7 @@ file "/etc/logrotate.d/tomcat" do
   action :delete
 end
 
-logrotate_app "rotate tomcat6 log" do
+logrotate_app "rotate-tomcat" do
   cookbook "logrotate"
   path [ "/var/lib/tomcat6/logs/catalina.out" ]
   options [ "missingok", "compress", "copytruncate", "notifempty" ]

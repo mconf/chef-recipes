@@ -5,8 +5,7 @@ run_list(
     "recipe[nsca::server]",
     "recipe[nagios::client]",
     "recipe[nagios::server]",
-    "recipe[mconf-monitor::json_interface]",
-    "recipe[mconf-monitor::nagios_plugins]",
+    "recipe[mconf-monitor::server]",
     "recipe[nagiosgraph]",
     "recipe[postfix]",
     "recipe[postfix::sasl_auth]"

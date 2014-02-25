@@ -30,6 +30,7 @@
     "recipe[nsca::client]",
     "recipe[mconf-utils::chef-daemon-handler]",
     "recipe[chef-client::config]",
-    "recipe[chef-client::cron]"
+    "recipe[chef-client::cron]",
+    "recipe[logrotate::default]"
   ]
 }

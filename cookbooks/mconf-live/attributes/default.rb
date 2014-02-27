@@ -28,3 +28,7 @@ default[:mconf][:streaming][:record] = ""
 default[:mconf][:streaming][:logoutURL] = ""
 default[:mconf][:streaming][:welcomeMsg] = ""
 default[:mconf][:streaming][:metadata] = {}
+
+default[:mconf][:branding][:logo] = ""
+default[:mconf][:branding][:copyright_message] = ""
+default[:mconf][:branding][:background] = ""

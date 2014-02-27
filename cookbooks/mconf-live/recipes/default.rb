@@ -16,7 +16,10 @@ template "/var/www/bigbluebutton/client/conf/config.xml" do
   mode "0644"
   variables(
     :module_version => node[:mconf][:live][:version_int],
-    :streaming => node[:mconf][:streaming][:enabled]
+    :streaming => node[:mconf][:streaming][:enabled],
+    :logo => node[:mconf][:branding][:logo],
+    :copyright_message => node[:mconf][:branding][:copyright_message],
+    :background => node[:mconf][:branding][:background]
   )
 end
 
@@ -58,6 +61,12 @@ end
       source k
       mode "0644"
     end
+end
+
+cookbook_file "/etc/bigbluebutton/nginx/client.nginx" do
+  source "client.nginx"
+  mode "0644"
+  notifies :restart "service[nginx]", :immediately
 end
 
 { "bigbluebutton-sip.properties.erb" => "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties" }.each do |k,v|

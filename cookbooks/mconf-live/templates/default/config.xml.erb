@@ -8,7 +8,8 @@
     <bwMon server="<%= node[:bbb][:server_domain] %>" application="video/bwTest"/>
     <application uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" host="<%= node[:bbb][:server_url] %>/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="true" url="<%= node[:bbb][:server_url] %>/client/branding/css/BBBDefault.css.swf" />
+    <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
+    <branding logo="<%= @logo %>" copyright="<%= @copyright_message %>" background="<%= @background %>" />
     <shortcutKeys showButton="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="false" defaultLayout="<% if not @streaming -%>Default<% else -%>Webinar<% end -%>"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
@@ -53,6 +54,7 @@
 			showButton="true"
 			showSpeakerButton="false"
 			enabledEchoCancel="true"
+			useWebrtcIfAvailable="true"
 			dependsOn="UsersModule"
 		/>
 
@@ -64,6 +66,7 @@
 			controlsForPresenter = "false"
 			resolutions = "160x120,320x240,640x480"
 			autoStart = "false"
+			skipCamSettingsCheck="false"
 			showButton = "true"
 			showCloseButton = "true"
 			publishWindowVisible = "true"
@@ -114,7 +117,7 @@
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
 			dependsOn="VideoconfModule, UsersModule"
 			autoDock="true"
-			showControls="false"
+			showControls="true"
 			maximizeWindow="false"
 			position="bottom-right"
 			width="172"

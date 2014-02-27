@@ -8,7 +8,7 @@
     "mconf": {
       "live": {
         "version": "mconf-live0.5.1",
-        "version_int": 15
+        "version_int": 16
       }
     }
   },
@@ -27,7 +27,6 @@
     "recipe[mconf-live::uninstall-depreciated]",
     "recipe[bigbluebutton]",
     "recipe[mconf-live]",
-    "recipe[mconf-live::clean-recordings]",
     "recipe[mconf-monitor::client]",
     "recipe[mconf-monitor::nuttcp]",
     "recipe[mconf-monitor::traceroute]"

@@ -8,7 +8,7 @@
     <bwMon server="<%= node[:bbb][:server_domain] %>" application="video/bwTest"/>
     <application uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" host="<%= node[:bbb][:server_url] %>/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
-    <skinning enabled="true" url="http://HOST/client/branding/css/BBBDefault.css.swf" />
+    <skinning enabled="true" url="<%= node[:bbb][:server_url] %>/client/branding/css/BBBDefault.css.swf" />
     <branding logo="<%= @logo %>" copyright="<%= @copyright_message %>" background="<%= @background %>" />
     <shortcutKeys showButton="true" />
     <layout showLogButton="false" showVideoLayout="false" showResetLayout="false" defaultLayout="<% if not @streaming -%>Default<% else -%>Webinar<% end -%>"

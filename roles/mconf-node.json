@@ -7,8 +7,8 @@
     },
     "mconf": {
       "live": {
-        "version": "mconf-live0.5.1",
-        "version_int": 16
+        "version": "mconf-live0.5.2",
+        "version_int": 17
       }
     }
   },

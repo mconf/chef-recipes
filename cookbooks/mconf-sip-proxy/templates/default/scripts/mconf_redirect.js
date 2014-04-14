@@ -25,13 +25,13 @@ var meetxml = response.meetings;
 var meetingAvailable=false;
 
 for each (meeting in meetxml.meeting) {
-	var match = (calledNumber == meeting.voiceBridge || fullNumber == formatE164("<%= @default_int_code %>", meeting.dialNumber) || calledNumber == meeting.meetingName);
+	var match = (calledNumber == meeting.voiceBridge || fullNumber == formatE164("<%= @default_int_code %>", meeting.dialNumber) || calledNumber == meeting.name);
 	if (match) {
 		var server_address = meeting.server;
 		//console_log("info", typeof meeting +"\n");
 		if (true) {// disabling PIN collection
-			session.execute("redirect", "sip:" + meeting.voiceBridge + "@" + server_address);
-			//session.execute("bridge", "sofia/external/70898@143.54.10.185");//+meeting.voiceBridge+"@"+server_address);
+			//session.execute("redirect", "sip:" + meeting.voiceBridge + "@" + server_address);
+			session.execute("bridge", "sofia/external/" + meeting.voiceBridge + "@" + server_address);
 		} else {
 			var attempts = 3;
 			var cnt=0;

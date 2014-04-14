@@ -240,7 +240,7 @@ class MountedDisksReporter(Reporter):
         self.mountedDiskReporters = []  
 
         # get all VALID mounted disks
-        for partition in psutil.disk_partitions(all=True):
+        for partition in psutil.disk_partitions(all=False):
             if psutil.disk_usage(partition.mountpoint).total > 0:
                 self.mountedDiskReporters.append(MountedDisksReporterHelper(config,partition.mountpoint))
 

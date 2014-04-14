@@ -6,6 +6,11 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+default[:mconf][:user] = "mconf"
+default[:mconf][:dir] = "/var/mconf"
+default[:mconf][:tools][:dir] = "/var/mconf/tools"
+default[:mconf][:log][:dir] = "/var/mconf/log"
+
 default[:mconf][:live][:repo] = "http://mconf.org/chef/mconf-live/deploy"
 default[:mconf][:live][:deploy_dir] = "#{node[:mconf][:dir]}/deploy/mconf-live"
 default[:mconf][:live][:force_deploy] = false

@@ -10,15 +10,17 @@ include_recipe "freeswitch"
     end
 end
 
-cookbook_file "/usr/share/freeswitch/scripts/PhoneFormat.js" do
-    source "scripts/PhoneFormat.js"
-    owner node['freeswitch']['user']
-    group node['freeswitch']['group']
-    mode 0644
+[ "scripts/PhoneFormat.js", "scripts/mconf_redirect.js" ].each do |f|
+    cookbook_file "/usr/share/freeswitch/#{f}" do
+        source f
+        owner node['freeswitch']['user']
+        group node['freeswitch']['group']
+        mode 0644
+    end
 end
 
-template "/usr/share/freeswitch/scripts/mconf_redirect.js" do
-    source "scripts/mconf_redirect.js"
+template "/usr/share/freeswitch/scripts/mconf_redirect_conf.js" do
+    source "scripts/mconf_redirect_conf.js"
     owner node['freeswitch']['user']
     group node['freeswitch']['group']
     mode 0644

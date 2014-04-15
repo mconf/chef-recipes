@@ -5,15 +5,16 @@ example:
 console_log("INFO", "your message here");
 */
 include("PhoneFormat.js");
+include("mconf_redirect_conf.js");
 
 var calledNumber = argv[0]; //the called number as typed
 var sourceAddr = argv[1];
 
-var fullNumber = formatE164("<%= @default_int_code %>", calledNumber);
+var fullNumber = formatE164(default_int_code, calledNumber);
 
 console_log("INFO", "##### Número discado a partir de " + sourceAddr + " convertido para o formato E164(inclui o código do país):" + fullNumber + " #####\n");
 
-var response = fetchUrl("<%= @fetch_url %>"); //the balancer server provides us information about the meetings
+var response = fetchUrl(fetch_url); //the balancer server provides us information about the meetings
 response = response.replace(/\n/g, ""); //'new XML()' doesn't work with strings containing '\n'
 
 //console_log("INFO", response + "\n");
@@ -25,7 +26,7 @@ var meetxml = response.meetings;
 var meetingAvailable=false;
 
 for each (meeting in meetxml.meeting) {
-	var match = (calledNumber == meeting.voiceBridge || fullNumber == formatE164("<%= @default_int_code %>", meeting.dialNumber) || calledNumber == meeting.name);
+	var match = (calledNumber == meeting.voiceBridge || fullNumber == formatE164(default_int_code, meeting.dialNumber) || calledNumber == meeting.name);
 	if (match) {
 		var server_address = meeting.server;
 		//console_log("info", typeof meeting +"\n");

@@ -34,7 +34,7 @@ for each (meeting in meetxml.meeting) {
 	}
 
 	if (match) {
-		var server_address = String(meeting.server);
+		var server_address = String(meeting.server.address);
 		if (server_address == "") {
 			console_log("ERROR", "[MCONF-SIP-PROXY] Couldn't find a server to redirect the call\n");
 			break;

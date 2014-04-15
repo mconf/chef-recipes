@@ -14,6 +14,11 @@ var response = fetchUrl(req); // api call
 response = response.replace(/\n/g, ""); // new XML() doesn't work with strings containing \n
 
 var response = new XML(response);
+
+if (String(response.returncode) != "SUCCESS") {
+	console_log("ERROR", "[MCONF-SIP-PROXY] Failed to get meetings, return code " + String(response.returncode));
+}
+
 var meetxml = response.meetings;
 
 var meeting_available=false;
@@ -29,7 +34,11 @@ for each (meeting in meetxml.meeting) {
 	}
 
 	if (match) {
-		var server_address = meeting.server;
+		var server_address = String(meeting.server);
+		if (server_address == "") {
+			console_log("ERROR", "[MCONF-SIP-PROXY] Couldn't find a server to redirect the call\n");
+			break;
+		}
 
 		var params = {
 			meetingId: meeting.meetingID,

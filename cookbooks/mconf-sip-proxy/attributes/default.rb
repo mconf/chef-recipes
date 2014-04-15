@@ -50,5 +50,7 @@ xml_int/mod_xml_rpc
 xml_int/mod_xml_scgi
 ]
 
-default[:freeswitch][:mconf_proxy][:fetch_url] = ""
 default[:freeswitch][:mconf_proxy][:default_int_code] = "BR"
+default[:freeswitch][:mconf_proxy][:server_url] = ""
+default[:freeswitch][:mconf_proxy][:server_salt] = ""
+default[:freeswitch][:mconf_proxy][:mode] = "bridge"

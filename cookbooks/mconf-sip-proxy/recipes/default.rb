@@ -10,7 +10,7 @@ include_recipe "freeswitch"
     end
 end
 
-[ "scripts/PhoneFormat.js", "scripts/mconf_redirect.js" ].each do |f|
+[ "scripts/PhoneFormat.js", "scripts/mconf_redirect.js", "scripts/bigbluebutton-api.js", "scripts/sha1.js" ].each do |f|
     cookbook_file "/usr/share/freeswitch/#{f}" do
         source f
         owner node['freeswitch']['user']
@@ -24,5 +24,10 @@ template "/usr/share/freeswitch/scripts/mconf_redirect_conf.js" do
     owner node['freeswitch']['user']
     group node['freeswitch']['group']
     mode 0644
-    variables fetch_url: node['freeswitch']['mconf_proxy']['fetch_url'], default_int_code: node['freeswitch']['mconf_proxy']['default_int_code']
+    variables(
+        :default_int_code => node['freeswitch']['mconf_proxy']['default_int_code'],
+        :server_url => node['freeswitch']['mconf_proxy']['server_url'],
+        :server_salt => node['freeswitch']['mconf_proxy']['server_salt'],
+        :mode => node['freeswitch']['mconf_proxy']['mode']
+    )
 end

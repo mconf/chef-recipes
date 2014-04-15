@@ -1,6 +1,7 @@
 include_recipe "freeswitch"
 
-[ "dialplan/public.xml", "directory/default.xml" ].each do |f|
+[ "dialplan/public.xml",
+  "directory/default.xml" ].each do |f|
     cookbook_file "/etc/freeswitch/#{f}" do
         source f
         owner node['freeswitch']['user']
@@ -10,7 +11,10 @@ include_recipe "freeswitch"
     end
 end
 
-[ "scripts/PhoneFormat.js", "scripts/mconf_redirect.js", "scripts/bigbluebutton-api.js", "scripts/sha1.js" ].each do |f|
+[ "scripts/PhoneFormat.js",
+  "scripts/mconf_redirect.js",
+  "scripts/bigbluebutton-api.js",
+  "scripts/sha1.js" ].each do |f|
     cookbook_file "/usr/share/freeswitch/#{f}" do
         source f
         owner node['freeswitch']['user']

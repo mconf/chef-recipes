@@ -35,7 +35,7 @@ for each (meeting in meetxml.meeting) {
 		var params = {
 			meetingId: meeting.meetingID,
 			name: meeting.meetingName,
-			role:"atendee",
+			role:"attendee",
 			userIP: source_addr,
 			type:"SIP",
 			server: server_address

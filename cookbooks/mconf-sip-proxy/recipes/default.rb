@@ -35,3 +35,8 @@ template "/usr/share/freeswitch/scripts/mconf_redirect_conf.js" do
         :mode => node['freeswitch']['mconf_proxy']['mode']
     )
 end
+
+service "freeswitch" do
+    provider Chef::Provider::Service::Init
+    action [ :start ]
+end

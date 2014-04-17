@@ -237,16 +237,12 @@ class MountedDisksReporter(Reporter):
         Reporter.__init__(self, config)
         self.service = "Mounted Disks Report"
 
-        self.mountedDiskReporters = []  
+        self.mountedDiskReporters = []
 
         # get all VALID mounted disks
         for partition in psutil.disk_partitions(all=False):
             if psutil.disk_usage(partition.mountpoint).total > 0:
-                self.mountedDiskReporters.append(MountedDisksReporterHelper(config,partition.mountpoint))
-
-        #starts all disk reporters
-        for diskReporter in self.mountedDiskReporters:
-            diskReporter.start()
+                self.mountedDiskReporters.append(MountedDisksReporterHelper(config, partition.mountpoint))
 
     def data(self):
         humamMessages = []
@@ -268,9 +264,10 @@ class MountedDisksReporter(Reporter):
         return concatenatedHumamMessages + "| " + concatenatedNagiosMessages
 
     def kill(self):
-        for diskReporter in self.mountedDiskReporters:
-            diskReporter.kill()
         self.terminate = True
+
+    def threadLoop(self):
+        time.sleep(1)
 
 class ProcessorReporter(Reporter):
     '''reporter class to collect and report processor data'''

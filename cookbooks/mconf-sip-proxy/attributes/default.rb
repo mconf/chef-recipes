@@ -1,6 +1,8 @@
 default[:freeswitch][:group] = "daemon"
 default[:freeswitch][:install_method] = "source"
-default[:freeswitch][:source][:origin] = "tar"
+default[:freeswitch][:source][:origin] = "git"
+default[:freeswitch][:source][:git_branch] = "v1.5.11"
+
 # these are the default enabled modules of freeswitch
 default[:freeswitch][:source][:modules] = %w[
 applications/mod_cluechoo
@@ -40,7 +42,7 @@ formats/mod_native_file
 formats/mod_sndfile
 formats/mod_tone_stream
 languages/mod_lua
-languages/mod_spidermonkey
+languages/mod_v8
 loggers/mod_console
 loggers/mod_logfile
 loggers/mod_syslog
@@ -48,6 +50,46 @@ say/mod_say_en
 xml_int/mod_xml_cdr
 xml_int/mod_xml_rpc
 xml_int/mod_xml_scgi
+]
+
+default['freeswitch']['autoload_modules'] = %w[
+  mod_console
+  mod_logfile
+  mod_enum
+  mod_cdr_csv
+  mod_event_socket
+  mod_sofia
+  mod_loopback
+  mod_commands
+  mod_conference
+  mod_db
+  mod_dptools
+  mod_expr
+  mod_fifo
+  mod_hash
+  mod_voicemail
+  mod_esf
+  mod_fsv
+  mod_cluechoo
+  mod_valet_parking
+  mod_httapi
+  mod_dialplan_xml
+  mod_dialplan_asterisk
+  mod_spandsp
+  mod_g723_1
+  mod_g729
+  mod_amr
+  mod_speex
+  mod_h26x
+  mod_vp8
+  mod_b64
+  mod_sndfile
+  mod_native_file
+  mod_local_stream
+  mod_tone_stream
+  mod_v8
+  mod_lua
+  mod_say_en
 ]
 
 default[:freeswitch][:mconf_proxy][:default_int_code] = "BR"

@@ -13,8 +13,13 @@ when 'ubuntu', 'debian'
     automake
     g++
     git-core
+    libcurl4-gnutls-dev
+    libedit-dev
     libjpeg62-dev
     libncurses5-dev
+    libpcre3-dev
+    libspeex-dev
+    libspeexdsp-dev
     libtool
     make
     python-dev

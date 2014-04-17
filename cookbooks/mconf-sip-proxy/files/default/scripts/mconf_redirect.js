@@ -1,6 +1,8 @@
 include("PhoneFormat.js");
 include("bigbluebutton-api.js");
 include("mconf_redirect_conf.js");
+use("CURL");
+use("XML");
 
 var called_number = argv[0]; // the called number as typed
 var source_addr = argv[1];
@@ -8,59 +10,107 @@ var source_addr = argv[1];
 console_log("INFO", "[MCONF-SIP-PROXY] IP " + source_addr + " dialing to " + called_number + "\n");
 
 var bbbapi = new BigBlueButtonApi(server_url, server_salt);
-var req = bbbapi.urlFor("getMeetings", {});
-var response = fetchUrl(req); // api call
+var curl = new CURL();
 
-response = response.replace(/\n/g, ""); // new XML() doesn't work with strings containing \n
-
-var response = new XML(response);
-
-if (String(response.returncode) != "SUCCESS") {
-	console_log("ERROR", "[MCONF-SIP-PROXY] Failed to get meetings, return code " + String(response.returncode));
-}
-
-var meetxml = response.meetings;
-
-var meeting_available=false;
-
-for each (meeting in meetxml.meeting) {
-	var match = false;
-	if (formatE164(default_int_code, called_number) == formatE164(default_int_code, meeting.dialNumber)) {
-		console_log("INFO", "[MCONF-SIP-PROXY] Match by dialNumber\n"); match = true;
-	} else if (called_number == meeting.voiceBridge) {
-		console_log("INFO", "[MCONF-SIP-PROXY] Match by voiceBridge\n"); match = true;
-	} else if (called_number == meeting.meetingName) {
-		console_log("INFO", "[MCONF-SIP-PROXY] Match by meetingName\n"); match = true;
+function getMeetingsCallback(string, arg) {
+	console_log("info", string);
+	var response = new XML(string);
+	var return_code = response.getChild('returncode').data;
+	if (return_code != "SUCCESS") {
+        	console_log("ERROR", "[MCONF-SIP-PROXY] Failed to get meetings, return code " + return_code);
+	} else {
+		console_log("INFO", "[MCONF-SIP-PROXY] Meetings successfully fetched\n");
 	}
 
-	if (match) {
-		var server_address = String(meeting.server.address);
-		if (server_address == "") {
-			console_log("ERROR", "[MCONF-SIP-PROXY] Couldn't find a server to redirect the call\n");
+	var child = response.getChild('meetings').getChild('meeting');
+	var match;
+	while (child) {
+		match = matchMeeting(child);
+		if (match) {
+			registerEvent(child);
+			redirectCall(child);
 			break;
 		}
+		child = child.next();
+	}
 
-		var params = {
-			meetingId: meeting.meetingID,
-			name: meeting.meetingName,
-			role:"attendee",
-			userIP: source_addr,
-			type:"SIP",
-			server: server_address
-		};
-		req = bbbapi.urlFor("addUserEvent", params, false);
-		response = fetchUrl(req);
-		console_log("INFO", "[MCONF-SIP-PROXY] " + response + "\n");
+	if (!match) {
+		session.execute("respond", "404");
+		console_log("INFO", "[MCONF-SIP-PROXY] Meeting unavailable\n");
+	}
 
-		var dest_uri = meeting.voiceBridge + "@" + server_address;
-		if (mode == "redirect") {
-			console_log("INFO", "[MCONF-SIP-PROXY] Redirecting call to " + dest_uri + "\n");
-			session.execute("redirect", "sip:" + dest_uri);
-		} else {
-			console_log("INFO", "[MCONF-SIP-PROXY] Bridging call to " + dest_uri + "\n");
-			session.execute("bridge", "sofia/external/" + dest_uri);
-		}
+	return true;
+}
 
+function matchMeeting(meeting) {
+	var match = false;
+	var dialNumber = getDialNumber(meeting);
+	var voiceBridge = getVoiceBridge(meeting);
+	var meetingName = getMeetingName(meeting);
+
+        if (formatE164(default_int_code, called_number) == formatE164(default_int_code, dialNumber)) {
+                console_log("INFO", "[MCONF-SIP-PROXY] Match by dialNumber\n"); match = true;
+        } else if (called_number == voiceBridge) {
+                console_log("INFO", "[MCONF-SIP-PROXY] Match by voiceBridge\n"); match = true;
+        } else if (called_number == meetingName) {
+                console_log("INFO", "[MCONF-SIP-PROXY] Match by meetingName\n"); match = true;
+        }
+
+	return match;
+}
+
+function getServerAddress(meeting) { return meeting.getChild('server').getChild('address').data; }
+function getMeetingId(meeting) { return meeting.getChild('meetingID').data; }
+function getMeetingName(meeting) { return meeting.getChild('meetingName').data; }
+function getDialNumber(meeting) { return meeting.getChild('dialNumber').data; }
+function getVoiceBridge(meeting) { return meeting.getChild('voiceBridge').data; }
+
+function registerEvent(meeting) {
+	var server_address = getServerAddress(meeting);
+	console_log("INFO", "[MCONF-SIP-PROXY] Server address: " + server_address + "\n");
+	if (server_address == "") {
+		console_log("ERROR", "[MCONF-SIP-PROXY] Couldn't find a server to redirect the call\n");
+		return;
+	}
+
+	var params = {
+		meetingID: getMeetingId(meeting),
+		name: getMeetingName(meeting),
+		role: "attendee",
+		userIP: source_addr,
+		type: "SIP",
+		server: server_address
+	};
+	var req = bbbapi.urlFor("addUserEvent", params, false);
+	console_log("INFO", "[MCONF-SIP-PROXY] Registering event: " + req + "\n");
+	curl.run("POST", req.split('?')[0], req.split('?')[1], registerEventCallback, null, null);
+}
+
+function registerEventCallback(string, arg) {
+	console_log("INFO", "[MCONF-SIP-PROXY] " + string + "\n");
+	return true;
+}
+
+function redirectCall(meeting) {
+	var voice_bridge = getVoiceBridge(meeting);
+	var server_address = getServerAddress(meeting);
+	var dest_uri = voice_bridge + "@" + server_address;
+
+	if (mode == "redirect") {
+		console_log("INFO", "[MCONF-SIP-PROXY] Redirecting call to " + dest_uri + "\n");
+		session.execute("redirect", "sip:" + dest_uri);
+	} else {
+		console_log("INFO", "[MCONF-SIP-PROXY] Bridging call to " + dest_uri + "\n");
+		session.execute("bridge", "sofia/external/" + dest_uri);
+	}
+}
+
+function getMeetings() {
+	var req = bbbapi.urlFor("getMeetings", {});
+	curl.run("GET", req.split('?')[0], req.split('?')[1], getMeetingsCallback, null, null);
+}
+
+getMeetings();
 
 /* CODE TO USE PIN PROTECTION, TEMPORARILY DISABLED
 			var attempts = 3;
@@ -85,18 +135,4 @@ for each (meeting in meetxml.meeting) {
 				session.execute("playback", "/usr/local/freeswitch/sounds/<wav file here>");
 			}
 */
-		meeting_available = true;
-		break;
-	}
-}
 
-if (!meeting_available) {
-	session.execute("respond", "404");
-	//inform the caller that the call was not successful
-	//without the sicence stream, the wav file will not be heard with quality by the caller
-	//session.execute("playback", "silence_stream://1000");
-	//freeswitch default installation includes english wav files only
-	// session.execute("playback", "/usr/local/freeswitch/sounds/<wav file here>"); /*uncomment here and include an audio file to play to the caller*/
-	//session.execute("playback", "silence_stream://500");
-	console_log("INFO", "[MCONF-SIP-PROXY] Meeting unavailable\n");
-}

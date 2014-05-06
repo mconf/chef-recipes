@@ -16,7 +16,7 @@ override[:bbb][:libvpx][:repo_url] = "http://dev.mconf.org/apt-repo/files"
 
 override[:bbb][:openoffice][:repo_url] = "http://dev.mconf.org/apt-repo/files"
 
-override[:bbb][:bigbluebutton][:repo_url] = "http://dev.mconf.org/apt-repo/ubuntu/stable"
+override[:bbb][:bigbluebutton][:repo_url] = "http://dev.mconf.org/apt-repo/ubuntu/stable-rnp"
 override[:bbb][:bigbluebutton][:key_url] = "http://dev.mconf.org/apt-repo/mconf-public.gpg"
 override[:bbb][:bigbluebutton][:components] = [ "lucid", "main" ]
 override[:bbb][:bigbluebutton][:package_name] = "mconf-live"

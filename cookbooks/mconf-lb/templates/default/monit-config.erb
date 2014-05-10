@@ -1,0 +1,21 @@
+#!monit
+set logfile /var/log/monit.log
+
+check process mconflb with pidfile "/var/run/mconf-lb.pid"
+    start program = "/sbin/start mconf-lb"
+    stop program = "/sbin/stop mconf-lb"
+
+    if failed port 3000 protocol HTTP
+        request /ping
+        with timeout 30 seconds
+        then restart
+    if 5 restarts within 5 cycles then timeout
+
+    # Not the best way to do it, but the simplest. Will do the actions below twice, since they
+    # are duplicates from the ones above.
+    if failed port 3000 protocol HTTP
+        request /ping
+        with timeout 30 seconds
+        then exec /bin/bash -c 'echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (monit) HTTP failed, might restart it soon" >> /var/www/mconf-lb/current/log/production.log'
+    if 5 restarts within 5 cycles
+        then exec /bin/bash -c 'echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (monit) Too many restarts, might timeout it soon" >> /var/www/mconf-lb/current/log/production.log'

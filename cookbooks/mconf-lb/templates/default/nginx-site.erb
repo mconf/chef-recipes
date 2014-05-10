@@ -1,0 +1,38 @@
+# References:
+# http://wellconsidered.be/post/10519707671/node-js-on-nginx
+# http://stackoverflow.com/questions/5009324/node-js-nginx-and-now
+
+upstream mconf-lb {
+  server 127.0.0.1:3000;
+}
+server {
+  listen 80;
+  server_name <%= @domain %>;
+  root /var/www/mconf-lb/current/public;
+
+  gzip on;
+  gzip_disable "msie6";
+  gzip_types text/plain text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+
+  # Enable maintenance.html page.
+  set $maintenance 0;
+  if (-f $document_root/system/maintenance.html) {
+    set $maintenance 1;
+  }
+  if ($request_uri ~* (jpg|jpeg|gif|png|js|css)$) {
+    set $maintenance 0;
+  }
+  if ($request_uri = /ping) {
+    set $maintenance 0;
+  }
+  if ($maintenance) {
+    rewrite ^(.*)$ /system/maintenance.html last;
+    break;
+  }
+
+  try_files $uri @node;
+
+  location @node {
+    include includes/mconf-lb-proxy.conf;
+  }
+}

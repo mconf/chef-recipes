@@ -11,8 +11,8 @@ stop on shutdown
 env USER=mconf
 env APP=app.js
 env CMD_OPTS="-l 2 -y 1 -p 3000"
-env SRC_DIR="/var/www/mconf-lb/current"
-env LOGFILE="/var/www/mconf-lb/current/log/production.log"
+env SRC_DIR="<%= node['mconf-lb']['deploy_to'] %>/current"
+env LOGFILE="<%= node['mconf-lb']['deploy_to'] %>/current/log/production.log"
 env NODE=/usr/local/bin/node
 env PIDFILE="/var/run/mconf-lb.pid"
 env NODE_ENV="production"

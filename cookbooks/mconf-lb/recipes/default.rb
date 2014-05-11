@@ -105,7 +105,7 @@ directory "/etc/nginx/includes" do
   action :create
 end
 template "/etc/nginx/includes/mconf-lb-proxy.conf" do
-  source "nginx-include.erb"
+  source "nginx-include.conf.erb"
   mode 00644
   owner "root"
   group "root"
@@ -126,7 +126,7 @@ end
 
 # Upstart
 template "/etc/init/mconf-lb.conf" do
-  source "upstart-script.erb"
+  source "upstart-script.conf.erb"
   mode 00644
   owner "root"
   group "root"

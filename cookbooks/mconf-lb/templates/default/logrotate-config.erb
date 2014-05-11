@@ -1,4 +1,4 @@
-/var/www/mconf-lb/shared/log/*.log {
+<%= node["mconf-lb"]["deploy_to"] %>/shared/log/*.log {
          size 300M
          copytruncate
          rotate 30

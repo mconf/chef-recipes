@@ -6,6 +6,7 @@ use("XML");
 
 var called_number = argv[0]; // the called number as typed
 var source_addr = argv[1];
+var caller_name = argv[2];
 
 console_log("INFO", "[MCONF-SIP-PROXY] IP " + source_addr + " dialing to " + called_number + "\n");
 
@@ -75,7 +76,7 @@ function registerEvent(meeting) {
 
 	var params = {
 		meetingID: getMeetingId(meeting),
-		name: getMeetingName(meeting),
+		name: caller_name,
 		role: "attendee",
 		userIP: source_addr,
 		type: "SIP",
@@ -83,7 +84,9 @@ function registerEvent(meeting) {
 	};
 	var req = bbbapi.urlFor("addUserEvent", params, false);
 	console_log("INFO", "[MCONF-SIP-PROXY] Registering event: " + req + "\n");
-	curl.run("POST", req.split('?')[0], req.split('?')[1], registerEventCallback, null, null);
+//	curl.run("POST", req.split('?')[0], req.split('?')[1], registerEventCallback, null, null);
+	// on BigBlueButton, all data must be passed by the URL
+	curl.run("POST", req, "", registerEventCallback, null, null);
 }
 
 function registerEventCallback(string, arg) {

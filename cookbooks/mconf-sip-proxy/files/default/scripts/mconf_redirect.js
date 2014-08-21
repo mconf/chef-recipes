@@ -7,6 +7,7 @@ use("XML");
 var called_number = argv[0]; // the called number as typed
 var source_addr = argv[1];
 var caller_name = argv[2];
+var sip_user_agent = argv[3];
 
 console_log("INFO", "[MCONF-SIP-PROXY] IP " + source_addr + " dialing to " + called_number + "\n");
 
@@ -18,7 +19,7 @@ function getMeetingsCallback(string, arg) {
 	var response = new XML(string);
 	var return_code = response.getChild('returncode').data;
 	if (return_code != "SUCCESS") {
-        	console_log("ERROR", "[MCONF-SIP-PROXY] Failed to get meetings, return code " + return_code);
+        	console_log("ERROR", "[MCONF-SIP-PROXY] Failed to get meetings, return code " + return_code + "\n");
 	} else {
 		console_log("INFO", "[MCONF-SIP-PROXY] Meetings successfully fetched\n");
 	}
@@ -74,17 +75,29 @@ function registerEvent(meeting) {
 		return;
 	}
 
+	var fs_version = apiExecute("version", "short").replace("\n", "");
+
+	var sip_proxy_token = "";
+	if (sip_proxy_version != "" || sip_proxy_commit != "") {
+		sip_proxy_token = " MconfSipProxy/" + sip_proxy_version;
+		if (sip_proxy_commit != "") {
+			sip_proxy_token += "@" + sip_proxy_commit;
+		}
+	}
+
+	var ua = sip_user_agent + sip_proxy_token + " FreeSWITCH/" + fs_version;
+
 	var params = {
 		meetingID: getMeetingId(meeting),
 		name: caller_name,
 		role: "attendee",
 		userIP: source_addr,
-		type: "SIP",
+		userAgent: ua,
 		server: server_address
 	};
 	var req = bbbapi.urlFor("addUserEvent", params, false);
 	console_log("INFO", "[MCONF-SIP-PROXY] Registering event: " + req + "\n");
-//	curl.run("POST", req.split('?')[0], req.split('?')[1], registerEventCallback, null, null);
+	//curl.run("POST", req.split('?')[0], req.split('?')[1], registerEventCallback, null, null);
 	// on BigBlueButton, all data must be passed by the URL
 	curl.run("POST", req, "", registerEventCallback, null, null);
 }

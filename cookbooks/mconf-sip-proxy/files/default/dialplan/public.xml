@@ -15,7 +15,7 @@
 
     <extension name="redirect">
       <condition field="destination_number" expression="^(.*)$">
-        <action application="javascript" data="mconf_redirect.js ${destination_number} ${network_addr} '${caller_id_name}'"/>
+        <action application="javascript" data="mconf_redirect.js ${destination_number} ${network_addr} '${caller_id_name}' '${sip_user_agent}'"/>
       </condition>
     </extension>
 

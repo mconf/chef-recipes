@@ -32,7 +32,9 @@ template "/usr/share/freeswitch/scripts/mconf_redirect_conf.js" do
         :default_int_code => node['freeswitch']['mconf_proxy']['default_int_code'],
         :server_url => node['freeswitch']['mconf_proxy']['server_url'],
         :server_salt => node['freeswitch']['mconf_proxy']['server_salt'],
-        :mode => node['freeswitch']['mconf_proxy']['mode']
+        :mode => node['freeswitch']['mconf_proxy']['mode'],
+        :version => node['freeswitch']['mconf_proxy']['version'],
+        :commit => node['freeswitch']['mconf_proxy']['commit']
     )
 end
 

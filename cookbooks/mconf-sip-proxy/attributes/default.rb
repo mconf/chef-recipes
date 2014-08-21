@@ -92,7 +92,13 @@ default['freeswitch']['autoload_modules'] = %w[
   mod_say_en
 ]
 
+# TODO replace /home/mconf/chef-recipes by a dynamic path
+commit_hash = %x( git --git-dir /home/mconf/chef-recipes/.git rev-parse --short HEAD -- cookbooks/mconf-sip-proxy/ )
+commit_hash = commit_hash.gsub("\n", "")
+
 default[:freeswitch][:mconf_proxy][:default_int_code] = "BR"
 default[:freeswitch][:mconf_proxy][:server_url] = ""
 default[:freeswitch][:mconf_proxy][:server_salt] = ""
+default[:freeswitch][:mconf_proxy][:version] = "0.1"
+default[:freeswitch][:mconf_proxy][:commit] = commit_hash
 default[:freeswitch][:mconf_proxy][:mode] = "bridge"

@@ -18,6 +18,7 @@ include_recipe "build-essential"
 package "libssl-dev"
 package "libgeoip-dev"
 package "libexpat1-dev"
+package "redis-server"
 
 # Install MySQL Server
 mysql_service "default" do

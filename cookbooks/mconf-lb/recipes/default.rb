@@ -41,6 +41,20 @@ node.set["nodejs"]["npm"] = "1.3.7"
 include_recipe "nodejs"
 include_recipe "nodejs::npm"
 
+# change the default npm directory so we're sure it is used only for npm
+# the default is ~/npm, but that might be too generic
+execute "npm config set tmp /home/mconf/npmtmp"
+
+# Npm is installed as root and ~/.npm ends up being owned by root, but it shouldn't.
+# Newer versions of node/npm might not need this anymore.
+# See: https://github.com/npm/npm/issues/3350
+execute "sudo rm -R /home/#{node[:mconf][:user]}/.npm" do
+  not_if { !::File.exists?("/home/#{node[:mconf][:user]}/.npm") }
+end
+execute "sudo rm -R /home/#{node[:mconf][:user]}/npmtmp" do
+  not_if { !::File.exists?("/home/#{node[:mconf][:user]}/npmtmp") }
+end
+
 # Configure a user and a database for our app
 include_recipe "database::mysql"
 connection_info = {

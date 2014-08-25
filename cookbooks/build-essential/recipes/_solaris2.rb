@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: build-essential
-# Attributes:: default
+# Recipe:: solaris2
 #
-# Copyright 2008-2012, Opscode, Inc.
+# Copyright 2013, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,4 +17,19 @@
 # limitations under the License.
 #
 
-default['build-essential']['compile_time'] = false
+potentially_at_compile_time do
+  package 'autoconf'
+  package 'automake'
+  package 'bison'
+  package 'coreutils'
+  package 'flex'
+  package 'gcc4core'
+  package 'gcc4g++'
+  package 'gcc4objc'
+  package 'gcc3core'
+  package 'gcc3g++'
+  package 'ggrep'
+  package 'gmake'
+  package 'gtar'
+  package 'pkgconfig'
+end

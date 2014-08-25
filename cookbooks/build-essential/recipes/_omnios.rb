@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: build-essential
-# Attributes:: default
+# Recipe:: omnios
 #
-# Copyright 2008-2012, Opscode, Inc.
+# Copyright 2013, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,4 +17,17 @@
 # limitations under the License.
 #
 
-default['build-essential']['compile_time'] = false
+potentially_at_compile_time do
+  package 'developer/gcc47'
+  package 'developer/object-file'
+  package 'developer/linker'
+  package 'developer/library/lint'
+  package 'developer/build/gnu-make'
+  package 'system/header'
+  package 'system/library/math/header-math'
+end
+
+# Per OmniOS documentation, the gcc bin dir isn't in the default
+# $PATH, so add it to the running process environment
+# http://omnios.omniti.com/wiki.php/DevEnv
+ENV['PATH'] = "#{ENV['PATH']}:/opt/gcc-4.7.2/bin"

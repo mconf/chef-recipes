@@ -1,13 +1,15 @@
-maintainer       "En Masse Entertainment"
-maintainer_email "jamie@vialstudios.com"
-license          "Apache 2.0"
-description      "Installs and configures FFMPEG from source or package"
+name 'ffmpeg'
+maintainer 'Escape Studios'
+maintainer_email 'dev@escapestudios.com'
+license 'MIT'
+description 'Installs/Configures FFMPEG'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.2.1"
+version '0.4.3'
 
-supports "ubuntu", "10.04"
+supports 'ubuntu'
 
-depends "x264", "~> 0.3.0"
-depends "libvpx", "~> 0.2.0"
-depends "build-essential"
-depends "git"
+depends 'x264'
+depends 'libvpx'
+depends 'git'
+depends 'build-essential'
+depends 'yasm'

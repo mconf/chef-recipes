@@ -1,18 +1,19 @@
 {
   "name": "ffmpeg",
-  "description": "Installs and configures FFMPEG from source or package",
-  "long_description": "DESCRIPTION\n===========\n\nInstalls FFMPEG, a complete, cross-platform solution to record, convert and stream audio and video - [FFMPEG](http://www.ffmpeg.org/)\n\nRequirements\n============\n\n* Chef 0.10\n* Ubuntu 10.04\n\nPlease help increase the supported platform list by notifying me of coincidental support or by submitting a pull request which will add support for an additional platform(s).\n\nAttributes\n==========\n\n* `ffmpeg[:install_method]` - Installation method, `:source` or `:package` - default `:source`\n* `ffmpeg[:prefix]` - Location prefix of where the installation files will go if installing via `:source`\n* `ffmpeg[:git_repository]` - Location of the source Git repository if installing via `:source`\n* `ffmpeg[:git_revision]` - Revision of the Git repository to install if installing via `:source`. Points to version 0.6.3 by default\n* `ffmpeg[:compile_flags]` - Array of flags to use in compilation process if installing via `:source`. FFMPEG will be recompiled if this attribute is modified after initial compilation\n\nWARN: When specifying the `git_revision` attribute, use the hash of commit or a HEAD - not a tag. Sync action of Git provider will always attempt to update the git clone if a tag is used.\n\nDevelopment\n===========\n\n* Source hosted at [GitHub](https://github.com/enmasse-entertainment/ffmpeg-cookbook)\n* Report issues/Questions/Feature requests on [GitHub Issues](https://github.com/enmasse-entertainment/ffmpeg-cookbook/issues)\n\nPull requests are very welcome! Make sure your patches are well tested.\nIdeally create a topic branch for every separate change you make.\n\nLICENSE and AUTHOR\n==================\n\nAuthor:: Jamie Winsor (<jamie@vialstudios.com>)\n\nCopyright:: 2011, En Masse Entertainment, Inc\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.",
-  "maintainer": "En Masse Entertainment",
-  "maintainer_email": "jamie@vialstudios.com",
-  "license": "Apache 2.0",
+  "description": "Installs/Configures FFMPEG",
+  "long_description": "[![Build Status](https://secure.travis-ci.org/escapestudios-cookbooks/ffmpeg.png)](http://travis-ci.org/escapestudios-cookbooks/ffmpeg)\n\nDescription\n===========\n\nThis cookbook provides an easy way to install FFMPEG.\n\nMore information?\n* [FFMPEG](http://www.ffmpeg.org/)\n\nRequirements\n============\n\n## Cookbooks:\n\nThis cookbook has dependencies on the following cookbooks:\n\n* build-essential\n* git\n* x264\n* libvpx\n\n## Platforms:\n\n* Ubuntu\n\nAttributes\n==========\n\n* `node['ffmpeg']['install_method']` - Installation method, ':source' or ':package' - default ':source'\n* `node['ffmpeg']['prefix']` - Location prefix of where the installation files will go if installing via ':source'\n* `node['ffmpeg']['git_repository']` - Location of the source git repository if installing via ':source'\n* `node['ffmpeg']['git_revision']` - Revision of the git repository to install if installing via ':source'\n* `node['ffmpeg']['compile_flags']` - Array of flags to use in compilation process if installing via ':source'\n\nReferences\n==========\n\n* a very big thanks to reset <jamie@vialstudios.com> for the original version of this cookbook\n\nLicense and Authors\n===================\n\nAuthor: Jamie Winsor <jamie@vialstudios.com>\nCopyright: 2011-2013, En Masse Entertainment, Inc\n\nAuthor: David Joos <david.joos@escapestudios.com>\nAuthor: Escape Studios Development <dev@escapestudios.com>\nCopyright: 2014, Escape Studios\n\nUnless otherwise noted, all files are released under the MIT license,\npossible exceptions will contain licensing information in them.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\nTHE SOFTWARE.",
+  "maintainer": "Escape Studios",
+  "maintainer_email": "dev@escapestudios.com",
+  "license": "MIT",
   "platforms": {
-    "ubuntu": "10.04"
+    "ubuntu": ">= 0.0.0"
   },
   "dependencies": {
-    "x264": "~> 0.3.0",
-    "libvpx": "~> 0.2.0",
+    "x264": ">= 0.0.0",
+    "libvpx": ">= 0.0.0",
+    "git": ">= 0.0.0",
     "build-essential": ">= 0.0.0",
-    "git": ">= 0.0.0"
+    "yasm": ">= 0.0.0"
   },
   "recommendations": {
   },
@@ -30,5 +31,5 @@
   },
   "recipes": {
   },
-  "version": "0.2.1"
+  "version": "0.4.3"
 }

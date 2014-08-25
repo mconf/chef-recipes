@@ -1,11 +1,13 @@
-maintainer       "En Masse Entertainment"
-maintainer_email "jamie@enmasse.com"
-license          "Apache 2.0"
-description      "Installs/Configures libvpx"
+name 'libvpx'
+maintainer 'Escape Studios'
+maintainer_email 'dev@escapestudios.com'
+license 'MIT'
+description 'Installs/Configures libvpx'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.2.0"
+version '1.0.1'
 
-supports "ubuntu", "10.04"
+supports 'ubuntu'
 
-depends "build-essential"
-depends "git"
+depends 'git'
+depends 'build-essential'
+depends 'yasm'

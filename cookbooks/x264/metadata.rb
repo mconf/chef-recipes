@@ -1,12 +1,13 @@
-name             "x264"
-maintainer       "En Masse Entertainment"
-maintainer_email "jamie@vialstudios.com"
-license          "Apache 2.0"
-description      "Installs and configures the x264 video encoding library"
+name 'x264'
+maintainer 'Escape Studios'
+maintainer_email 'dev@escapestudios.com'
+license 'MIT'
+description 'Installs/Configures x264'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version          "0.3.0"
+version '0.5.1'
 
-supports "ubuntu", "10.04"
+supports 'ubuntu'
 
-depends "build-essential"
-depends "git"
+depends 'git'
+depends 'build-essential'
+depends 'yasm'

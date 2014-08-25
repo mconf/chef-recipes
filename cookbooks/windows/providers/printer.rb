@@ -1,5 +1,5 @@
 #
-# Author:: Doug Ireton (<doug.ireton@nordstrom.com>) 
+# Author:: Doug Ireton (<doug.ireton@nordstrom.com>)
 # Cookbook Name:: windows
 # Provider:: printer
 #
@@ -56,7 +56,7 @@ end
 
 private
 
-PRINTERS_REG_KEY = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers\\'
+PRINTERS_REG_KEY = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Print\Printers\\'.freeze unless defined?(PRINTERS_REG_KEY)
 
 def printer_exists?(name)
   printer_reg_key = PRINTERS_REG_KEY + name
@@ -72,7 +72,7 @@ def create_printer
 
   port_name = "IP_#{ new_resource.ipv4_address }"
 
-  powershell "Creating printer: #{ new_resource.name }" do
+  powershell_script "Creating printer: #{ new_resource.name }" do
     code <<-EOH
 
       Set-WmiInstance -class Win32_Printer `
@@ -91,7 +91,7 @@ def create_printer
 end
 
 def delete_printer
-  powershell "Deleting printer: #{ new_resource.name }" do
+  powershell_script "Deleting printer: #{ new_resource.name }" do
     code <<-EOH
       $printer = Get-WMIObject -class Win32_Printer -EnableAllPrivileges -Filter "name = '#{ new_resource.name }'"
       $printer.Delete()

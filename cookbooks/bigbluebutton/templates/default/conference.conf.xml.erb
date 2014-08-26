@@ -144,15 +144,16 @@
       <param name="locked-sound" value="conference/conf-locked.wav"/>
       <param name="is-locked-sound" value="conference/conf-is-locked.wav"/>
       <param name="is-unlocked-sound" value="conference/conf-is-unlocked.wav"/>
+      <% end -%>
       <param name="pin-sound" value="conference/conf-pin.wav"/>
       <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
-      <% end -%>
       <% if @enable_freeswitch_hold_music -%>
       <param name="moh-sound" value="$${hold_music}"/>
       <% end -%>
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
       <param name="comfort-noise" value="<%= @enable_comfort_noise %>"/>
+      <param name="min-required-recording-participants" value="1"/>
       <!--<param name="tts-engine" value="flite"/>-->
       <!--<param name="tts-voice" value="kal16"/>-->
     </profile>

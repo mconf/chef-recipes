@@ -27,8 +27,8 @@ end
 
 define_properties = ruby_block "define bigbluebutton properties" do
     block do
-        if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
-            properties = Hash[File.read('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
+        if File.exists?('/var/lib/tomcat7/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
+            properties = Hash[File.read('/var/lib/tomcat7/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties').scan(/(.+?)=(.+)/)]
 
             # node[:bbb][:server_url] = "http://<SERVER_IP>:<SERVER_PORT>"
             if not node[:bbb][:ip].nil? and not node[:bbb][:ip].empty?
@@ -124,7 +124,7 @@ define_properties = ruby_block "define bigbluebutton properties" do
 end
 
 # it will make this block to execute before the others
-if File.exists?('/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
+if File.exists?('/var/lib/tomcat7/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties')
     Chef::Log.info("This is being printed on compile phase")
     define_properties.run_action(:create)
 end

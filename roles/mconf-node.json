@@ -24,7 +24,6 @@
     "recipe[bigbluebutton::abort-if-being-used]",
     "role[mconf-server]",
     "recipe[nsca::nsca-reporter]",
-    "recipe[mconf-live::uninstall-depreciated]",
     "recipe[bigbluebutton]",
     "recipe[mconf-live]",
     "recipe[mconf-monitor::client]",

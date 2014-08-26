@@ -60,17 +60,18 @@
     <param name="inbound-zrtp-passthru" value="true"/> <!-- (also enables late negotiation) -->
     <!--
         DO NOT USE HOSTNAMES, ONLY IP ADDRESSES IN THESE SETTINGS!
+    <param name="rtp-ip" value="$${local_ip_v4}"/>
+    <param name="sip-ip" value="$${local_ip_v4}"/>
+    <param name="ext-rtp-ip" value="auto-nat"/>
+    <param name="ext-sip-ip" value="auto-nat"/>
     -->
+
     <param name="rtp-ip" value="$${local_ip_v4}"/>
     <param name="sip-ip" value="$${local_ip_v4}"/>
     <param name="ext-rtp-ip" value="$${external_ip_v4}"/>
     <param name="ext-sip-ip" value="$${external_ip_v4}"/>
 
-    <!--
-       Set the RTP timeout for 3 hours to prevent FS from hanging up bbb clients
-       who are muted and not sending any audio.
-    -->
-    <param name="rtp-timeout-sec" value="10800"/>
+    <param name="rtp-timeout-sec" value="300"/>
     <param name="rtp-hold-timeout-sec" value="1800"/>
     <!--<param name="enable-3pcc" value="true"/>-->
 
@@ -97,5 +98,7 @@
     <param name="tls-verify-in-subjects" value=""/>
     <!-- TLS version ("sslv23" (default), "tlsv1"). NOTE: Phones may not work with TLSv1 -->
     <param name="tls-version" value="$${sip_tls_version}"/>
+    <param name="ws-binding"  value=":5066"/>
+
   </settings>
 </profile>

@@ -11,6 +11,21 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+if node[:mconf][:recording_server][:enabled]
+  package "mconf-recording-decrypter" do
+    action :upgrade
+  end
+  package "mconf-presentation-video" do
+    ignore_failure true
+    action :upgrade
+  end
+else
+  package "mconf-recording-encrypted" do
+    action :upgrade
+  end
+end
+
+=begin
 template "/var/www/bigbluebutton/client/conf/config.xml" do
   source "config.xml.erb"
   mode "0644"
@@ -172,6 +187,7 @@ template "/usr/local/bigbluebutton/core/scripts/mconf.yml" do
   )
   only_if do node[:mconf][:recording_server][:enabled] end
 end
+=end
 
 ruby_block "early exit" do
   block do

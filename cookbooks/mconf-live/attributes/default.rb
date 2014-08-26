@@ -6,24 +6,33 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-default[:mconf][:user] = "mconf"
-default[:mconf][:dir] = "/var/mconf"
-default[:mconf][:tools][:dir] = "/var/mconf/tools"
-default[:mconf][:log][:dir] = "/var/mconf/log"
+mconf_dir = "/var/mconf"
 
-default[:mconf][:live][:repo] = "http://mconf.org/chef/mconf-live/deploy"
-default[:mconf][:live][:deploy_dir] = "#{node[:mconf][:dir]}/deploy/mconf-live"
-default[:mconf][:live][:force_deploy] = false
+default[:mconf][:user] = "mconf"
+default[:mconf][:dir] = mconf_dir
+default[:mconf][:tools][:dir] = "#{mconf_dir}/tools"
+default[:mconf][:log][:dir] = "#{mconf_dir}/log"
 
 # set true if you want your Mconf-Live server to act as a standalone server or 
 # if you want a recording server that will query for encrypted recordings
 default[:mconf][:recording_server][:enabled] = false
-default[:mconf][:recording_server][:private_key_path] = "#{node[:mconf][:dir]}/private_key.pem"
+default[:mconf][:recording_server][:private_key_path] = "#{mconf_dir}/private_key.pem"
 default[:mconf][:recording_server][:get_recordings_url] = nil
 
 # example of configuration for the Chef Server:
 # remember the backslash before double quotes and backslash before backslash
-# { "enabled": true, "meetingID": "Turing", "moderatorPW": "CHANGE-ME", "attendeePW": "INOFFENSIVE", "maxUsers": 100, "record": "true", "logoutURL": "https://docs.google.com/spreadsheet/viewform?formkey=dC1GX0dWMnFHWDVmS0F0QmprUDBaN1E6MA", "welcomeMsg": "Transmissão do ciclo de palestras sobre Alan Turing.<br><br>A gravação dessa sessão estará disponível posteriormente em <a href=\\\"event:http://mconf.org/events\\\"><u>http://mconf.org/events/turing</u></a>." }
+=begin
+{
+  "enabled": true, 
+  "meetingID": "Turing", 
+  "moderatorPW": "CHANGE-ME", 
+  "attendeePW": "INOFFENSIVE", 
+  "maxUsers": 100, 
+  "record": "true", 
+  "logoutURL": "https://docs.google.com/spreadsheet/viewform?formkey=dC1GX0dWMnFHWDVmS0F0QmprUDBaN1E6MA", 
+  "welcomeMsg": "Transmissão do ciclo de palestras sobre Alan Turing.<br><br>A gravação dessa sessão estará disponível posteriormente em <a href=\\\"event:http://mconf.org/events\\\"><u>http://mconf.org/events/turing</u></a>." 
+}
+=end
 default[:mconf][:streaming][:enabled] = false
 default[:mconf][:streaming][:meetingID] = ""
 default[:mconf][:streaming][:moderatorPW] = ""

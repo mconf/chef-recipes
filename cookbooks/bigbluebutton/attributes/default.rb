@@ -7,27 +7,23 @@
 #
 
 default[:bbb][:ffmpeg][:install_method] = "source"
-default[:bbb][:ffmpeg][:version] = "2.0.1"
+default[:bbb][:ffmpeg][:version] = "2.3.2"
 default[:bbb][:ffmpeg][:filename] = nil
 default[:bbb][:ffmpeg][:repo_url] = nil
 
 default[:bbb][:libvpx][:install_method] = "source"
-default[:bbb][:libvpx][:version] = "1.2.0"
+default[:bbb][:libvpx][:version] = "1.3.0"
 default[:bbb][:libvpx][:filename] = nil
 default[:bbb][:libvpx][:repo_url] = nil
 
-# fake package to not break the dependency of BigBlueButton on the openoffice package
-default[:bbb][:openoffice][:filename] = "openoffice.org_1.0.4_all.deb"
-default[:bbb][:openoffice][:repo_url] = nil
+apt_repo = "http://ubuntu.bigbluebutton.org/trusty-090"
 
-default[:bbb][:bigbluebutton][:repo_url] = "http://ubuntu.bigbluebutton.org/lucid_dev_081"
+default[:bbb][:bigbluebutton][:repo_url] = apt_repo
 default[:bbb][:bigbluebutton][:key_url] = "http://ubuntu.bigbluebutton.org/bigbluebutton.asc"
-default[:bbb][:bigbluebutton][:components] = ["bigbluebutton-lucid" , "main"]
+default[:bbb][:bigbluebutton][:components] = ["bigbluebutton-trusty" , "main"]
 default[:bbb][:bigbluebutton][:package_name] = "bigbluebutton"
 default[:bbb][:bigbluebutton][:packages_version] = {}
 
-default[:bbb][:recording][:video] = true
-default[:bbb][:recording][:deskshare] = true
 default[:bbb][:recording][:rebuild] = []
 default[:bbb][:recording][:playback_formats] = "presentation"
 default[:bbb][:demo][:enabled] = false
@@ -42,10 +38,8 @@ default[:bbb][:enable_comfort_noise] = false
 # "You are currently the only person in this conference"
 default[:bbb][:enable_freeswitch_sounds] = false
 default[:bbb][:enable_freeswitch_hold_music] = false
-#default[:bbb][:version] = "0.80ubuntu4"
-#default[:bbb_demo][:version] = "0.80ubuntu76"
 
-default[:bbb][:recording][:presentation][:video_output_width] = 320
-default[:bbb][:recording][:presentation][:video_output_height] = 240
+default[:bbb][:recording][:presentation][:video_output_width] = 640
+default[:bbb][:recording][:presentation][:video_output_height] = 480
 default[:bbb][:recording][:presentation][:audio_offset] = 0
 default[:bbb][:recording][:presentation][:include_deskshare] = true

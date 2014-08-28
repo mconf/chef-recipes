@@ -113,11 +113,14 @@ package node[:bbb][:bigbluebutton][:package_name] do
   notifies :run, "execute[clean bigbluebutton]", :delayed
 end
 
-execute "upgrade bigbluebutton dependencies" do
-  command "apt-get -y -o Dpkg::Options::=\"--force-confnew\" upgrade"
-  action :run
-  notifies :run, "execute[enable webrtc]", :delayed
-  notifies :run, "execute[clean bigbluebutton]", :delayed
+bigbluebutton_packages_version.each do |k,v|
+  pkg = k
+  package pkg do
+    options "-o Dpkg::Options::=\"--force-confnew\""
+    action :upgrade
+    notifies :run, "execute[enable webrtc]", :delayed
+    notifies :run, "execute[clean bigbluebutton]", :delayed
+  end
 end
 
 include_recipe "bigbluebutton::load-properties"

@@ -92,8 +92,7 @@ function registerEvent(meeting) {
 		name: caller_name,
 		role: "attendee",
 		userIP: source_addr,
-		userAgent: ua,
-		server: server_address
+		userAgent: ua
 	};
 	var req = bbbapi.urlFor("addUserEvent", params, false);
 	console_log("INFO", "[MCONF-SIP-PROXY] Registering event: " + req + "\n");
@@ -151,4 +150,3 @@ getMeetings();
 				session.execute("playback", "/usr/local/freeswitch/sounds/<wav file here>");
 			}
 */
-

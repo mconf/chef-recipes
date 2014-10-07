@@ -27,7 +27,7 @@ logrotate_app "rotate-apache" do
   cookbook "logrotate"
   path [ "#{node['nagios']['log_dir']}/apache_access.log", "#{node['nagios']['log_dir']}/apache_error.log" ]
   options [ "missingok", "compress", "copytruncate", "notifempty" ]
-  frequency "daily"
-  rotate 15
+  size "300M"
+  rotate 30
   create "644 root root"
 end

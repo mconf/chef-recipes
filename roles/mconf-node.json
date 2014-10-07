@@ -9,6 +9,10 @@
       "live": {
         "version": "mconf-live0.5.2",
         "version_int": 17
+      },
+      "branding": {
+        "copyright_message": "Mconf &#174; 2014 &#183; Servi&#231;o fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - &lt;a href=&quot;https://mconf.rnp.br&quot;&gt;&lt;u&gt;mconf.rnp.br&lt;/u&gt;&lt;/a&gt;",
+        "logo": "logo.png"
       }
     }
   },

@@ -352,7 +352,7 @@ class NetworkReporter(Reporter):
             + self.formatMessage(self.sent, "sent", "") \
             + self.formatMessage(self.recv, "recv", "")
         # state mount
-        state = max(int(self.checkStatus(self.sent)), int(self.checkStatus(self.recv)))
+        state = max(int(self.checkStatus(sent_avg)), int(self.checkStatus(recv_avg)))
         return message, state
 
 def parse_args():

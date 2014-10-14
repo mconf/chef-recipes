@@ -16,7 +16,8 @@ default[:mconf][:log][:dir] = "#{mconf_dir}/log"
 # set true if you want your Mconf-Live server to act as a standalone server or 
 # if you want a recording server that will query for encrypted recordings
 default[:mconf][:recording_server][:enabled] = false
-default[:mconf][:recording_server][:private_key_path] = "#{mconf_dir}/private_key.pem"
+default[:mconf][:recording_server][:private_key_path] = "/usr/local/bigbluebutton/core/scripts/private.pem"
+default[:mconf][:recording_server][:public_key_path] = "/usr/local/bigbluebutton/core/scripts/public.pem"
 default[:mconf][:recording_server][:get_recordings_url] = nil
 
 # example of configuration for the Chef Server:

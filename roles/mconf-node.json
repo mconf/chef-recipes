@@ -2,13 +2,12 @@
   "default_attributes": {
     "bbb": {
       "recording": {
-        "playback_formats": "mconf"
+        "playback_formats": "mconf_encrypted"
       }
     },
     "mconf": {
       "live": {
-        "version": "mconf-live0.5.2",
-        "version_int": 17
+        "version_int": 4
       },
       "branding": {
         "copyright_message": "Mconf &#174; 2014 &#183; Servi&#231;o fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - &lt;a href=&quot;https://mconf.rnp.br&quot;&gt;&lt;u&gt;mconf.rnp.br&lt;/u&gt;&lt;/a&gt;",

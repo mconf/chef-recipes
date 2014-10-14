@@ -1,7 +1,0 @@
-{
-    "id": "check_notes_server",
-    "service_template": "default-service",
-    "hostgroup_name": ["mconf-node"],
-    "description": "Live Notes Server",
-    "use_existing_command": "check_notes_server"
-}

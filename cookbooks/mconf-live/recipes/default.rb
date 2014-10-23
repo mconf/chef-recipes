@@ -19,6 +19,10 @@ if node[:mconf][:recording_server][:enabled]
     ignore_failure true
     action :upgrade
   end
+  package "mconf-presentation-export" do
+    action :upgrade
+    only_if do node[:bbb][:recording][:playback_formats].split(",").include? "presentation_export" end
+  end
 else
   package "mconf-recording-encrypted" do
     action :upgrade

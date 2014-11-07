@@ -344,15 +344,17 @@ class NetworkReporter(Reporter):
             return (value, "bit/s")
 
     def data(self):
-        sent_avg, sent_unit = self.normalize(self.sent.avg())
-        recv_avg, recv_unit = self.normalize(self.recv.avg())
+        sent_avg = self.sent.avg()
+        recv_avg = self.recv.avg()
+        # state mount
+        state = max(int(self.checkStatus(sent_avg)), int(self.checkStatus(recv_avg)))
+        sent_avg, sent_unit = self.normalize(sent_avg)
+        recv_avg, recv_unit = self.normalize(recv_avg)
         # message mount
         message = "Network bandwidth used: up %.1f%s - down %.1f%s" \
             % (sent_avg, sent_unit, recv_avg, recv_unit) + " |" \
             + self.formatMessage(self.sent, "sent", "") \
             + self.formatMessage(self.recv, "recv", "")
-        # state mount
-        state = max(int(self.checkStatus(sent_avg)), int(self.checkStatus(recv_avg)))
         return message, state
 
 def parse_args():
@@ -375,10 +377,10 @@ def parse_args():
         dest = "send_rate",
         default = "2",
         metavar = "<send_rate>")
-    parser.add_argument("--network-warning", required=False, default="70000",
+    parser.add_argument("--network-warning", required=False, default="40000",
         help="define the warning limit in kbps", dest="network_warning", 
         metavar="<network_warning>")
-    parser.add_argument("--network-critical", required=False, default="90000", 
+    parser.add_argument("--network-critical", required=False, default="70000", 
         help="define the critical limit in kbps", dest="network_critical", 
         metavar="<network_critical>")
     parser.add_argument("--cpu-warning", required=False, default="90", 

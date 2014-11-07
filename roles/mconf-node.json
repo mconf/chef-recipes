@@ -3,7 +3,8 @@
     "bbb": {
       "recording": {
         "playback_formats": "mconf_encrypted"
-      }
+      },
+      "keep_files_newer_than": 3
     },
     "mconf": {
       "live": {
@@ -11,7 +12,8 @@
       },
       "branding": {
         "copyright_message": "Mconf &#174; 2014 &#183; Servi&#231;o fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - &lt;a href=&quot;https://mconf.rnp.br&quot;&gt;&lt;u&gt;mconf.rnp.br&lt;/u&gt;&lt;/a&gt;",
-        "logo": "logo.png"
+        "logo": "logo.png",
+        "background": ""
       }
     }
   },
@@ -24,6 +26,7 @@
   "name": "mconf-node",
   "chef_type": "role",
   "run_list": [
+    "recipe[bigbluebutton::download-libraries]",
     "recipe[bigbluebutton::abort-if-being-used]",
     "role[mconf-server]",
     "recipe[nsca::nsca-reporter]",

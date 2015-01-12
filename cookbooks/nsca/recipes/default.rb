@@ -23,13 +23,13 @@ if node[:nsca][:force_reinstall]
   node.set[:nsca][:force_reinstall] = false
 end
 
-cookbook_file "#{Chef::Config[:file_cache_path]}/nsca.c.v2.9.1.patched" do
+cookbook_file "/usr/local/src/nsca.c.v2.9.1.patched" do
   source "nsca.c.v2.9.1.patched"
   mode "0644"
 end
 
 # get nsca file from server and call build script if there is a new file
-remote_file "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}.tar.gz" do
+remote_file "/usr/local/src/nsca-#{node[:nsca][:version]}.tar.gz" do
     source "#{node[:nsca][:url]}/nsca-#{node[:nsca][:version]}.tar.gz"
     checksum node[:nsca][:checksum]
     mode "0644"
@@ -40,14 +40,14 @@ end
 script "build nsca" do
     interpreter "bash"
     user "root"
-    cwd Chef::Config[:file_cache_path]
+    cwd "/usr/local/src"
     code <<-EOH
         tar xzf "nsca-#{node[:nsca][:version]}.tar.gz"
         cd "nsca-#{node[:nsca][:version]}"
 
         # \TODO instead of using the complete file patched, use only the patch
         if [ "#{node[:nsca][:version]}" == "2.9.1" ]; then
-          mv #{Chef::Config[:file_cache_path]}/nsca.c.v2.9.1.patched src/nsca.c
+          mv /usr/local/src/nsca.c.v2.9.1.patched src/nsca.c
         fi
         ./configure
         make all

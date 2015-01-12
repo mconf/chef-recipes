@@ -34,7 +34,7 @@ end
 script "setup nsca as xinetd service" do
   interpreter "bash"
   user "root"
-  cwd "#{Chef::Config[:file_cache_path]}/nsca-#{node[:nsca][:version]}"
+  cwd "/usr/local/src/nsca-#{node[:nsca][:version]}"
   code <<-EOH
     cp sample-config/nsca.xinetd /etc/xinetd.d/nsca
     sed -i "s:\tonly_from.*:#\0:g" /etc/xinetd.d/nsca

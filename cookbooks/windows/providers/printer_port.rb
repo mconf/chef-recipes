@@ -1,5 +1,5 @@
 #
-# Author:: Doug Ireton (<doug.ireton@nordstrom.com>) 
+# Author:: Doug Ireton (<doug.ireton@nordstrom.com>)
 # Cookbook Name:: windows
 # Provider:: printer_port
 #
@@ -58,7 +58,7 @@ end
 
 private
 
-PORTS_REG_KEY = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Print\Monitors\Standard TCP/IP Port\Ports\\'
+PORTS_REG_KEY = 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Print\Monitors\Standard TCP/IP Port\Ports\\'.freeze unless defined?(PORTS_REG_KEY)
 
 def port_exists?(name)
   port_reg_key = PORTS_REG_KEY + name
@@ -73,7 +73,7 @@ def create_printer_port
   port_name = new_resource.port_name || "IP_#{ new_resource.ipv4_address }"
 
   # create the printer port using PowerShell
-  powershell "Creating printer port #{ new_resource.port_name }" do
+  powershell_script "Creating printer port #{ new_resource.port_name }" do
     code <<-EOH
 
       Set-WmiInstance -class Win32_TCPIPPrinterPort `
@@ -93,7 +93,7 @@ def delete_printer_port
 
   port_name = new_resource.port_name || "IP_#{ new_resource.ipv4_address }"
 
-  powershell "Deleting printer port: #{ new_resource.port_name }" do
+  powershell_script "Deleting printer port: #{ new_resource.port_name }" do
     code <<-EOH
       $port = Get-WMIObject -class Win32_TCPIPPrinterPort -EnableAllPrivileges -Filter "name = '#{ port_name }'"
       $port.Delete()

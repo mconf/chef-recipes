@@ -23,27 +23,35 @@ execute "apt-get update"
 if node[:bbb][:ffmpeg][:install_method] == "package"
   current_ffmpeg_version = `ffmpeg -version | grep 'ffmpeg version' | cut -d' ' -f3`.strip!
   ffmpeg_update_needed = (current_ffmpeg_version != node[:bbb][:ffmpeg][:version])
+  ffmpeg_dst = "/tmp/#{node[:bbb][:ffmpeg][:filename]}"
 
-  remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:ffmpeg][:filename]}" do
+  remote_file ffmpeg_dst do
     source "#{node[:bbb][:ffmpeg][:repo_url]}/#{node[:bbb][:ffmpeg][:filename]}"
     action :create
     only_if { ffmpeg_update_needed }
   end
 
   dpkg_package "ffmpeg" do
-    source "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:ffmpeg][:filename]}"
+    source ffmpeg_dst
     action :install
     only_if { ffmpeg_update_needed }
   end
 else
   # dependencies of libvpx and ffmpeg
-  # http://code.google.com/p/bigbluebutton/wiki/081InstallationUbuntu#3.__Install_ffmpeg
-  %w( build-essential git-core checkinstall yasm texi2html libopencore-amrnb-dev 
-      libopencore-amrwb-dev libsdl1.2-dev libtheora-dev libvorbis-dev libx11-dev 
-      libxfixes-dev libxvidcore-dev zlib1g-dev ).each do |pkg|
+  # https://code.google.com/p/bigbluebutton/wiki/090InstallationUbuntu#3.__Install_ffmpeg
+  %w( git-core texi2html libvorbis-dev libx11-dev libxfixes-dev zlib1g-dev 
+      pkg-config libxext-dev ).each do |pkg|
     package pkg do
       action :install
     end
+  end
+
+  ffmpeg_repo = "#{Chef::Config[:file_cache_path]}/ffmpeg"
+
+  execute "set ffmpeg version" do
+    command "cp #{ffmpeg_repo}/RELEASE #{ffmpeg_repo}/VERSION"
+    action :nothing
+    subscribes :run, "git[#{ffmpeg_repo}]", :immediately
   end
 
   # ffmpeg already includes libvpx
@@ -51,13 +59,15 @@ else
 end
 
 if node[:bbb][:libvpx][:install_method] == "package"
-  remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:libvpx][:filename]}" do
+  libvpx_dst = "/tmp/#{node[:bbb][:libvpx][:filename]}"
+
+  remote_file libvpx_dst do
     source "#{node[:bbb][:libvpx][:repo_url]}/#{node[:bbb][:libvpx][:filename]}"
     action :create_if_missing
   end
 
   dpkg_package "libvpx" do
-    source "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:libvpx][:filename]}"
+    source libvpx_dst
     action :install
   end
 else
@@ -68,32 +78,10 @@ else
   end
 end
 
-remote_file "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}" do
-  source "#{node[:bbb][:openoffice][:repo_url]}/#{node[:bbb][:openoffice][:filename]}"
-  action :create_if_missing
-end
-
-dpkg_package "openoffice" do
-  source "#{Chef::Config[:file_cache_path]}/#{node[:bbb][:openoffice][:filename]}"
-  action :install
-end
-
-package "python-software-properties"
-
-apt_repository "libreoffice" do
-  uri "http://ppa.launchpad.net/libreoffice/libreoffice-4-0/ubuntu"
-  components ["lucid", "main"]
-  keyserver "keyserver.ubuntu.com"
-  key "1378B444"
-end
-
-package "libreoffice-common"
-package "libreoffice"
-
 # add ubuntu repo
 apt_repository "ubuntu" do
   uri "http://archive.ubuntu.com/ubuntu/"
-  components ["lucid" , "multiverse"]
+  components ["trusty" , "multiverse"]
 end
 
 # add bigbluebutton repo
@@ -104,17 +92,16 @@ apt_repository node[:bbb][:bigbluebutton][:package_name] do
   notifies :run, 'execute[apt-get update]', :immediately
 end
 
-package "red5" do
-  options "-o Dpkg::Options::=\"--force-confnew\""
-  action :upgrade
+# package response_file isn't working properly, that's why we have to accept the licenses with debconf-set-selections
+execute "accept mscorefonts license" do
+  user "root"
+  command "echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | debconf-set-selections"
+  action :run
 end
 
-# for some reason, sometimes the log directory isn't created successfully, so
-# the installation of the package fails
-# if the directory exists, we won't change its permissions
-directory "/var/log/bigbluebutton" do
-  only_if do not File.directory?("/var/log/bigbluebutton") end
-end
+# TODO these two dependencies should come as bigbluebutton dependencies in the packaging
+package "wget"
+package "tomcat7"
 
 # install bigbluebutton package
 package node[:bbb][:bigbluebutton][:package_name] do
@@ -122,55 +109,21 @@ package node[:bbb][:bigbluebutton][:package_name] do
   # it will force the maintainer's version of the configuration files
   options "-o Dpkg::Options::=\"--force-confnew\""
   action :upgrade
-  notifies :restart, "service[bbb-record-core]", :delayed
+  notifies :run, "execute[enable webrtc]", :delayed
   notifies :run, "execute[clean bigbluebutton]", :delayed
 end
 
-bash "upgrade bigbluebutton dependencies" do
-  code <<-EOH
-    export LC_ALL=en_US.UTF-8
-    export LANG=en_US.UTF-8
-    export LANGUAGE=en_US.UTF-8
-    apt-get -y -o Dpkg::Options::="--force-confnew" upgrade
-  EOH
-  action :run
-end
-
-execute "check freeswitch old version" do
-  command "apt-get -y purge bbb-freeswitch && apt-get -y -o Dpkg::Options::=\"--force-confnew\" install #{node[:bbb][:bigbluebutton][:package_name]}"
-  action :run
-  notifies :run, "execute[clean bigbluebutton]", :delayed
-  only_if do `bbb-conf --check | grep 'You have an older version of FreeSWITCH installed.' | wc -l`.strip! != "0" end
-end
-
-# if anything goes wrong with the command above, it won't fail,
-# so I will make it fail here
-execute "force apt fix" do
-  command "apt-get -f -y -o Dpkg::Options::=\"--force-confnew\" install"
-  action :run
-end
-
-link "/etc/nginx/sites-enabled/bigbluebutton" do
-  to "/etc/nginx/sites-available/bigbluebutton"
+bigbluebutton_packages_version.each do |k,v|
+  pkg = k
+  package pkg do
+    options "-o Dpkg::Options::=\"--force-confnew\""
+    action :upgrade
+    notifies :run, "execute[enable webrtc]", :delayed
+    notifies :run, "execute[clean bigbluebutton]", :delayed
+  end
 end
 
 include_recipe "bigbluebutton::load-properties"
-
-logrotate_app "tomcat" do
-  cookbook "logrotate"
-  path "/var/log/tomcat6/catalina.out"
-  options [ "missingok", "compress", "copytruncate", "notifempty" ]
-  frequency "daily"
-  rotate 15
-  size "15M"
-end
-
-cron "remove old bigbluebutton logs" do
-  hour "1"
-  minute "0"
-  command "find /var/log/bigbluebutton -name '*.log*' -mtime +15 -exec rm -r '{}' \\"
-  action :create
-end
 
 template "/etc/cron.daily/bigbluebutton" do
   source "bigbluebutton.erb"
@@ -185,39 +138,6 @@ package "bbb-demo" do
   else
     action :purge
   end
-end
-
-file "/var/lib/tomcat6/webapps/demo.war" do
-  action :touch
-  only_if do node[:bbb][:demo][:enabled] and `bbb-conf --check | grep 'Error: The updated demo.war did not deploy.' | wc -l`.strip! != "0" end
-end
-
-template "deploy red5 deskshare conf" do
-  path "/usr/share/red5/webapps/deskshare/WEB-INF/red5-web.xml"
-  source "red5-web-deskshare.xml.erb"
-  mode "0644"
-  variables(
-    :record_deskshare => node[:bbb][:recording][:deskshare]
-  )
-  notifies :run, "execute[restart bigbluebutton]", :delayed
-end
-
-template "deploy red5 video conf" do
-  path "/usr/share/red5/webapps/video/WEB-INF/red5-web.xml"
-  source "red5-web-video.xml.erb"
-  mode "0644"
-  variables(
-    :record_video => node[:bbb][:recording][:video]
-  )
-  notifies :run, "execute[restart bigbluebutton]", :delayed
-end
-
-directory "video streams dir" do
-  path "/usr/share/red5/webapps/video/streams"
-  user "red5"
-  group "adm"
-  mode "0755"
-  action :create
 end
 
 template "/opt/freeswitch/conf/vars.xml" do
@@ -302,20 +222,6 @@ ruby_block "configure recording workflow" do
     end
 end
 
-service "bbb-record-core" do
-  provider Chef::Provider::Service::Init::Debian
-  pattern "god"
-  supports :start => true, :stop => true, :restart => true
-  action :start
-end
-
-execute "check bbb-record-core" do
-  command "exit 0"
-  action :run
-  only_if do `bbb-conf --check | grep 'Not Running:  bbb-record-core' | wc -l`.strip! != "0" end
-  notifies :restart, "service[bbb-record-core]", :delayed
-end
-
 template "/usr/local/bigbluebutton/core/scripts/presentation.yml" do
   source "presentation.yml.erb"
   mode "0644"
@@ -333,15 +239,22 @@ execute "check voice application register" do
   notifies :run, "execute[clean bigbluebutton]", :delayed
 end
 
+execute "enable webrtc" do
+  user "root"
+  command "bbb-conf --enablewebrtc"
+  action :nothing
+  notifies :run, "execute[clean bigbluebutton]", :delayed
+end
+
 execute "clean bigbluebutton" do
   user "root"
-  command "bbb-conf --clean || echo 'Return successfully'"
+  command "bbb-conf --clean"
   action :nothing
 end
 
 execute "restart bigbluebutton" do
   user "root"
-  command "bbb-conf --restart || echo 'Return successfully'"
+  command "bbb-conf --restart"
   action :nothing
 end
 
@@ -356,7 +269,7 @@ node.set[:bbb][:recording][:rebuild] = []
 
 ruby_block "collect packages version" do
   block do
-    packages = [ "bbb-*", "red5", node[:bbb][:bigbluebutton][:package_name], "ffmpeg", "libvpx" ]
+    packages = [ "bbb-*", node[:bbb][:bigbluebutton][:package_name], "ffmpeg", "libvpx" ]
     packages_version = {}
     packages.each do |pkg|
       output = `dpkg -l | grep "#{pkg}"`

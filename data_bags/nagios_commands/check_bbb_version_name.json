@@ -1,0 +1,4 @@
+{
+    "id": "check_bbb_version_name",
+    "command_line": "$USER1$/check_bbb_version $HOSTADDRESS$:$_HOSTBBB_PORT$/client/conf/config.xml"
+}

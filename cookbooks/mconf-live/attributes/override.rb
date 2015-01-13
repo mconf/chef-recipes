@@ -6,17 +6,16 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-override[:bbb][:ffmpeg][:install_method] = "package"
-override[:bbb][:ffmpeg][:filename] = "ffmpeg_5:2.0.1-1_amd64.deb"
-override[:bbb][:ffmpeg][:repo_url] = "http://dev.mconf.org/apt-repo/files"
+override[:ffmpeg][:compile_flags] = [ "--enable-x11grab",
+                                      "--enable-gpl",
+                                      "--enable-version3",
+                                      "--enable-postproc",
+                                      "--enable-libvorbis",
+                                      "--enable-libvpx" ]
 
-override[:bbb][:libvpx][:install_method] = "package"
-override[:bbb][:libvpx][:filename] = "libvpx_1.2.0-1_amd64.deb"
-override[:bbb][:libvpx][:repo_url] = "http://dev.mconf.org/apt-repo/files"
+apt_repo = "http://ci-mconf-live.rnp.br/apt/development"
 
-override[:bbb][:openoffice][:repo_url] = "http://dev.mconf.org/apt-repo/files"
-
-override[:bbb][:bigbluebutton][:repo_url] = "http://dev.mconf.org/apt-repo/ubuntu/stable"
-override[:bbb][:bigbluebutton][:key_url] = "http://dev.mconf.org/apt-repo/mconf-public.gpg"
-override[:bbb][:bigbluebutton][:components] = [ "lucid", "main" ]
+override[:bbb][:bigbluebutton][:repo_url] = apt_repo
+override[:bbb][:bigbluebutton][:key_url] = "#{apt_repo}/public.asc"
+override[:bbb][:bigbluebutton][:components] = ["mconf-trusty" , "main"]
 override[:bbb][:bigbluebutton][:package_name] = "mconf-live"

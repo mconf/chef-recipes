@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <config>
     <localeversion suppressWarning="false">0.8</localeversion>
-    <version><%= node[:mconf][:live][:version] %><% if @streaming -%> - Webinar<% end -%></version>
+    <version><%= @module_version %></version>
     <help url="<%= node[:bbb][:server_url] %>/help.html"/>
     <javaTest url="<%= node[:bbb][:server_url] %>/testjava.html"/>
     <porttest host="<%= node[:bbb][:server_domain] %>" application="video/portTest" timeout="10000"/>    
@@ -9,8 +9,9 @@
     <application uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" host="<%= node[:bbb][:server_url] %>/bigbluebutton/api/enter" />
     <language userSelectionEnabled="true" />
     <skinning enabled="true" url="<%= node[:bbb][:server_url] %>/client/branding/css/BBBDefault.css.swf" />
+    <branding logo="<%= @logo %>" copyright="<%= @copyright_message %>" background="<%= @background %>" />
     <shortcutKeys showButton="true" />
-    <layout showLogButton="false" showVideoLayout="false" showResetLayout="false" defaultLayout="<% if not @streaming -%>Default<% else -%>Webinar<% end -%>"
+    <layout showLogButton="false" showVideoLayout="false" showResetLayout="false" defaultLayout="Default"
             showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
             showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="true" confirmLogout="true"/>
             
@@ -48,47 +49,37 @@
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/sip" 
 			autoJoin="false"
 			listenOnlyMode="true"
-			presenterShareOnly="<%= @streaming %>"
+			presenterShareOnly="false"
 			skipCheck="false"
 			showButton="true"
 			showSpeakerButton="false"
 			enabledEchoCancel="true"
+			useWebrtcIfAvailable="false"
 			dependsOn="UsersModule"
 		/>
 
 		<module name="VideoconfModule" url="<%= node[:bbb][:server_url] %>/client/VideoconfModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/video"
 			dependson = "UsersModule"
-			videoQuality = "100"
-			presenterShareOnly = "<%= @streaming %>"
+			presenterShareOnly = "false"
 			controlsForPresenter = "false"
-			resolutions = "160x120,320x240,640x480"
 			autoStart = "false"
+			skipCamSettingsCheck="false"
 			showButton = "true"
 			showCloseButton = "true"
 			publishWindowVisible = "true"
 			viewerWindowMaxed = "false"
 			viewerWindowLocation = "top"
-			camKeyFrameInterval = "30"
-			<% if not @streaming -%>
-			camModeFps = "10"
-			<% else -%>
-			camModeFps = "15"
-			<% end -%>
-			camQualityBandwidth = "0"
-			camQualityPicture = "90"
 			smoothVideo="false"
 			applyConvolutionFilter="false"
 			convolutionFilter="-1, 0, -1, 0, 6, 0, -1, 0, -1"
 			filterBias="0"
 			filterDivisor="4"
-			enableH264 = "true"
-			h264Level = "2.1"
-			h264Profile = "main"		
 			displayAvatar = "false"
 			focusTalking = "false"
 			glowColor = "0x4A931D"
-			glowBlurSize = "30.0"	
+			glowBlurSize = "30.0"
+			priorityRatio = "0.67"
 		/>
 		
 		<module name="WhiteboardModule" url="<%= node[:bbb][:server_url] %>/client/WhiteboardModule.swf?v=4105" 
@@ -110,35 +101,16 @@
 			maxFileSize="30"
 		/>
 
-		<module name="VideodockModule" url="<%= node[:bbb][:server_url] %>/client/VideodockModule.swf?v=<%= @module_version %>"
-			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
-			dependsOn="VideoconfModule, UsersModule"
-			autoDock="true"
-			showControls="false"
-			maximizeWindow="false"
-			position="bottom-right"
-			width="172"
-			height="179"
-			layout="smart"
-			oneAlwaysBigger="false"
-			baseTabIndex="401"
-		/>
-		
 		<module name="LayoutModule" url="<%= node[:bbb][:server_url] %>/client/LayoutModule.swf?v=<%= @module_version %>"
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton"
-			<% if not @streaming -%>
 			layoutConfig="<%= node[:bbb][:server_url] %>/client/conf/layout.xml"
-			<% else -%>
-			layoutConfig="<%= node[:bbb][:server_url] %>/client/conf/layout-streaming.xml"
-			<% end -%>
 			enableEdit="true"
 		/>
 
 		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=<%= @module_version %>" 
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton"
 			refreshDelay="500"
-			autoStart="true"
-			showButton="false"
+			enableMultipleNotes="true"
 			dependsOn="UsersModule"
 			position="bottom-left"
 		/>

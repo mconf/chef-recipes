@@ -1,8 +1,9 @@
+# encoding: UTF-8
 #
 # Cookbook Name:: reboot-handler
 # Recipe:: default
 #
-# Copyright 2012 John Dewey
+# Copyright 2012-2014, John Dewey
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +18,6 @@
 # limitations under the License.
 #
 
-default['reboot-handler']['reboot_command'] = "sync; sync; shutdown -r +1&"
-default['reboot-handler']['enabled_role'] = "booted"
-default['reboot-handler']['post_boot_runlist'] = false
+default['reboot-handler']['command'] = 'sync; sync; shutdown -r +1&'
+default['reboot-handler']['enabled_role'] = 'booted'
+default['reboot-handler']['post_boot_runlist'] = []

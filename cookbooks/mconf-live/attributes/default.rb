@@ -6,19 +6,34 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-default[:mconf][:live][:repo] = "http://mconf.org/chef/mconf-live/deploy"
-default[:mconf][:live][:deploy_dir] = "#{node[:mconf][:dir]}/deploy/mconf-live"
-default[:mconf][:live][:force_deploy] = false
+mconf_dir = "/var/mconf"
+
+default[:mconf][:user] = "mconf"
+default[:mconf][:dir] = mconf_dir
+default[:mconf][:tools][:dir] = "#{mconf_dir}/tools"
+default[:mconf][:log][:dir] = "#{mconf_dir}/log"
 
 # set true if you want your Mconf-Live server to act as a standalone server or 
 # if you want a recording server that will query for encrypted recordings
 default[:mconf][:recording_server][:enabled] = false
-default[:mconf][:recording_server][:private_key_path] = "#{node[:mconf][:dir]}/private_key.pem"
+default[:mconf][:recording_server][:private_key_path] = "/usr/local/bigbluebutton/core/scripts/private.pem"
+default[:mconf][:recording_server][:public_key_path] = "/usr/local/bigbluebutton/core/scripts/public.pem"
 default[:mconf][:recording_server][:get_recordings_url] = nil
 
 # example of configuration for the Chef Server:
 # remember the backslash before double quotes and backslash before backslash
-# { "enabled": true, "meetingID": "Turing", "moderatorPW": "CHANGE-ME", "attendeePW": "INOFFENSIVE", "maxUsers": 100, "record": "true", "logoutURL": "https://docs.google.com/spreadsheet/viewform?formkey=dC1GX0dWMnFHWDVmS0F0QmprUDBaN1E6MA", "welcomeMsg": "Transmissão do ciclo de palestras sobre Alan Turing.<br><br>A gravação dessa sessão estará disponível posteriormente em <a href=\\\"event:http://mconf.org/events\\\"><u>http://mconf.org/events/turing</u></a>." }
+=begin
+{
+  "enabled": true, 
+  "meetingID": "Turing", 
+  "moderatorPW": "CHANGE-ME", 
+  "attendeePW": "INOFFENSIVE", 
+  "maxUsers": 100, 
+  "record": "true", 
+  "logoutURL": "https://docs.google.com/spreadsheet/viewform?formkey=dC1GX0dWMnFHWDVmS0F0QmprUDBaN1E6MA", 
+  "welcomeMsg": "Transmissão do ciclo de palestras sobre Alan Turing.<br><br>A gravação dessa sessão estará disponível posteriormente em <a href=\\\"event:http://mconf.org/events\\\"><u>http://mconf.org/events/turing</u></a>." 
+}
+=end
 default[:mconf][:streaming][:enabled] = false
 default[:mconf][:streaming][:meetingID] = ""
 default[:mconf][:streaming][:moderatorPW] = ""
@@ -28,3 +43,7 @@ default[:mconf][:streaming][:record] = ""
 default[:mconf][:streaming][:logoutURL] = ""
 default[:mconf][:streaming][:welcomeMsg] = ""
 default[:mconf][:streaming][:metadata] = {}
+
+default[:mconf][:branding][:logo] = "logo.png"
+default[:mconf][:branding][:copyright_message] = "Mconf &#174; 2015 &#183; Servi&#231;o fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - &lt;a href=&quot;https://mconf.rnp.br&quot;&gt;&lt;u&gt;mconf.rnp.br&lt;/u&gt;&lt;/a&gt;"
+default[:mconf][:branding][:background] = ""

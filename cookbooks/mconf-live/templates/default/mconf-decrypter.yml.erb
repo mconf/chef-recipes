@@ -1,0 +1,3 @@
+get_recordings_url: [ <% if @get_recordings_url.respond_to? "map" -%><%= @get_recordings_url.map{ |s| "'#{s}'" }.join(", ") %><% else -%><%= "'#{@get_recordings_url}'" %><% end -%> ]
+private_key: <%= @private_key %>
+

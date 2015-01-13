@@ -1,0 +1,7 @@
+{
+    "id": "check_freeswitch_ws",
+    "service_template": "default-service",
+    "hostgroup_name": ["mconf-node"],
+    "description": "Port check - FreeSWITCH WebSockets",
+    "use_existing_command": "check_freeswitch_ws"
+}

@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/retr0h/cookbook-reboot-handler.png?branch=master)](https://travis-ci.org/retr0h/cookbook-reboot-handler)
+[![Dependency Status](https://gemnasium.com/retr0h/cookbook-reboot-handler.png)](https://gemnasium.com/retr0h/cookbook-reboot-handler)
+
 Description
 ===========
 
@@ -9,17 +12,17 @@ in a given role.
 Requirements
 ============
 
-* Chef 10.12.0+
+* Chef 11
 
 chef_handler
-----
+------------
 
 Installs/Configures chef-handler
 
 Attributes
 ==========
 
-* `default['reboot-handler']['reboot_command']` - Reboot command to execute.
+* `default['reboot-handler']['command']` - Reboot command to execute.
 * `default['reboot-handler']['enabled_role']` - Role to enable the handler on (default: booted).
 * `default['reboot-handler']['post_boot_runlist']` - If set will redefine `node['run_list']` to it's value.
 
@@ -37,16 +40,21 @@ Simply set the following attribute while chef is executing.
     node.run_state['reboot'] = true
 
 default
-----
+-------
 
 Installs/Configures reboot-handler
+
+Testing
+=======
+
+    $ rake
 
 License and Author
 ==================
 
 Author:: John Dewey (<john@dewey.ws>)
 
-Copyright 2012, John Dewey
+Copyright 2012-2014, John Dewey
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

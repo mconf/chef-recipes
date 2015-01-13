@@ -26,6 +26,18 @@ end
   end
 end
 
+%w{ curl wget sed }.each do |pkg|
+  package pkg
+end
+
+cookbook_file "#{node[:nagios][:plugin_dir]}/check_bbb_version" do
+  source "check_bbb_version"
+  owner node[:nagios][:user]
+  group node[:nagios][:group]
+  mode 00775
+  action :create
+end
+
 %w{ bigbluebutton/bbb_api.py 
     bigbluebutton/bigbluebutton_info.py 
     bigbluebutton/get-bigbluebutton-info.py 

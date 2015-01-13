@@ -77,12 +77,12 @@
       <!-- File to play endlessly (nobody will ever be able to talk) -->
       <!--<param name="perpetual-sound" value="perpetual.wav"/>-->
       <!-- File to play when you're alone (music on hold)-->
-<!--
       <param name="moh-sound" value="$${hold_music}"/>
+      <!-- File to play when you join the conference -->
       <param name="enter-sound" value="tone_stream://%(200,0,500,600,700)"/>
+      <!-- File to play when you leave the conference -->
       <param name="exit-sound" value="tone_stream://%(500,0,300,200,100,50,25)"/>
--->
-      <!-- File to play when you ae ejected from the conference -->
+      <!-- File to play when you are ejected from the conference -->
       <param name="kicked-sound" value="conference/conf-kicked.wav"/>
       <!-- File to play when the conference is locked -->
       <param name="locked-sound" value="conference/conf-locked.wav"/>
@@ -130,7 +130,7 @@
       <param name="domain" value="$${domain}"/>
       <param name="rate" value="16000"/>
       <param name="interval" value="20"/>
-      <param name="energy-level" value="300"/>
+      <param name="energy-level" value="100"/>
       <!--<param name="sound-prefix" value="$${sounds_dir}/en/us/callie"/>-->
       <% if @enable_freeswitch_sounds -%>
       <param name="muted-sound" value="conference/conf-muted.wav"/>
@@ -144,15 +144,16 @@
       <param name="locked-sound" value="conference/conf-locked.wav"/>
       <param name="is-locked-sound" value="conference/conf-is-locked.wav"/>
       <param name="is-unlocked-sound" value="conference/conf-is-unlocked.wav"/>
+      <% end -%>
       <param name="pin-sound" value="conference/conf-pin.wav"/>
       <param name="bad-pin-sound" value="conference/conf-bad-pin.wav"/>
-      <% end -%>
       <% if @enable_freeswitch_hold_music -%>
       <param name="moh-sound" value="$${hold_music}"/>
       <% end -%>
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
       <param name="comfort-noise" value="<%= @enable_comfort_noise %>"/>
+      <param name="min-required-recording-participants" value="1"/>
       <!--<param name="tts-engine" value="flite"/>-->
       <!--<param name="tts-voice" value="kal16"/>-->
     </profile>

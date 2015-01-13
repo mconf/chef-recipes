@@ -11,15 +11,36 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
+if node[:mconf][:recording_server][:enabled]
+  package "mconf-recording-decrypter" do
+    action :upgrade
+  end
+  package "mconf-presentation-video" do
+    ignore_failure true
+    action :upgrade
+  end
+  package "mconf-presentation-export" do
+    action :upgrade
+    only_if do node[:bbb][:recording][:playback_formats].split(",").include? "presentation_export" end
+  end
+else
+  package "mconf-recording-encrypted" do
+    action :upgrade
+  end
+end
+
 template "/var/www/bigbluebutton/client/conf/config.xml" do
   source "config.xml.erb"
   mode "0644"
   variables(
     :module_version => node[:mconf][:live][:version_int],
-    :streaming => node[:mconf][:streaming][:enabled]
+    :logo => node[:mconf][:branding][:logo],
+    :copyright_message => node[:mconf][:branding][:copyright_message],
+    :background => node[:mconf][:branding][:background]
   )
 end
 
+=begin
 { "bbb_api_conf.jsp.erb" => "/var/lib/tomcat6/webapps/demo/bbb_api_conf.jsp",
   "bigbluebutton.properties.erb" => "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties" }.each do |k,v|
   template v do
@@ -58,6 +79,14 @@ end
       source k
       mode "0644"
     end
+end
+
+service "nginx"
+
+cookbook_file "/etc/bigbluebutton/nginx/client.nginx" do
+  source "client.nginx"
+  mode "0644"
+  notifies :restart, "service[nginx]", :immediately
 end
 
 { "bigbluebutton-sip.properties.erb" => "/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties" }.each do |k,v|
@@ -117,14 +146,18 @@ ruby_block "generate recording server keys" do
     end
     only_if do node[:mconf][:recording_server][:enabled] and not File.exists?(node[:mconf][:recording_server][:private_key_path]) end
 end
+=end
+
+public_key_path = node[:mconf][:recording_server][:public_key_path]
 
 ruby_block "save public key" do
   block do
-    node.set[:keys][:recording_server_public] = File.read("#{node[:mconf][:dir]}/public_key.pem")
+    node.set[:keys][:recording_server_public] = File.read(public_key_path)
   end
-  only_if do node[:mconf][:recording_server][:enabled] and File.exists?("#{node[:mconf][:dir]}/public_key.pem") end
+  only_if do node[:mconf][:recording_server][:enabled] and File.exists?(public_key_path) end
 end
 
+=begin
 Dir["/var/bigbluebutton/published/**/metadata.xml"].each do |filename|
     execute "update server url metadata" do
         # extra escape needed
@@ -151,9 +184,10 @@ ruby_block "remove raw data of encrypted recordings" do
     end
     only_if do not node[:mconf][:recording_server][:enabled] end
 end
+=end
 
-template "/usr/local/bigbluebutton/core/scripts/mconf.yml" do
-  source "mconf.yml.erb"
+template "/usr/local/bigbluebutton/core/scripts/mconf-decrypter.yml" do
+  source "mconf-decrypter.yml.erb"
   mode 00644
   variables(
     :get_recordings_url => node[:mconf][:recording_server][:get_recordings_url],

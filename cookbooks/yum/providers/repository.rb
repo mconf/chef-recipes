@@ -45,8 +45,10 @@ action :create  do
     end
     mode '0644'
     variables(:config => new_resource)
-    notifies :run, "execute[yum-makecache-#{new_resource.repositoryid}]", :immediately
-    notifies :create, "ruby_block[yum-cache-reload-#{new_resource.repositoryid}]", :immediately
+    if new_resource.make_cache
+      notifies :run, "execute[yum-makecache-#{new_resource.repositoryid}]", :immediately
+      notifies :create, "ruby_block[yum-cache-reload-#{new_resource.repositoryid}]", :immediately
+    end
   end
 
   # get the metadata for this repo only
@@ -63,14 +65,15 @@ action :create  do
 end
 
 action :delete do
-  template "/etc/yum.repos.d/#{new_resource.repositoryid}.repo" do
+  file "/etc/yum.repos.d/#{new_resource.repositoryid}.repo" do
     action :delete
     notifies :run, "execute[yum clean #{new_resource.repositoryid}]", :immediately
     notifies :create, "ruby_block[yum-cache-reload-#{new_resource.repositoryid}]", :immediately
   end
 
-  execute "yum clean #{new_resource.repositoryid}"do
+  execute "yum clean #{new_resource.repositoryid}" do
     command "yum clean all --disablerepo=* --enablerepo=#{new_resource.repositoryid}"
+    only_if "yum repolist | grep -P '^#{new_resource.repositoryid}([ \t]|$)'"
     action :nothing
   end
 

@@ -1,4 +1,0 @@
-{
-    "id": "check_notes_server",
-    "command_line": "$USER1$/check_dummy 0 \"Live notes server isn't used anymore\""
-}

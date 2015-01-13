@@ -2,13 +2,18 @@
   "default_attributes": {
     "bbb": {
       "recording": {
-        "playback_formats": "mconf"
-      }
+        "playback_formats": "mconf_encrypted"
+      },
+      "keep_files_newer_than": 3
     },
     "mconf": {
       "live": {
-        "version": "mconf-live0.4.3",
-        "version_int": 14
+        "version_int": 4
+      },
+      "branding": {
+        "copyright_message": "Mconf &#174; 2014 &#183; Servi&#231;o fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - &lt;a href=&quot;https://mconf.rnp.br&quot;&gt;&lt;u&gt;mconf.rnp.br&lt;/u&gt;&lt;/a&gt;",
+        "logo": "logo.png",
+        "background": ""
       }
     }
   },
@@ -21,10 +26,10 @@
   "name": "mconf-node",
   "chef_type": "role",
   "run_list": [
+    "recipe[bigbluebutton::download-libraries]",
     "recipe[bigbluebutton::abort-if-being-used]",
     "role[mconf-server]",
     "recipe[nsca::nsca-reporter]",
-    "recipe[mconf-live::uninstall-depreciated]",
     "recipe[bigbluebutton]",
     "recipe[mconf-live]",
     "recipe[mconf-monitor::client]",

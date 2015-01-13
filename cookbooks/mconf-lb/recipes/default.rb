@@ -12,7 +12,6 @@
 
 execute "apt-get update"
 
-node.set["build_essential"]["compiletime"] = false
 include_recipe "build-essential"
 
 package "libssl-dev"
@@ -36,9 +35,6 @@ end
 # end
 
 # Node.js
-node.set["nodejs"]["install_method"] = "source"
-node.set["nodejs"]["version"] = "0.8.25"
-node.set["nodejs"]["npm"] = "1.3.7"
 include_recipe "nodejs"
 include_recipe "nodejs::npm"
 
@@ -81,23 +77,6 @@ end
 
 # Nginx installation
 
-# Install from source because we need a newer version
-nginx_version = "1.6.0"
-node.set["nginx"]["version"] = nginx_version
-node.set["nginx"]["install_method"] = "source"
-node.set["nginx"]["init_style"] = "init"
-node.set["nginx"]["default_site_enabled"] = false
-# Something in nginx's recipe makes it use the default version instead of the one we set here, so we
-# have to override a few attributes.
-# More at: http://stackoverflow.com/questions/17679898/how-to-update-nginx-via-chef
-node.set["nginx"]["source"]["version"] = nginx_version
-node.set["nginx"]["source"]["url"] = "http://nginx.org/download/nginx-#{nginx_version}.tar.gz"
-node.set["nginx"]["source"]["prefix"] = "/opt/nginx-#{nginx_version}"
-node.set['nginx']['source']['default_configure_flags'] = %W(
-  --prefix=#{node['nginx']['source']['prefix']}
-  --conf-path=#{node['nginx']['dir']}/nginx.conf
-  --sbin-path=#{node['nginx']['source']['sbin_path']}
-)
 include_recipe "nginx"
 
 ## alternative: install from a PPA
@@ -119,12 +98,15 @@ directory "/etc/nginx/includes" do
   mode 00755
   action :create
 end
-template "/etc/nginx/includes/mconf-lb-proxy.conf" do
-  source "nginx-include.conf.erb"
+
+cookbook_file "/etc/nginx/includes/mconf-lb-proxy.conf" do
+  source "nginx-include.conf"
   mode 00644
   owner "root"
   group "root"
+  notifies :restart, "service[nginx]", :delayed
 end
+
 template "/etc/nginx/sites-available/mconf-lb" do
   source "nginx-site.erb"
   mode 00644
@@ -133,10 +115,12 @@ template "/etc/nginx/sites-available/mconf-lb" do
   variables({
     :domain => node["mconf-lb"]["domain"]
   })
+  notifies :restart, "service[nginx]", :delayed
 end
-execute "nxensite mconf-lb"
-service "nginx" do
-  action :restart
+
+execute "nxensite mconf-lb" do
+  creates "/etc/nginx/sites-enabled/mconf-lb"
+  notifies :restart, "service[nginx]", :delayed
 end
 
 # Upstart
@@ -150,27 +134,30 @@ end
 # Monit
 # TODO: can we set an specific version?
 package "monit"
+
 template "/etc/monit/conf.d/mconf-lb" do
   source "monit-config.erb"
   mode 00644
   owner "root"
   group "root"
+  notifies :restart, "service[monit]", :delayed
 end
+
 template "/etc/monit/monitrc" do
   source "monitrc.erb"
   mode 00600
   owner "root"
   group "root"
-end
-service "monit" do
-  action :restart
+  notifies :restart, "service[monit]", :delayed
 end
 
 # logrotate
+# TODO: use logrotate_app to configure this logrotate
 template "/etc/logrotate.d/mconf-lb" do
   source "logrotate-config.erb"
   mode 00644
   owner "root"
   group "root"
 end
+
 execute "logrotate -s /var/lib/logrotate/status /etc/logrotate.d/mconf-lb"

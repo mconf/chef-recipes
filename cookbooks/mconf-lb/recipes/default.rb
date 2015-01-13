@@ -54,20 +54,24 @@ end
 
 # Configure a user and a database for our app
 include_recipe "database::mysql"
+
 connection_info = {
   :host     => "localhost",
   :username => "root",
   :password => node["db"]["passwords"]["root"]
 }
+
 mysql_database_user node["db"]["user"] do
   connection connection_info
   password   node["db"]["passwords"]["app"]
   action     :create
 end
+
 mysql_database node["db"]["name"] do
   connection connection_info
   action :create
 end
+
 mysql_database_user node["db"]["user"] do
   connection    connection_info
   database_name node["db"]["name"]
@@ -78,6 +82,7 @@ end
 # Nginx installation
 
 include_recipe "nginx"
+service "nginx"
 
 ## alternative: install from a PPA
 # node.set["nginx"]["version"] = "1.6.0"
@@ -134,6 +139,7 @@ end
 # Monit
 # TODO: can we set an specific version?
 package "monit"
+service "monit"
 
 template "/etc/monit/conf.d/mconf-lb" do
   source "monit-config.erb"

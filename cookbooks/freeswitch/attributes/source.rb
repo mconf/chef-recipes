@@ -1,10 +1,4 @@
-default['freeswitch']['source']['origin'] = "git" # or tar
-
-default['freeswitch']['source']['tar_repo'] = "http://files.freeswitch.org"
-default['freeswitch']['source']['tar_filename'] = "freeswitch-1.4.0.latest.tar.bz2"
-default['freeswitch']['source']['tar_sha256'] = "e08731d5d30e3ddde5b1d7030636c4e0d6a121f318aecf9a88274d4b6cefd75e"
-
-default['freeswitch']['source']['git_uri'] = "git://git.freeswitch.org/freeswitch.git"
+default['freeswitch']['source']['git_uri'] = "https://stash.freeswitch.org/scm/fs/freeswitch.git"
 default['freeswitch']['source']['git_branch'] = "v1.2.stable"
 default['freeswitch']['source']['dependencies'] = case node['platform']
 when 'ubuntu', 'debian'
@@ -13,15 +7,10 @@ when 'ubuntu', 'debian'
     automake
     g++
     git-core
-    libcurl4-gnutls-dev
-    libedit-dev
     libjpeg62-dev
-    libncurses5-dev
-    libpcre3-dev
-    libspeex-dev
-    libspeexdsp-dev
     libtool
     make
+    libncurses5-dev
     python-dev
     gawk
     pkg-config
@@ -29,6 +18,15 @@ when 'ubuntu', 'debian'
     libsqlite3-dev
     bison
     libasound2-dev
+    libcurl4-gnutls-dev
+    libpcre3-dev
+    libspeex-dev
+    libspeexdsp-dev
+    libreadline6-dev
+    libedit-dev
+    uuid-dev
+    zlib1g-dev
+    libssl-dev
   ]
 when 'redhat', 'centos', 'fedora'
   %w[
@@ -40,6 +38,20 @@ when 'redhat', 'centos', 'fedora'
     libtool
     make
     ncurses-devel
+    python-devel
+    gawk
+    pkgconfig
+    gnutls
+    sqlite-devel
+    bison
+    libcurl-devel
+    pcre-devel
+    speex-devel
+    readline-devel
+    libedit-devel
+    libuuid-devel
+    zlib-devel
+    openssl-devel
   ]
 end
 
@@ -50,7 +62,6 @@ applications/mod_cluechoo
 applications/mod_commands
 applications/mod_conference
 applications/mod_dptools
-applications/mod_enum
 applications/mod_db
 applications/mod_fifo
 applications/mod_hash

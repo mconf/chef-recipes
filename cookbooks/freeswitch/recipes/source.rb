@@ -2,31 +2,10 @@ include_recipe 'apt'
 
 node['freeswitch']['source']['dependencies'].each { |d| package d }
 
-case node['freeswitch']['source']['origin']
-when 'git'
-  execute "git_clone" do
-    command "git clone --depth 1 -b #{node['freeswitch']['source']['git_branch']} #{node['freeswitch']['source']['git_uri']} freeswitch"
-    cwd "/usr/local/src"
-    creates "/usr/local/src/freeswitch"
-  end
-when 'tar'
-  src_filepath = "/tmp/#{node['freeswitch']['source']['tar_filename']}"
-  extract_path = "/usr/local/src/freeswitch"
-
-  remote_file src_filepath do
-    source "#{node['freeswitch']['source']['tar_repo']}/#{node['freeswitch']['source']['tar_filename']}"
-    checksum node['freeswitch']['source']['tar_sha256']
-  end
-
-  script "extract tar" do
-    interpreter "/bin/bash"
-    cwd "/usr/local/src"
-    code <<-EOH
-      mkdir -p #{extract_path}
-      tar -xvf #{src_filepath} -C #{extract_path}
-      mv #{extract_path}/*/* #{extract_path}/
-    EOH
-  not_if { ::File.exists?(extract_path) } end
+execute "git_clone" do
+  command "git clone --depth 1 -b #{node['freeswitch']['source']['git_branch']} #{node['freeswitch']['source']['git_uri']} freeswitch"
+  cwd "/usr/local/src"
+  creates "/usr/local/src/freeswitch"
 end
 
 template "/usr/local/src/freeswitch/modules.conf" do
@@ -39,7 +18,7 @@ script "compile_freeswitch" do
   cwd "/usr/local/src/freeswitch"
   code <<-EOF
   ./bootstrap.sh
-  ./configure --prefix=/usr --localstatedir=/var \
+  ./configure -C --prefix=/usr --localstatedir=/var \
     --sysconfdir=/etc/freeswitch \
     --with-modinstdir=/usr/lib/freeswitch/mod \
     --with-rundir=/var/run/freeswitch \
@@ -58,18 +37,6 @@ script "compile_freeswitch" do
   make install
 EOF
   not_if "test -f #{node['freeswitch']['binpath']}/freeswitch"
-end
-
-# install init script
-template "/etc/init.d/freeswitch" do
-  source "freeswitch.init.erb"
-  mode 0755
-end
-
-# install defaults
-template "/etc/default/freeswitch" do
-  source "freeswitch.default.erb"
-  mode 0644
 end
 
 group node['freeswitch']['group'] do
@@ -102,10 +69,4 @@ end
     owner node['freeswitch']['user']
     group node['freeswitch']['group']
   end
-end
-
-# define service
-service node['freeswitch']['service'] do
-  supports :restart => true, :start => true
-  action ['enable']
 end

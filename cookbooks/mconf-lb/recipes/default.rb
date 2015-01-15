@@ -40,7 +40,7 @@ include_recipe "nodejs::npm"
 
 # change the default npm directory so we're sure it is used only for npm
 # the default is ~/npm, but that might be too generic
-execute "npm config set tmp /home/mconf/npmtmp"
+execute "npm config set tmp /home/#{node[:mconf][:user]}/npmtmp"
 
 # Npm is installed as root and ~/.npm ends up being owned by root, but it shouldn't.
 # Newer versions of node/npm might not need this anymore.

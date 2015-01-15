@@ -12,5 +12,7 @@ default["db"]["passwords"]["root"] = "ilikerandompasswords"
 default["db"]["passwords"]["repl"] = "ilikerandompasswords"
 default["db"]["passwords"]["app"] = "ilikerandompasswords"
 
+default["mconf"]["user"] = "mconf"
+
 default["mconf-lb"]["domain"] = "lb.mconf.com"
 default["mconf-lb"]["deploy_to"] = "/var/www/mconf-lb"

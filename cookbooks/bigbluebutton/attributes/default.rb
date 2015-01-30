@@ -7,9 +7,10 @@
 #
 
 default[:bbb][:ffmpeg][:install_method] = "source"
-default[:bbb][:ffmpeg][:version] = "2.3.2"
+default[:bbb][:ffmpeg][:version] = "2.3.3"
 default[:bbb][:ffmpeg][:filename] = nil
 default[:bbb][:ffmpeg][:repo_url] = nil
+default[:bbb][:ffmpeg][:dependencies] = []
 
 default[:bbb][:libvpx][:install_method] = "source"
 default[:bbb][:libvpx][:version] = "1.3.0"

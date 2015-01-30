@@ -20,6 +20,10 @@ end
 
 execute "apt-get update"
 
+node[:bbb][:ffmpeg][:dependencies].each do |pkg|
+  package pkg
+end
+
 if node[:bbb][:ffmpeg][:install_method] == "package"
   current_ffmpeg_version = `ffmpeg -version | grep 'ffmpeg version' | cut -d' ' -f3`.strip!
   ffmpeg_update_needed = (current_ffmpeg_version != node[:bbb][:ffmpeg][:version])
@@ -39,8 +43,8 @@ if node[:bbb][:ffmpeg][:install_method] == "package"
 else
   # dependencies of libvpx and ffmpeg
   # https://code.google.com/p/bigbluebutton/wiki/090InstallationUbuntu#3.__Install_ffmpeg
-  %w( git-core texi2html libvorbis-dev libx11-dev libxfixes-dev zlib1g-dev 
-      pkg-config libxext-dev ).each do |pkg|
+  %w( build-essential git-core checkinstall yasm texi2html libvorbis-dev 
+      libx11-dev libxfixes-dev zlib1g-dev pkg-config netcat ).each do |pkg|
     package pkg do
       action :install
     end
@@ -99,28 +103,28 @@ execute "accept mscorefonts license" do
   action :run
 end
 
-# TODO these two dependencies should come as bigbluebutton dependencies in the packaging
-package "wget"
-package "tomcat7"
-
 # install bigbluebutton package
 package node[:bbb][:bigbluebutton][:package_name] do
   response_file "bigbluebutton.seed"
   # it will force the maintainer's version of the configuration files
   options "-o Dpkg::Options::=\"--force-confnew\""
-  action :upgrade
+  action :install
   notifies :run, "execute[enable webrtc]", :delayed
   notifies :run, "execute[clean bigbluebutton]", :delayed
 end
 
-bigbluebutton_packages_version.each do |k,v|
-  pkg = k
-  package pkg do
-    options "-o Dpkg::Options::=\"--force-confnew\""
-    action :upgrade
-    notifies :run, "execute[enable webrtc]", :delayed
-    notifies :run, "execute[clean bigbluebutton]", :delayed
+package "apt-rdepends"
+
+ruby_block "upgrade dependencies recursively" do
+  block do
+    dependencies = `apt-rdepends #{node[:bbb][:bigbluebutton][:package_name]}`.split("\n").select { |d| ! d.start_with? " " }
+    system('apt-get -o Dpkg::Options::="--force-confnew" -y upgrade #{dependencies.join(" ")}')
+    status = $?
+    if not status.success?
+      raise "Couldn't upgrade the dependencies recursively"
+    end
   end
+  action :run
 end
 
 include_recipe "bigbluebutton::load-properties"
@@ -137,40 +141,6 @@ package "bbb-demo" do
     action :upgrade
   else
     action :purge
-  end
-end
-
-template "/opt/freeswitch/conf/vars.xml" do
-  source "vars.xml.erb"
-  group "daemon"
-  owner "freeswitch"
-  mode "0755"
-  variables(
-    :external_ip => node[:bbb][:external_ip] == node[:bbb][:internal_ip]? "auto-nat": node[:bbb][:external_ip]
-  )
-  notifies :run, "execute[restart bigbluebutton]", :delayed
-end
-
-template "/opt/freeswitch/conf/autoload_configs/conference.conf.xml" do
-  source "conference.conf.xml.erb"
-  group "daemon"
-  owner "freeswitch"
-  mode "0755"
-  variables(
-    :enable_comfort_noise => node[:bbb][:enable_comfort_noise],
-    :enable_freeswitch_sounds => node[:bbb][:enable_freeswitch_sounds],
-    :enable_freeswitch_hold_music => node[:bbb][:enable_freeswitch_hold_music]
-  )
-  notifies :run, "execute[restart bigbluebutton]", :delayed
-end
-
-{ "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml" }.each do |k,v|
-  cookbook_file v do
-    source k
-    group "daemon"
-    owner "freeswitch"
-    mode "0755"
-    notifies :run, "execute[restart bigbluebutton]", :delayed
   end
 end
 
@@ -220,17 +190,6 @@ ruby_block "configure recording workflow" do
           end
         end
     end
-end
-
-template "/usr/local/bigbluebutton/core/scripts/presentation.yml" do
-  source "presentation.yml.erb"
-  mode "0644"
-  variables(
-    :video_output_width => node[:bbb][:recording][:presentation][:video_output_width],
-    :video_output_height => node[:bbb][:recording][:presentation][:video_output_height],
-    :audio_offset => node[:bbb][:recording][:presentation][:audio_offset],
-    :include_deskshare => node[:bbb][:recording][:presentation][:include_deskshare]
-  )
 end
 
 execute "check voice application register" do

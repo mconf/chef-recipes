@@ -107,21 +107,24 @@ end
 package node[:bbb][:bigbluebutton][:package_name] do
   response_file "bigbluebutton.seed"
   # it will force the maintainer's version of the configuration files
-  options "-o Dpkg::Options::=\"--force-confnew\""
+  options "-o Dpkg::Options::='--force-confnew'"
   action :install
-  notifies :run, "execute[enable webrtc]", :delayed
-  notifies :run, "execute[clean bigbluebutton]", :delayed
+  notifies :run, "execute[restart bigbluebutton]", :delayed
 end
-
-package "apt-rdepends"
 
 ruby_block "upgrade dependencies recursively" do
   block do
-    dependencies = `apt-rdepends #{node[:bbb][:bigbluebutton][:package_name]}`.split("\n").select { |d| ! d.start_with? " " }
-    system('apt-get -o Dpkg::Options::="--force-confnew" -y upgrade #{dependencies.join(" ")}')
+    to_upgrade = `apt-get --dry-run --show-upgraded dist-upgrade`.split("\n").select { |l| l.start_with? "Inst" }.collect { |l| l.split()[1] }
+    restart_required = ! ( to_upgrade.select { |u| u.start_with? "bbb-" or u.start_with? "mconf-" or [ node[:bbb][:bigbluebutton][:package_name], "tomcat7" ].include? u }.empty? )
+    system("apt-get -o Dpkg::Options::='--force-confnew' -y dist-upgrade")
     status = $?
     if not status.success?
       raise "Couldn't upgrade the dependencies recursively"
+    end
+    # TODO use chef notify instead
+    if restart_required
+      system('bbb-conf --enablewebrtc')
+      system('bbb-conf --clean')
     end
   end
   action :run
@@ -195,6 +198,14 @@ end
 execute "check voice application register" do
   command "echo 'Restarting because the voice application failed to register with the sip server'"
   only_if do `bbb-conf --check | grep 'Error: The voice application failed to register with the sip server.' | wc -l`.strip! != "0" end
+  notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+
+execute "restart bigbluebutton" do
+  user "root"
+  command "echo 'Restarting and enabling WebRTC"
+  action :nothing
+  notifies :run, "execute[enable webrtc]", :delayed
   notifies :run, "execute[clean bigbluebutton]", :delayed
 end
 
@@ -202,18 +213,11 @@ execute "enable webrtc" do
   user "root"
   command "bbb-conf --enablewebrtc"
   action :nothing
-  notifies :run, "execute[clean bigbluebutton]", :delayed
 end
 
 execute "clean bigbluebutton" do
   user "root"
   command "bbb-conf --clean"
-  action :nothing
-end
-
-execute "restart bigbluebutton" do
-  user "root"
-  command "bbb-conf --restart"
   action :nothing
 end
 

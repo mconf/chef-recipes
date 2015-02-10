@@ -203,7 +203,7 @@ end
 
 execute "restart bigbluebutton" do
   user "root"
-  command "echo 'Restarting and enabling WebRTC"
+  command "echo 'Restarting and enabling WebRTC'"
   action :nothing
   notifies :run, "execute[enable webrtc]", :delayed
   notifies :run, "execute[clean bigbluebutton]", :delayed

@@ -18,6 +18,11 @@ ruby_block "check system architecture" do
   only_if { node[:kernel][:machine] != "x86_64" }
 end
 
+execute "fix dpkg" do
+  command "dpkg --configure -a"
+  action :run
+end
+
 execute "apt-get update"
 
 node[:bbb][:ffmpeg][:dependencies].each do |pkg|
@@ -139,6 +144,27 @@ template "/etc/cron.daily/bigbluebutton" do
   )
 end
 
+{ "external.xml" => "/opt/freeswitch/conf/sip_profiles/external.xml" }.each do |k,v|
+  cookbook_file v do
+    source k
+    group "daemon"
+    owner "freeswitch"
+    mode "0640"
+    notifies :run, "execute[restart bigbluebutton]", :delayed
+  end
+end
+
+template "/opt/freeswitch/conf/vars.xml" do
+  source "vars.xml.erb"
+  group "daemon"
+  owner "freeswitch"
+  mode "0640"
+  variables(
+    :external_ip => node[:bbb][:external_ip] == node[:bbb][:internal_ip]? "auto-nat": node[:bbb][:external_ip]
+  )
+  notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+
 package "bbb-demo" do
   if node[:bbb][:demo][:enabled]
     action :upgrade
@@ -203,7 +229,7 @@ end
 
 execute "restart bigbluebutton" do
   user "root"
-  command "echo 'Restarting and enabling WebRTC"
+  command "echo 'Restarting and enabling WebRTC'"
   action :nothing
   notifies :run, "execute[enable webrtc]", :delayed
   notifies :run, "execute[clean bigbluebutton]", :delayed
@@ -213,6 +239,7 @@ execute "enable webrtc" do
   user "root"
   command "bbb-conf --enablewebrtc"
   action :nothing
+  notifies :create, "template[sip.nginx]", :immediately
 end
 
 execute "clean bigbluebutton" do
@@ -229,6 +256,18 @@ node[:bbb][:recording][:rebuild].each do |record_id|
   end
 end
 node.set[:bbb][:recording][:rebuild] = []
+
+service "nginx"
+
+template "sip.nginx" do
+  path "/etc/bigbluebutton/nginx/sip.nginx"
+  source "sip.nginx.erb"
+  mode "0644"
+  variables(
+    :external_ip => node[:bbb][:external_ip]
+  )
+  notifies :reload, "service[nginx]", :immediately
+end
 
 ruby_block "collect packages version" do
   block do

@@ -13,7 +13,7 @@ override[:ffmpeg][:compile_flags] = [ "--enable-x11grab",
                                       "--enable-libvorbis",
                                       "--enable-libvpx" ]
 
-apt_repo = "http://mconf-live-ci.nuvem.ufrgs.br/apt/development"
+apt_repo = "http://mconf-live-ci.nuvem.ufrgs.br/apt/production"
 
 override[:bbb][:bigbluebutton][:repo_url] = apt_repo
 override[:bbb][:bigbluebutton][:key_url] = "#{apt_repo}/../public.asc"

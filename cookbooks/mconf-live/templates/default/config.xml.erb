@@ -1,119 +1,67 @@
-<?xml version="1.0" ?>
+<?xml version="1.0"?>
 <config>
-    <localeversion suppressWarning="false">0.8</localeversion>
-    <version><%= @module_version %></version>
-    <help url="<%= node[:bbb][:server_url] %>/help.html"/>
-    <javaTest url="<%= node[:bbb][:server_url] %>/testjava.html"/>
-    <porttest host="<%= node[:bbb][:server_domain] %>" application="video/portTest" timeout="10000"/>    
-    <bwMon server="<%= node[:bbb][:server_domain] %>" application="video/bwTest"/>
-    <application uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" host="<%= node[:bbb][:server_url] %>/bigbluebutton/api/enter" />
-    <language userSelectionEnabled="true" />
-    <skinning enabled="true" url="<%= node[:bbb][:server_url] %>/client/branding/css/BBBDefault.css.swf" />
-    <branding logo="<%= @logo %>" copyright="<%= @copyright_message %>" background="<%= @background %>" />
-    <shortcutKeys showButton="true" />
-    <layout showLogButton="false" showVideoLayout="false" showResetLayout="false" defaultLayout="Default"
-            showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" 
-            showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="true" confirmLogout="true"/>
-            
-		<modules>
-		 
-		<module name="ChatModule" url="<%= node[:bbb][:server_url] %>/client/ChatModule.swf?v=<%= @module_version %>" 
+  <localeversion suppressWarning="false">0.9.0</localeversion>
+  <version><%= @module_version %></version>
+  <help url="<%= node[:bbb][:server_url] %>/help.html"/>
+  <javaTest url="<%= node[:bbb][:server_url] %>/testjava.html"/>
+  <porttest host="<%= node[:bbb][:server_domain] %>" application="video/portTest" timeout="10000"/>
+  <bwMon server="<%= node[:bbb][:server_domain] %>" application="video/bwTest"/>
+  <application uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" host="<%= node[:bbb][:server_url] %>/bigbluebutton/api/enter"/>
+  <language userSelectionEnabled="true"/>
+  <skinning enabled="true" url="<%= node[:bbb][:server_url] %>/client/branding/css/BBBDefault.css.swf"/>
+  <branding logo="&lt;%= @logo %&gt;" copyright="&lt;%= @copyright_message %&gt;" background="&lt;%= @background %&gt;"/>
+  <shortcutKeys showButton="true"/>
+  <browserVersions chrome="<%= @chrome_version %>" firefox="<%= @firefox_version %>" flash="<%= @flash_version %>" java="1.7.0_51"/>
+  <layout showLogButton="false" showVideoLayout="false" showResetLayout="true" defaultLayout="bbb.layout.name.defaultlayout" showToolbar="true" showFooter="true" showMeetingName="true" showHelpButton="true" showLogoutWindow="true" showLayoutTools="true" showNetworkMonitor="true" confirmLogout="true" showRecordingNotification="true"/>
+  <lock allowModeratorLocking="false" disableCamForLockedUsers="false" disableMicForLockedUsers="false" disablePrivateChatForLockedUsers="false" disablePublicChatForLockedUsers="false" lockLayoutForLockedUsers="false"/>
+  <modules>
+    <module name="ChatModule" url="<%= node[:bbb][:server_url] %>/client/ChatModule.swf?v=<%= @module_version %>" uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" dependsOn="UsersModule" privateEnabled="true" fontSize="12" position="top-right" baseTabIndex="701" colorPickerIsVisible="false"/>
+    <module name="UsersModule" url="<%= node[:bbb][:server_url] %>/client/UsersModule.swf?v=<%= @module_version %>" uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" allowKickUser="true" enableRaiseHand="true" enableSettingsButton="true" baseTabIndex="301"/>
+    <module name="DeskShareModule" url="<%= node[:bbb][:server_url] %>/client/DeskShareModule.swf?v=<%= @module_version %>" uri="rtmp://<%= node[:bbb][:server_domain] %>/deskShare" showButton="true" autoStart="false" autoFullScreen="false" baseTabIndex="201"/>
+    <module name="PhoneModule" url="<%= node[:bbb][:server_url] %>/client/PhoneModule.swf?v=<%= @module_version %>" uri="rtmp://<%= node[:bbb][:server_domain] %>/sip" autoJoin="true" listenOnlyMode="true" forceListenOnly="false" presenterShareOnly="false" skipCheck="false" showButton="true" enabledEchoCancel="true" useWebRTCIfAvailable="true" showPhoneOption="false" echoTestApp="9196" dependsOn="UsersModule"/>
+    <module name="VideoconfModule" url="<%= node[:bbb][:server_url] %>/client/VideoconfModule.swf?v=<%= @module_version %>" uri="rtmp://<%= node[:bbb][:server_domain] %>/video" dependson="UsersModule" presenterShareOnly="false" controlsForPresenter="false" autoStart="false" skipCamSettingsCheck="false" showButton="true" showCloseButton="true" publishWindowVisible="true" viewerWindowMaxed="false" viewerWindowLocation="top" smoothVideo="false" applyConvolutionFilter="false" convolutionFilter="-1, 0, -1, 0, 6, 0, -1, 0, -1" filterBias="0" filterDivisor="4" displayAvatar="false" focusTalking="false" glowColor="0x4A931D" glowBlurSize="30.0" priorityRatio="0.67"/>
+    <module name="WhiteboardModule" url="<%= node[:bbb][:server_url] %>/client/WhiteboardModule.swf?v=4105" uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" dependsOn="PresentModule" baseTabIndex="601" whiteboardAccess="presenter" keepToolbarVisible="false"/>
+    <!--
+
+    <module name="PollingModule" url="<%= node[:bbb][:server_url] %>/client/PollingModule.swf?v=<%= @module_version %>" 
+      uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
+      dependsOn="PresentModule"
+    />
+    		
+-->
+    <module name="PresentModule" url="<%= node[:bbb][:server_url] %>/client/PresentModule.swf?v=<%= @module_version %>" uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" host="<%= node[:bbb][:server_url] %>" showPresentWindow="true" showWindowControls="true" openExternalFileUploadDialog="false" dependsOn="UsersModule" baseTabIndex="501" maxFileSize="30"/>
+    <!--
+		<module name="VideodockModule" url="<%= node[:bbb][:server_url] %>/client/VideodockModule.swf?v=<%= @module_version %>"
 			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
-			dependsOn="UsersModule"	
-			translationOn="false"
-			translationEnabled="false"	
-			privateEnabled="true"  
-			position="top-right"
-			baseTabIndex="701"
+			dependsOn="VideoconfModule, UsersModule"
+			autoDock="true"
+			showControls="true"
+			maximizeWindow="false"
+			position="bottom-right"
+			width="172"
+			height="179"
+			layout="smart"
+			oneAlwaysBigger="false"
+			baseTabIndex="401"
 		/>
-
-		<module name="UsersModule" url="<%= node[:bbb][:server_url] %>/client/UsersModule.swf?v=<%= @module_version %>" 
-			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
-			allowKickUser="true"
-			enableRaiseHand="true"
-			enableSettingsButton="true"
-			baseTabIndex="301"
-		/>
-
-		
-		<module name="DeskShareModule" 
-			url="<%= node[:bbb][:server_url] %>/client/DeskShareModule.swf?v=4105" 
-			uri="rtmp://<%= node[:bbb][:server_domain] %>/deskShare"
-			showButton="true"
-			autoStart="false"
-			autoFullScreen="false"
-			baseTabIndex="201"
-		/>
-		
-		<module name="PhoneModule" url="<%= node[:bbb][:server_url] %>/client/PhoneModule.swf?v=<%= @module_version %>" 
-			uri="rtmp://<%= node[:bbb][:server_domain] %>/sip" 
-			autoJoin="false"
-			listenOnlyMode="true"
-			presenterShareOnly="false"
-			skipCheck="false"
-			showButton="true"
-			showSpeakerButton="false"
-			enabledEchoCancel="true"
-			useWebrtcIfAvailable="false"
-			dependsOn="UsersModule"
-		/>
-
-		<module name="VideoconfModule" url="<%= node[:bbb][:server_url] %>/client/VideoconfModule.swf?v=<%= @module_version %>" 
-			uri="rtmp://<%= node[:bbb][:server_domain] %>/video"
-			dependson = "UsersModule"
-			presenterShareOnly = "false"
-			controlsForPresenter = "false"
-			autoStart = "false"
-			skipCamSettingsCheck="false"
-			showButton = "true"
-			showCloseButton = "true"
-			publishWindowVisible = "true"
-			viewerWindowMaxed = "false"
-			viewerWindowLocation = "top"
-			smoothVideo="false"
-			applyConvolutionFilter="false"
-			convolutionFilter="-1, 0, -1, 0, 6, 0, -1, 0, -1"
-			filterBias="0"
-			filterDivisor="4"
-			displayAvatar = "false"
-			focusTalking = "false"
-			glowColor = "0x4A931D"
-			glowBlurSize = "30.0"
-			priorityRatio = "0.67"
-		/>
-		
-		<module name="WhiteboardModule" url="<%= node[:bbb][:server_url] %>/client/WhiteboardModule.swf?v=4105" 
-			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
-			dependsOn="PresentModule"
-			baseTabIndex="601"
-			whiteboardAccess="presenter"
-			keepToolbarVisible="false"
-		/>
-
-		<module name="PresentModule" url="<%= node[:bbb][:server_url] %>/client/PresentModule.swf?v=<%= @module_version %>" 
-			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" 
-			host="<%= node[:bbb][:server_url] %>" 
-			showPresentWindow="true"
-			showWindowControls="true"
-			openExternalFileUploadDialog="false"
-			dependsOn="UsersModule"
-			baseTabIndex="501"
-			maxFileSize="30"
-		/>
-
-		<module name="LayoutModule" url="<%= node[:bbb][:server_url] %>/client/LayoutModule.swf?v=<%= @module_version %>"
-			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton"
-			layoutConfig="<%= node[:bbb][:server_url] %>/client/conf/layout.xml"
-			enableEdit="true"
-		/>
-
-		<module name="SharedNotesModule" url="SharedNotesModule.swf?v=<%= @module_version %>" 
-			uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton"
-			refreshDelay="500"
-			enableMultipleNotes="true"
-			dependsOn="UsersModule"
-			position="bottom-left"
-		/>
-
-	</modules>
+-->
+    <module name="LayoutModule" url="<%= node[:bbb][:server_url] %>/client/LayoutModule.swf?v=<%= @module_version %>" uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" layoutConfig="<%= node[:bbb][:server_url] %>/client/conf/layout.xml" enableEdit="true"/>
+    <module name="SharedNotesModule" url="SharedNotesModule.swf?v=<%= @module_version %>" uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton" refreshDelay="500" enableMultipleNotes="true" dependsOn="UsersModule" position="bottom-left"/>
+    <!--
+    <module name="NotesModule" url="<%= node[:bbb][:server_url] %>/client/NotesModule.swf?v=<%= @module_version %>"
+      saveURL="<%= node[:bbb][:server_url] %>"
+      position="top-left"
+    />
+    
+    <module name="BroadcastModule" url="<%= node[:bbb][:server_url] %>/client/BroadcastModule.swf?v=<%= @module_version %>"
+      uri="rtmp://<%= node[:bbb][:server_domain] %>/bigbluebutton"
+      streamsUri="<%= node[:bbb][:server_url] %>/streams.xml"
+      position="top-left"
+      showStreams="true"
+      autoPlay="false"
+      dependsOn="UsersModule"
+    />
+-->
+  </modules>
 </config>
+

@@ -31,10 +31,18 @@ end
 
 package "xmlstarlet"
 
-{ "/config/branding/@logo" => node[:mconf][:branding][:logo],
-    "/config/branding/@copyright" => node[:mconf][:branding][:copyright_message],
-    "/config/branding/@background" => node[:mconf][:branding][:background] }.each do |key,value|
-  execute ("xmlstarlet ed -L -u \"#{key}\" -v \"#{value}\" /var/www/bigbluebutton/client/conf/config.xml")
+template "/var/www/bigbluebutton/client/conf/config.xml" do
+  source "config.xml.erb"
+  mode "0644"
+  variables(
+    :module_version => `xmlstarlet sel -t -v "/config/version" /var/www/bigbluebutton/client/conf/config.xml`,
+    :chrome_version => `xmlstarlet sel -t -v "/config/browserVersions/@chrome" /var/www/bigbluebutton/client/conf/config.xml`,
+    :firefox_version => `xmlstarlet sel -t -v "/config/browserVersions/@firefox" /var/www/bigbluebutton/client/conf/config.xml`,
+    :flash_version => `xmlstarlet sel -t -v "/config/browserVersions/@flash" /var/www/bigbluebutton/client/conf/config.xml`,
+    :logo => node[:mconf][:branding][:logo],
+    :copyright_message => node[:mconf][:branding][:copyright_message],
+    :background => node[:mconf][:branding][:background]
+  )
 end
 
 public_key_path = node[:mconf][:recording_server][:public_key_path]

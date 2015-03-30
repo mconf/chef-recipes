@@ -2,7 +2,7 @@
   "default_attributes": {
     "bbb": {
       "recording": {
-        "playback_formats": "presentation,presentation_video"
+        "playback_formats": "presentation,presentation_video,presentation_export"
       }
     },
     "mconf": {

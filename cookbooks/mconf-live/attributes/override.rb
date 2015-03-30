@@ -13,9 +13,9 @@ override[:ffmpeg][:compile_flags] = [ "--enable-x11grab",
                                       "--enable-libvorbis",
                                       "--enable-libvpx" ]
 
-apt_repo = "http://ci-mconf-live.rnp.br/apt/development"
+apt_repo = "http://ci-mconf-live.rnp.br/apt"
 
-override[:bbb][:bigbluebutton][:repo_url] = apt_repo
+override[:bbb][:bigbluebutton][:repo_url] = "#{apt_repo}/production"
 override[:bbb][:bigbluebutton][:key_url] = "#{apt_repo}/public.asc"
 override[:bbb][:bigbluebutton][:components] = ["mconf-trusty" , "main"]
 override[:bbb][:bigbluebutton][:package_name] = "mconf-live"

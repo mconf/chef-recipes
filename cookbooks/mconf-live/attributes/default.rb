@@ -45,5 +45,5 @@ default[:mconf][:streaming][:welcomeMsg] = ""
 default[:mconf][:streaming][:metadata] = {}
 
 default[:mconf][:branding][:logo] = "logo.png"
-default[:mconf][:branding][:copyright_message] = "Mconf &#174; 2015 &#183; Servi&#231;o fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - &lt;a href=&quot;https://mconf.rnp.br&quot;&gt;&lt;u&gt;mconf.rnp.br&lt;/u&gt;&lt;/a&gt;"
+default[:mconf][:branding][:copyright_message] = "© 2015 <a href='http://www.mconf.org' target='_blank'>http://www.mconf.org</a>"
 default[:mconf][:branding][:background] = ""

@@ -1,0 +1,7 @@
+<configuration name="modules.conf" description="Modules">
+  <modules>
+    <% @modules.each do |mod| %>
+    <load module="<%= mod %>"/>
+    <% end %>
+  </modules>
+</configuration>

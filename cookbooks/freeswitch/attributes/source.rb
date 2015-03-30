@@ -1,0 +1,92 @@
+default['freeswitch']['source']['git_uri'] = "https://stash.freeswitch.org/scm/fs/freeswitch.git"
+default['freeswitch']['source']['git_branch'] = "v1.2.stable"
+default['freeswitch']['source']['dependencies'] = case node['platform']
+when 'ubuntu', 'debian'
+  %w[
+    autoconf
+    automake
+    g++
+    git-core
+    libjpeg62-dev
+    libtool
+    make
+    libncurses5-dev
+    python-dev
+    gawk
+    pkg-config
+    gnutls-bin
+    libsqlite3-dev
+    bison
+    libasound2-dev
+    libcurl4-gnutls-dev
+    libpcre3-dev
+    libspeex-dev
+    libspeexdsp-dev
+    libreadline6-dev
+    libedit-dev
+    uuid-dev
+    zlib1g-dev
+    libssl-dev
+  ]
+when 'redhat', 'centos', 'fedora'
+  %w[
+    autoconf
+    automake
+    gcc-c++
+    git-core
+    libjpeg-devel
+    libtool
+    make
+    ncurses-devel
+    python-devel
+    gawk
+    pkgconfig
+    gnutls
+    sqlite-devel
+    bison
+    libcurl-devel
+    pcre-devel
+    speex-devel
+    readline-devel
+    libedit-devel
+    libuuid-devel
+    zlib-devel
+    openssl-devel
+  ]
+end
+
+default['freeswitch']['source']['modules'] = %w[
+loggers/mod_console
+loggers/mod_logfile
+applications/mod_cluechoo
+applications/mod_commands
+applications/mod_conference
+applications/mod_dptools
+applications/mod_db
+applications/mod_fifo
+applications/mod_hash
+applications/mod_httapi
+applications/mod_expr
+applications/mod_esf
+applications/mod_fsv
+applications/mod_spandsp
+applications/mod_valet_parking
+applications/mod_voicemail
+codecs/mod_g723_1
+codecs/mod_amr
+codecs/mod_g729
+codecs/mod_h26x
+codecs/mod_speex
+dialplans/mod_dialplan_xml
+dialplans/mod_dialplan_asterisk
+endpoints/mod_sofia
+endpoints/mod_loopback
+event_handlers/mod_event_socket
+event_handlers/mod_cdr_csv
+formats/mod_native_file
+formats/mod_sndfile
+formats/mod_local_stream
+formats/mod_tone_stream
+languages/mod_lua
+say/mod_say_en
+]

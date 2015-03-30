@@ -7,11 +7,8 @@
       "keep_files_newer_than": 3
     },
     "mconf": {
-      "live": {
-        "version_int": 4
-      },
       "branding": {
-        "copyright_message": "Mconf &#174; 2014 &#183; Servi&#231;o fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - &lt;a href=&quot;https://mconf.rnp.br&quot;&gt;&lt;u&gt;mconf.rnp.br&lt;/u&gt;&lt;/a&gt;",
+        "copyright_message": "Mconf ® 2014 · Serviço fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - <a href=\\\"https://mconf.rnp.br\\\" target=\\\"_blank\\\"><u>mconf.rnp.br</u></a>",
         "logo": "logo.png",
         "background": ""
       }

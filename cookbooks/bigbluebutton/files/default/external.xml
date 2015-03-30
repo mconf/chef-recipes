@@ -68,8 +68,8 @@
 
     <param name="rtp-ip" value="$${local_ip_v4}"/>
     <param name="sip-ip" value="$${local_ip_v4}"/>
-    <param name="ext-rtp-ip" value="$${external_ip_v4}"/>
-    <param name="ext-sip-ip" value="$${external_ip_v4}"/>
+    <param name="ext-rtp-ip" value="$${external_rtp_ip}"/>
+    <param name="ext-sip-ip" value="$${external_sip_ip}"/>
 
     <param name="rtp-timeout-sec" value="300"/>
     <param name="rtp-hold-timeout-sec" value="1800"/>
@@ -100,5 +100,8 @@
     <param name="tls-version" value="$${sip_tls_version}"/>
     <param name="ws-binding"  value=":5066"/>
 
+    <!-- enable rtcp on every channel also can be done per leg basis with rtcp_audio_interval_msec variable set to passthru to pass it across a call-->
+    <param name="rtcp-audio-interval-msec" value="5000"/>
+    <param name="rtcp-video-interval-msec" value="5000"/>
   </settings>
 </profile>

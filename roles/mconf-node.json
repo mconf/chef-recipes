@@ -30,7 +30,6 @@
     "recipe[bigbluebutton]",
     "recipe[mconf-live]",
     "recipe[mconf-monitor::client]",
-    "recipe[mconf-monitor::nuttcp]",
-    "recipe[mconf-monitor::traceroute]"
+    "recipe[mconf-monitor::nuttcp]"
   ]
 }

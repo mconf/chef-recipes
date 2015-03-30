@@ -1,0 +1,14 @@
+{
+  "bbb": {
+    "demo": {
+      "enabled": true
+    }
+  },
+  "description": "This role is to install Mconf Live as standalone service",
+  "override_attributes": {
+  },
+  "name": "mconf-live-standalone",
+  "run_list": [
+    "role[mconf-recording-server]"
+  ]
+}

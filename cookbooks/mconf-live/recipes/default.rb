@@ -29,19 +29,59 @@ else
   end
 end
 
-package "xmlstarlet"
+package("zlib1g-dev").run_action(:install)
+[ "nokogiri", "htmlentities" ].each do |g|
+  chef_gem g do
+    action :install
+  end
+  
+  require g
+end
 
-template "/var/www/bigbluebutton/client/conf/config.xml" do
+config_xml = "/var/www/bigbluebutton/client/conf/config.xml"
+module_version = ""
+chrome_version = ""
+firefox_version = ""
+flash_version = ""
+default_layout = ""
+
+# the information here will always contain the original repository values
+ruby_block "parse config.xml information" do
+  block do
+    doc = Nokogiri::XML(open(config_xml).read)
+    module_version = doc.xpath("/config/version").first.content
+    chrome_version = doc.xpath("/config/browserVersions/@chrome").first.value
+    firefox_version = doc.xpath("/config/browserVersions/@firefox").first.value
+    flash_version = doc.xpath("/config/browserVersions/@flash").first.value
+    default_layout = doc.xpath("/config/layout/@defaultLayout").first.value
+    Chef::Log.info "module_version: #{module_version}"
+    Chef::Log.info "chrome_version: #{chrome_version}"
+    Chef::Log.info "firefox_version: #{firefox_version}"
+    Chef::Log.info "flash_version: #{flash_version}"
+    Chef::Log.info "default_layout: #{default_layout}"
+  end
+end
+
+template config_xml do
+  def as_html(s)
+    return HTMLEntities.new.encode(s, :basic, :decimal)
+  end
+  
   source "config.xml.erb"
   mode "0644"
   variables(
-    :module_version => `xmlstarlet sel -t -v "/config/version" /var/www/bigbluebutton/client/conf/config.xml`,
-    :chrome_version => `xmlstarlet sel -t -v "/config/browserVersions/@chrome" /var/www/bigbluebutton/client/conf/config.xml`,
-    :firefox_version => `xmlstarlet sel -t -v "/config/browserVersions/@firefox" /var/www/bigbluebutton/client/conf/config.xml`,
-    :flash_version => `xmlstarlet sel -t -v "/config/browserVersions/@flash" /var/www/bigbluebutton/client/conf/config.xml`,
-    :logo => node[:mconf][:branding][:logo],
-    :copyright_message => node[:mconf][:branding][:copyright_message],
-    :background => node[:mconf][:branding][:background]
+    lazy {{
+      :module_version => module_version,
+      :chrome_version => chrome_version,
+      :firefox_version => firefox_version,
+      :flash_version => flash_version,
+      :default_layout => default_layout,
+      :logo => as_html(node[:mconf][:branding][:logo]),
+      :copyright_message => as_html(node[:mconf][:branding][:copyright_message]),
+      :background => as_html(node[:mconf][:branding][:background]),
+      :server_domain => node[:bbb][:server_domain],
+      :server_url => node[:bbb][:server_url]
+    }}
   )
 end
 

@@ -8,7 +8,7 @@
     },
     "mconf": {
       "branding": {
-        "copyright_message": "Mconf ® 2014 · Serviço fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - <a href=\\\"https://mconf.rnp.br\\\" target=\\\"_blank\\\"><u>mconf.rnp.br</u></a>",
+        "copyright_message": "Mconf ® 2015 · Serviço fornecido pela RNP - Rede Nacional de Ensino e Pesquisa - <a href=\"https://mconf.rnp.br\" target=\"_blank\"><u>mconf.rnp.br</u></a>",
         "logo": "logo.png",
         "background": ""
       }

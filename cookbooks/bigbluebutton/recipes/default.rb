@@ -170,6 +170,14 @@ package "bbb-demo" do
   end
 end
 
+package "bbb-check" do
+  if node[:bbb][:check][:enabled]
+    action :upgrade
+  else
+    action :purge
+  end
+end
+
 include_recipe "bigbluebutton::open4"
 
 ruby_block "configure recording workflow" do

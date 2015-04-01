@@ -28,6 +28,7 @@ default[:bbb][:bigbluebutton][:packages_version] = {}
 default[:bbb][:recording][:rebuild] = []
 default[:bbb][:recording][:playback_formats] = "presentation"
 default[:bbb][:demo][:enabled] = false
+default[:bbb][:check][:enabled] = false
 default[:bbb][:ip] = nil
 default[:bbb][:force_restart] = false
 default[:bbb][:enforce_salt] = nil

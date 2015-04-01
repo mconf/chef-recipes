@@ -126,11 +126,8 @@ ruby_block "upgrade dependencies recursively" do
     if not status.success?
       raise "Couldn't upgrade the dependencies recursively"
     end
-    # TODO use chef notify instead
-    if restart_required
-      system('bbb-conf --enablewebrtc')
-      system('bbb-conf --clean')
-    end
+    
+    resources(:execute => "restart bigbluebutton").run_action(:run) if restart_required
   end
   action :run
 end
@@ -173,37 +170,6 @@ package "bbb-demo" do
   end
 end
 
-ruby_block "reset enforce salt flag" do
-    block do
-        node.set[:bbb][:enforce_salt] = nil
-        node.set[:bbb][:setsalt_needed] = false
-    end
-    only_if do node[:bbb][:setsalt_needed] end
-    notifies :run, "execute[set bigbluebutton salt]", :immediately
-end
-
-execute "set bigbluebutton salt" do
-    user "root"
-    command "bbb-conf --setsalt #{node[:bbb][:salt]}"
-    action :nothing
-    notifies :run, "execute[restart bigbluebutton]", :delayed
-end
-
-execute "set bigbluebutton ip" do
-    user "root"
-    command "bbb-conf --setip #{node[:bbb][:server_addr]}; exit 0"
-    action :run
-    only_if do node[:bbb][:setip_needed] end
-end
-
-ruby_block "reset restart flag" do
-    block do
-        node.set[:bbb][:force_restart] = false
-    end
-    only_if do node[:bbb][:force_restart] end
-    notifies :run, "execute[restart bigbluebutton]", :delayed
-end
-
 include_recipe "bigbluebutton::open4"
 
 ruby_block "configure recording workflow" do
@@ -229,10 +195,25 @@ end
 
 execute "restart bigbluebutton" do
   user "root"
-  command "echo 'Restarting and enabling WebRTC'"
+  command "echo 'Restarting'"
   action :nothing
+  notifies :run, "execute[set bigbluebutton ip]", :delayed
   notifies :run, "execute[enable webrtc]", :delayed
   notifies :run, "execute[clean bigbluebutton]", :delayed
+end
+
+execute "set bigbluebutton salt" do
+  user "root"
+  command "bbb-conf --setsalt #{node[:bbb][:salt]}"
+  action :nothing
+  notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+
+execute "set bigbluebutton ip" do
+  user "root"
+  command lazy { "bbb-conf --setip #{node[:bbb][:server_domain]}" }
+  action :nothing
+  notifies :run, "execute[restart bigbluebutton]", :delayed
 end
 
 execute "enable webrtc" do
@@ -264,7 +245,7 @@ template "sip.nginx" do
   source "sip.nginx.erb"
   mode "0644"
   variables(
-    :external_ip => node[:bbb][:external_ip]
+    lazy {{ :external_ip => node[:bbb][:external_ip] }}
   )
   notifies :reload, "service[nginx]", :immediately
 end
@@ -282,4 +263,30 @@ ruby_block "collect packages version" do
     end
     node.set[:bbb][:bigbluebutton][:packages_version] = packages_version
   end
+end
+
+ruby_block "reset flag restart" do
+  block do
+    node.set[:bbb][:force_restart] = false
+  end
+  only_if do node[:bbb][:force_restart] end
+  notifies :run, "execute[restart bigbluebutton]", :delayed
+end
+    
+
+ruby_block "reset flag setsalt" do
+  block do
+    node.set[:bbb][:enforce_salt] = nil
+    node.set[:bbb][:setsalt_needed] = false
+  end
+  only_if do node[:bbb][:setsalt_needed] end
+  notifies :run, "execute[set bigbluebutton salt]", :delayed
+end
+
+ruby_block "reset flag setip" do
+  block do
+    node.set[:bbb][:setip_needed] = false
+  end
+  only_if do node[:bbb][:setip_needed] end
+  notifies :run, "execute[set bigbluebutton ip]", :delayed
 end

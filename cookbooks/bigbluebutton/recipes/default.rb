@@ -165,9 +165,25 @@ end
 package "bbb-demo" do
   if node[:bbb][:demo][:enabled]
     action :upgrade
+    notifies :run, "bash[wait for bbb-demo]", :immediately
   else
     action :purge
   end
+end
+
+bash "wait for bbb-demo" do
+  code <<-EOH
+    SECS=10
+    while [[ 0 -ne $SECS ]]; do
+      if [ -d /var/lib/tomcat7/webapps/demo ] && [ /var/lib/tomcat7/webapps/demo -nt /var/lib/tomcat7/webapps/demo.war ]; then
+        echo "bbb-demo deployed!"
+        break;
+      fi
+      sleep 1
+      SECS=$[$SECS-1]
+    done
+  EOH
+  action :nothing
 end
 
 package "bbb-check" do

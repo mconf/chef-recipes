@@ -20,30 +20,6 @@ default[:mconf][:recording_server][:private_key_path] = "/usr/local/bigbluebutto
 default[:mconf][:recording_server][:public_key_path] = "/usr/local/bigbluebutton/core/scripts/public.pem"
 default[:mconf][:recording_server][:get_recordings_url] = nil
 
-# example of configuration for the Chef Server:
-# remember the backslash before double quotes and backslash before backslash
-=begin
-{
-  "enabled": true, 
-  "meetingID": "Turing", 
-  "moderatorPW": "CHANGE-ME", 
-  "attendeePW": "INOFFENSIVE", 
-  "maxUsers": 100, 
-  "record": "true", 
-  "logoutURL": "https://docs.google.com/spreadsheet/viewform?formkey=dC1GX0dWMnFHWDVmS0F0QmprUDBaN1E6MA", 
-  "welcomeMsg": "Transmissão do ciclo de palestras sobre Alan Turing.<br><br>A gravação dessa sessão estará disponível posteriormente em <a href=\\\"event:http://mconf.org/events\\\"><u>http://mconf.org/events/turing</u></a>." 
-}
-=end
-default[:mconf][:streaming][:enabled] = false
-default[:mconf][:streaming][:meetingID] = ""
-default[:mconf][:streaming][:moderatorPW] = ""
-default[:mconf][:streaming][:attendeePW] = ""
-default[:mconf][:streaming][:maxUsers] = ""
-default[:mconf][:streaming][:record] = ""
-default[:mconf][:streaming][:logoutURL] = ""
-default[:mconf][:streaming][:welcomeMsg] = ""
-default[:mconf][:streaming][:metadata] = {}
-
 default[:mconf][:branding][:logo] = "logo.png"
 default[:mconf][:branding][:copyright_message] = "© 2015 <a href='http://www.mconf.org' target='_blank'>http://www.mconf.org</a>"
 default[:mconf][:branding][:background] = ""

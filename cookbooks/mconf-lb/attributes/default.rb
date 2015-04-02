@@ -8,11 +8,11 @@
 
 default["db"]["name"] = "mconf_lb_production"
 default["db"]["user"] = "mconf"
-default["db"]["passwords"]["root"] = "ilikerandompasswords"
-default["db"]["passwords"]["repl"] = "ilikerandompasswords"
-default["db"]["passwords"]["app"] = "ilikerandompasswords"
+default["db"]["passwords"]["root"] = "password"
+default["db"]["passwords"]["repl"] = "password"
+default["db"]["passwords"]["app"] = "password"
 
 default["mconf"]["user"] = "mconf"
 
-default["mconf-lb"]["domain"] = "lb.mconf.com"
+default["mconf-lb"]["domain"] = "192.168.0.100"
 default["mconf-lb"]["deploy_to"] = "/var/www/mconf-lb"

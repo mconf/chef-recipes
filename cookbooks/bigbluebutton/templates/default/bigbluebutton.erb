@@ -49,10 +49,22 @@ find /var/freeswitch/meetings/ -name "*.wav" -mtime +$history -exec rm '{}' \;
 # Delete old log files
 #
 find /var/log/bigbluebutton -name '*.log*' -mtime +15 -exec rm -r '{}' \;
+find /opt/freeswitch/log -name '*.log*' -mtime +15 -exec rm -r '{}' \;
+
+#
+# Remove old encrypted recordings (wait 15 days for them to be downloaded by the recording server and processed)
+#
+if [ -d /var/bigbluebutton/published/mconf_encrypted/ ]; then
+    find /var/bigbluebutton/published/mconf_encrypted/ -maxdepth 1 -type d -name "*-*" -mtime +15 -exec rm -rf '{}' \;
+fi
+if [ -d /var/bigbluebutton/unpublished/mconf_encrypted/ ]; then
+    find /var/bigbluebutton/unpublished/mconf_encrypted/ -maxdepth 1 -type d -name "*-*" -mtime +15 -exec rm -rf '{}' \;
+fi
 
 #
 # Delete old raw dirs from recordings properly published using 'presentation' scripts.
 #
+
 remove_raw_of_published_recordings(){
     #TYPES=$(cd /usr/local/bigbluebutton/core/scripts/process; ls *.rb | sed s/.rb//g)
     logger "Removing raw directory of old recordings:"
@@ -81,4 +93,10 @@ remove_raw_of_published_recordings(){
 }
 
 #remove_raw_of_published_recordings
+
+#
+# Remove old *.afm and *.pfb files from /tmp directory (these were created by Ghostscript)
+#
+find /tmp -name "*.afm" -mtime +10 -exec rm '{}' \;
+find /tmp -name "*.pfb" -mtime +10 -exec rm '{}' \;
 

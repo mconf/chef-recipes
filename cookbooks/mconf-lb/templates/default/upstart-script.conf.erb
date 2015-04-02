@@ -8,7 +8,7 @@ stop on shutdown
 
 # respawn # we're using monit
 
-env USER=mconf
+env USER=<%= node["mconf"]["user"] %>
 env APP=app.js
 env CMD_OPTS="-l 2 -y 1 -p 3000"
 env SRC_DIR="<%= node['mconf-lb']['deploy_to'] %>/current"

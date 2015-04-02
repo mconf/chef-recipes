@@ -33,15 +33,3 @@ default[:bbb][:ip] = nil
 default[:bbb][:force_restart] = false
 default[:bbb][:enforce_salt] = nil
 default[:bbb][:keep_files_newer_than] = 5
-default[:bbb][:enable_comfort_noise] = false
-# enable or disable FreeSWITCH sounds:
-# "You are now muted"
-# "You are now unmuted"
-# "You are currently the only person in this conference"
-default[:bbb][:enable_freeswitch_sounds] = false
-default[:bbb][:enable_freeswitch_hold_music] = false
-
-default[:bbb][:recording][:presentation][:video_output_width] = 640
-default[:bbb][:recording][:presentation][:video_output_height] = 480
-default[:bbb][:recording][:presentation][:audio_offset] = 0
-default[:bbb][:recording][:presentation][:include_deskshare] = true

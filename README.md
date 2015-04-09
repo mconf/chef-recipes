@@ -46,3 +46,47 @@ Then install Ruby and chef-client, then run:
 ```
 sudo chef-solo -c ~/chef-recipes/config/solo.rb -j ~/chef-recipes/utils/mconf-lb.json
 ```
+
+## Vagrant
+
+Install Vagrant.
+
+Install plugins for Vagrant:
+
+```bash
+vagrant plugin install vagrant-lxc
+vagrant plugin install vagrant-vbguest
+vagrant plugin install vagrant-librarian-chef
+vagrant plugin install vagrant-omnibus
+```
+
+Download the dependencies:
+
+```bash
+bundle install
+rbenv rehash
+
+cd vagrant/
+bundle exec librarian-chef install
+```
+
+Create the VM:
+
+```bash
+cd ../
+vagrant up
+```
+
+Log into the VM
+
+```bash
+vagrant ssh
+cd vagrant/
+bundle install
+```
+
+Now you can run chef-solo as in:
+
+```bash
+bundle exec chef-solo -c ~/chef-recipes/config/solo.rb -j utils/mconf-web.json
+```

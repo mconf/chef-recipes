@@ -1,3 +1,0 @@
-#!/bin/bash
-
-java -Xmx512M -Dsbt.boot.directory=project/boot/.sbt -Dsbt.ivy.home=project/boot/.ivy -jar `dirname $0`/sbt-launch.jar "$@"

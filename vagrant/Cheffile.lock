@@ -1,5 +1,5 @@
 SITE
-  remote: http://community.opscode.com/api/v1
+  remote: https://supermarket.getchef.com/api/v1
   specs:
     apt (2.7.0)
     build-essential (2.2.2)

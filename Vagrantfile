@@ -31,7 +31,7 @@ Vagrant.configure(2) do |config|
     chef.add_recipe 'git'
     chef.add_recipe 'vim'
     chef.add_recipe 'ruby_build'
-    chef.add_recipe 'rbenv::user'
+    chef.add_recipe 'rbenv::system'
     chef.add_recipe 'rbenv::vagrant'
 
     # Install ruby and gems
@@ -39,17 +39,14 @@ Vagrant.configure(2) do |config|
     rb_version = IO.read(File.join(File.dirname(__FILE__), '.ruby-version')).chomp
     chef.json = {
       rbenv: {
-        user_installs: [{
-          user: 'vagrant',
-          rubies: [rb_version],
-          global: rb_version,
-          gems: {
-            rb_version => [
-              { name: 'bundler' },
-              { name: 'chef', version: chef_version }
-            ]
-          }
-        }]
+        rubies: [rb_version],
+        global: rb_version,
+        gems: {
+          rb_version => [
+            { name: 'bundler' },
+            { name: 'chef', version: chef_version }
+          ]
+        }
       }
     }
   end

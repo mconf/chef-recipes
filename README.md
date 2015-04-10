@@ -88,5 +88,5 @@ bundle install
 Now you can run chef-solo as in:
 
 ```bash
-bundle exec chef-solo -c ~/chef-recipes/config/solo.rb -j utils/mconf-web.json
+sudo chef-solo -c /vagrant/config/solo.rb -j utils/mconf-web.json
 ```

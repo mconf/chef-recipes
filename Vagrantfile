@@ -22,6 +22,8 @@ Vagrant.configure(2) do |config|
   chef_version = IO.read(File.join(File.dirname(__FILE__), '.chef-version')).chomp
   config.omnibus.chef_version = chef_version
 
+  config.librarian_chef.cheffile_dir = 'vagrant'
+
   # Use Chef Solo to provision our virtual machine
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = ['vagrant/cookbooks']

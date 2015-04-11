@@ -1,0 +1,21 @@
+{
+  "mconf-web": {
+    "domain": "web.mconf.org",
+    "db": {
+      "name": "mconf_production",
+      "user": "mconf",
+      "passwords": {
+        "root": "password",
+        "repl": "password",
+        "app": "password"
+      }
+    }
+  },
+  "description": "This is the role to install Mconf-Web",
+  "override_attributes": {
+  },
+  "name": "mconf-web-solo",
+  "run_list": [
+    "role[mconf-web]"
+  ]
+}

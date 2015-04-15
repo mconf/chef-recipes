@@ -168,3 +168,13 @@ template "/etc/logrotate.d/mconf-lb" do
 end
 
 execute "logrotate -s /var/lib/logrotate/status /etc/logrotate.d/mconf-lb"
+
+# Create the app directory
+# (Just the directory, capistrano does the rest)
+
+directory node['mconf-lb']['deploy_to'] do
+  owner node['mconf']['user']
+  group node['mconf']['apache-group']
+  mode '0755'
+  action :create
+end

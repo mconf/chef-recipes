@@ -47,6 +47,26 @@ Then install Ruby and chef-client, then run:
 sudo chef-solo -c ~/chef-recipes/config/solo.rb -j ~/chef-recipes/utils/mconf-lb.json
 ```
 
+## Working with librarian
+
+Install it:
+
+```bash
+bundle install
+```
+
+To add a cookbook, first add it to `Cheffile` and then (note: it's always usefull to use `--verbose` with librarian):
+
+```bash
+bundle exec librarian-chef install [--verbose]
+```
+
+Update a cookbook:
+
+```bash
+bundle exec librarian-chef update mconf-lb [--verbose]
+```
+
 ## Vagrant
 
 Install Vagrant.

@@ -144,3 +144,13 @@ logrotate_app 'mconf-web' do
   size '50M'
   create '644 mconf www-data'
 end
+
+# Create the app directory
+# (Just the directory, capistrano does the rest)
+
+directory node['mconf-web']['deploy_to'] do
+  owner node['mconf']['user']
+  group node['mconf']['apache-group']
+  mode '0755'
+  action :create
+end

@@ -6,13 +6,14 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-default["db"]["name"] = "mconf_lb_production"
-default["db"]["user"] = "mconf"
-default["db"]["passwords"]["root"] = "password"
-default["db"]["passwords"]["repl"] = "password"
-default["db"]["passwords"]["app"] = "password"
+default['db']['name'] = 'mconf_lb_production'
+default['db']['user'] = 'mconf'
+default['db']['passwords']['root'] = 'password'
+default['db']['passwords']['repl'] = 'password'
+default['db']['passwords']['app'] = 'password'
 
-default["mconf"]["user"] = "mconf"
+default['mconf']['user'] = 'mconf'
+default['mconf']['apache-group'] = 'www-data'
 
-default["mconf-lb"]["domain"] = "192.168.0.100"
-default["mconf-lb"]["deploy_to"] = "/var/www/mconf-lb"
+default['mconf-lb']['domain'] = '192.168.0.100'
+default['mconf-lb']['deploy_to'] = '/var/www/mconf-lb'

@@ -13,6 +13,7 @@ default['mconf-web']['db']['passwords']['repl'] = 'password'
 default['mconf-web']['db']['passwords']['app'] = 'password'
 
 default['mconf']['user'] = 'mconf'
+default['mconf']['apache-group'] = 'www-data'
 
 default['mconf-web']['domain'] = '192.168.0.100'
 default['mconf-web']['deploy_to'] = '/var/www/mconf-web/current'

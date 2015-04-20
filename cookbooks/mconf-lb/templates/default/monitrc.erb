@@ -16,7 +16,7 @@
 ##
 ## Start Monit in the background (run as a daemon):
 #
-  set daemon 60            # check services at 2-minute intervals
+  set daemon <%= node['mconf-lb']['monit']['interval'] %>  # check services at x-seconds intervals
 #   with start delay 240    # optional: delay the first check by 4-minutes (by 
 #                           # default Monit check immediately after Monit start)
 #
@@ -53,6 +53,37 @@
 #                backup.bar.baz port 10025,  # backup mailserver on port 10025
 #                localhost                   # fallback relay
 #
+
+set mailserver <%= node['mconf-lb']['smtp']['server'] %>
+               port <%= node['mconf-lb']['smtp']['port'] %>
+               username "<%= node['mconf-lb']['smtp']['username'] %>"
+               password "<%= node['mconf-lb']['smtp']['password'] %>"
+               using tlsv1
+               with timeout <%= node['mconf-lb']['smtp']['timeout'] %> seconds
+
+set mail-format {
+      from: <%= node['mconf-lb']['monit']['alert_from'] %>
+  reply-to: <%= node['mconf-lb']['monit']['alert_from'] %>
+   subject: $SERVICE $EVENT at $DATE
+   message: $EVENT Service $SERVICE
+
+    Date:        $DATE
+    Action:      $ACTION
+    Host:        $HOST
+    Description: $DESCRIPTION
+
+Your faithful employee,
+Monit
+}
+
+<% if node['mconf-lb']['monit']['alert_to'].kind_of?(Array) %>
+  <% node['mconf-lb']['monit']['alert_to'].each do |alert_to| %>
+set alert <%= alert_to %>
+  <% end %>
+<% else %>
+set alert <%= node['mconf-lb']['monit']['alert_to'] %>
+<% end %>
+
 #
 ## By default Monit will drop alert events if no mail servers are available. 
 ## If you want to keep the alerts for later delivery retry, you can use the 

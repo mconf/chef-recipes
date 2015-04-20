@@ -127,7 +127,7 @@ GIT
 GIT
   remote: https://github.com/mconf-cookbooks/mconf-lb
   ref: master
-  sha: 3a7f1540cb20e83564a79a1b5c9635f77c3a5285
+  sha: fb37634a9f5c225785043f05884812f3e0b1dfa3
   specs:
     mconf-lb (0.0.1)
       database (>= 0.0.0)

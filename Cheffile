@@ -23,7 +23,7 @@ cookbook 'mconf-sip-proxy', git: 'https://github.com/mconf-cookbooks/mconf-sip-p
 cookbook 'mconf-utils', git: 'https://github.com/mconf-cookbooks/mconf-utils'
 cookbook 'mconf-web', git: 'https://github.com/mconf-cookbooks/mconf-web'
 cookbook 'mysql-chef_gem', '0.0.2'
-cookbook 'mysql', '5.2.6'
+cookbook 'mysql', '~> 6.0.21'
 cookbook 'nagios', git: 'https://github.com/mconf-cookbooks/nagios'
 cookbook 'nagiosgraph', git: 'https://github.com/mconf-cookbooks/nagiosgraph'
 cookbook 'nginx', '1.4.0'

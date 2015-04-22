@@ -87,7 +87,7 @@ bundle install
 rbenv rehash
 
 cd vagrant/
-bundle exec librarian-chef install
+bundle exec librarian-chef install [--verbose]
 ```
 
 Create the VM:

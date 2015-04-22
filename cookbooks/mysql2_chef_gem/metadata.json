@@ -1,10 +1,10 @@
 {
-  "name": "mysql-chef_gem",
-  "version": "0.0.2",
-  "description": "Provides the mysql_chef_gem resource",
+  "name": "mysql2_chef_gem",
+  "version": "1.0.1",
+  "description": "Provides the mysql2_chef_gem resource",
   "long_description": "",
-  "maintainer": "Chef Software, Inc.",
-  "maintainer_email": "cookbooks@getchef.com",
+  "maintainer": "Nicolas Blanc",
+  "maintainer_email": "sinfomicien@gmail.com",
   "license": "Apache 2.0",
   "platforms": {
     "amazon": ">= 0.0.0",
@@ -13,12 +13,12 @@
     "scientific": ">= 0.0.0",
     "fedora": ">= 0.0.0",
     "debian": ">= 0.0.0",
-    "ubuntu": ">= 0.0.0",
-    "smartos": ">= 0.0.0"
+    "ubuntu": ">= 0.0.0"
   },
   "dependencies": {
     "build-essential": ">= 0.0.0",
-    "mysql": ">= 0.0.0"
+    "mysql": ">= 0.0.0",
+    "mariadb": ">= 0.0.0"
   },
   "recommendations": {
   },

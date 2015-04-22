@@ -6,13 +6,6 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-# Database configurations
-default['db']['name'] = 'mconf_lb_production'
-default['db']['user'] = 'mconf'
-default['db']['passwords']['root'] = 'password'
-default['db']['passwords']['repl'] = 'password'
-default['db']['passwords']['app'] = 'password'
-
 # User and group on the server the application is being deployed
 default['mconf']['user'] = 'mconf'
 default['mconf']['apache-group'] = 'www-data'

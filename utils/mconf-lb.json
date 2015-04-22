@@ -1,21 +1,25 @@
 {
-  "db": {
-    "name": "mconf_lb_production",
-    "user": "mconf",
-    "passwords": {
-      "root": "password",
-      "repl": "password",
-      "app": "password"
-    }
-  },
   "mconf-lb": {
     "domain": "lb.mconf.org"
+  },
+  "db": {
+    "passwords": {
+      "root": "password"
+    },
+    "databases": [
+      {
+        "name": "mconf_lb_production",
+        "user": "mconf",
+        "passwords": "password"
+      }
+    ]
   },
   "description": "This is the role to install Mconf-LB",
   "override_attributes": {
   },
   "name": "mconf-lb-solo",
   "run_list": [
+    "role[mconf-db]",
     "role[mconf-lb]"
   ]
 }

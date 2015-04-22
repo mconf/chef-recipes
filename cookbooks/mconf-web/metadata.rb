@@ -13,10 +13,8 @@ license          "MPL v2.0"
 description      "Sets up an instance of Mconf-Web"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.0.1"
-depends          "mysql"
 depends          "ruby_build"
 depends          "rbenv"
-depends          "database"
 depends          "apache2"
 depends          "logrotate"
 

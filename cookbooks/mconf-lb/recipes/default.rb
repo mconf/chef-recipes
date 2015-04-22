@@ -20,21 +20,6 @@ package 'libgeoip-dev'
 package 'libexpat1-dev'
 package 'redis-server'
 
-# Install MySQL Server
-mysql_service "default" do
-  version "5.5"
-  port "3306"
-  server_root_password node["db"]["passwords"]["root"]
-  server_repl_password node["db"]["passwords"]["repl"]
-  action :create
-end
-# template "/etc/mysql/conf.d/mysite.cnf" do
-#   owner "mysql"
-#   owner "mysql"
-#   source "mysite.cnf.erb"
-#   notifies :restart, "mysql_service[default]"
-# end
-
 # Node.js
 include_recipe "nodejs"
 include_recipe "nodejs::npm"
@@ -53,32 +38,6 @@ execute "sudo rm -R /home/#{node[:mconf][:user]}/npmtmp" do
   not_if { !::File.exists?("/home/#{node[:mconf][:user]}/npmtmp") }
 end
 
-# Configure a user and a database for our app
-include_recipe "database::mysql"
-
-connection_info = {
-  :host     => "localhost",
-  :username => "root",
-  :password => node["db"]["passwords"]["root"]
-}
-
-mysql_database_user node["db"]["user"] do
-  connection connection_info
-  password   node["db"]["passwords"]["app"]
-  action     :create
-end
-
-mysql_database node["db"]["name"] do
-  connection connection_info
-  action :create
-end
-
-mysql_database_user node["db"]["user"] do
-  connection    connection_info
-  database_name node["db"]["name"]
-  privileges    [:all]
-  action        :grant
-end
 
 # Nginx installation
 

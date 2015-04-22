@@ -135,7 +135,7 @@ GIT
 GIT
   remote: https://github.com/mconf-cookbooks/mconf-db
   ref: master
-  sha: 566b1874308ecc81ed6dfa83927465b7e267fb6e
+  sha: 414cede4873f2e5aed5839f479daeffddf2b3add
   specs:
     mconf-db (0.0.1)
       database (~> 4.0)
@@ -145,11 +145,12 @@ GIT
 GIT
   remote: https://github.com/mconf-cookbooks/mconf-lb
   ref: master
-  sha: fb37634a9f5c225785043f05884812f3e0b1dfa3
+  sha: 98ef5cd7c2081a7e7b0bfcc428f21c9a5fb8c1c5
   specs:
     mconf-lb (0.0.1)
-      database (>= 0.0.0)
-      mysql (>= 0.0.0)
+      database (~> 4.0)
+      mysql (~> 6.0)
+      mysql2_chef_gem (~> 1.0)
       nginx (>= 0.0.0)
       nodejs (>= 0.0.0)
       ohai (>= 0.0.0)
@@ -191,13 +192,11 @@ GIT
 GIT
   remote: https://github.com/mconf-cookbooks/mconf-web
   ref: master
-  sha: 48d8c76229ba01b1888547603cdd4bfd4b7a0d88
+  sha: 5ac286beab46fbe67867567cf441890e2ff9a34f
   specs:
     mconf-web (0.0.1)
       apache2 (>= 0.0.0)
-      database (>= 0.0.0)
       logrotate (>= 0.0.0)
-      mysql (>= 0.0.0)
       rbenv (>= 0.0.0)
       ruby_build (>= 0.0.0)
 

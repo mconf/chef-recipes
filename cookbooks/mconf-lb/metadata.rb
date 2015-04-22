@@ -13,9 +13,10 @@ license          "MPL v2.0"
 description      "Sets up an instance of Mconf LB"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.0.1"
-depends          "mysql"
+depends          "mysql2_chef_gem", "~> 1.0"
+depends          "mysql", "~> 6.0"
+depends          "database", "~> 4.0"
 depends          "nodejs"
-depends          "database"
 depends          "ohai"
 depends          "nginx"
 

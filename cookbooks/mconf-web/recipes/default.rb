@@ -31,43 +31,6 @@ package 'openjdk-7-jre'
 package 'redis-server'
 
 
-# Database (MySQL) + user
-
-mysql_service 'default' do
-  version '5.5'
-  port '3306'
-  server_root_password node['mconf-web']['db']['passwords']['root']
-  server_repl_password node['mconf-web']['db']['passwords']['repl']
-  action :create
-end
-
-include_recipe 'database::mysql'
-
-connection_info = {
-  :host     => 'localhost',
-  :username => 'root',
-  :password => node['mconf-web']['db']['passwords']['root']
-}
-
-mysql_database_user node['mconf-web']['db']['user'] do
-  connection connection_info
-  password   node['mconf-web']['db']['passwords']['app']
-  action     :create
-end
-
-mysql_database node['mconf-web']['db']['name'] do
-  connection connection_info
-  action :create
-end
-
-mysql_database_user node['mconf-web']['db']['user'] do
-  connection    connection_info
-  database_name node['mconf-web']['db']['name']
-  privileges    [:all]
-  action        :grant
-end
-
-
 # Ruby
 include_recipe 'ruby_build'
 include_recipe 'rbenv::system'

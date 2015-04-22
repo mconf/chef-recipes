@@ -133,6 +133,16 @@ GIT
       yasm (>= 0.0.0)
 
 GIT
+  remote: https://github.com/mconf-cookbooks/mconf-db
+  ref: master
+  sha: 566b1874308ecc81ed6dfa83927465b7e267fb6e
+  specs:
+    mconf-db (0.0.1)
+      database (~> 4.0)
+      mysql (~> 6.0)
+      mysql2_chef_gem (~> 1.0)
+
+GIT
   remote: https://github.com/mconf-cookbooks/mconf-lb
   ref: master
   sha: fb37634a9f5c225785043f05884812f3e0b1dfa3
@@ -250,6 +260,7 @@ DEPENDENCIES
   git (= 4.0.2)
   libvpx (= 1.0.1)
   logrotate (= 1.1.0)
+  mconf-db (>= 0)
   mconf-lb (>= 0)
   mconf-live (>= 0)
   mconf-monitor (>= 0)

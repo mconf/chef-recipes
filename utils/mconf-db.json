@@ -1,0 +1,27 @@
+{
+  "db": {
+    "passwords": {
+      "root": "password"
+    },
+    "databases": [
+      {
+        "name": "mconf_production",
+        "user": "mconf",
+        "passwords": "password",
+        "hosts": ["%"]
+      },
+      {
+        "name": "mconf_lb_production",
+        "user": "mconf",
+        "password": "password",
+        "hosts": ["%"]
+      }
+    ]
+  },
+  "override_attributes": {
+  },
+  "name": "mconf-db-solo",
+  "run_list": [
+    "role[mconf-db]"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "default_attributes": {
+    "mconf": {
+      "db": {
+        "version": "mconf-db0.0.1",
+        "version_int": 1
+      }
+    }
+  },
+  "description": "This is the role to install and update an instance the database used by Mconf",
+  "env_run_lists": {
+  },
+  "json_class": "Chef::Role",
+  "override_attributes": {
+  },
+  "name": "mconf-db",
+  "chef_type": "role",
+  "run_list": [
+    "role[mconf-server]",
+    "recipe[mconf-db]"
+  ]
+}

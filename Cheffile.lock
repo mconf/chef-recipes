@@ -145,7 +145,7 @@ GIT
 GIT
   remote: https://github.com/mconf-cookbooks/mconf-lb
   ref: master
-  sha: 98ef5cd7c2081a7e7b0bfcc428f21c9a5fb8c1c5
+  sha: 6793253f0d000b95d7b8a3787f47ac4e0be89bc2
   specs:
     mconf-lb (0.0.1)
       database (~> 4.0)
@@ -192,7 +192,7 @@ GIT
 GIT
   remote: https://github.com/mconf-cookbooks/mconf-web
   ref: master
-  sha: 5ac286beab46fbe67867567cf441890e2ff9a34f
+  sha: 67e5408ff65f516f577d823d76becc573ab37217
   specs:
     mconf-web (0.0.1)
       apache2 (>= 0.0.0)

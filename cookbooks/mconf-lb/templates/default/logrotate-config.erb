@@ -5,4 +5,5 @@
          compress
          missingok
          notifempty
+         su <%= node["mconf"]["user"] %> <%= node["mconf"]["app_group"] %>
 }

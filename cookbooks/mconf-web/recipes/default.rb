@@ -31,6 +31,18 @@ package 'openjdk-7-jre'
 package 'redis-server'
 
 
+# Create the app directory
+# (Just the directory, capistrano does the rest)
+
+directory node['mconf-web']['deploy_to'] do
+  owner node['mconf']['user']
+  group node['mconf']['app_group']
+  mode '0755'
+  recursive true
+  action :create
+end
+
+
 # Ruby
 include_recipe 'ruby_build'
 include_recipe 'rbenv::system'
@@ -106,14 +118,4 @@ logrotate_app 'mconf-web' do
   rotate 10
   size '50M'
   create '644 mconf www-data'
-end
-
-# Create the app directory
-# (Just the directory, capistrano does the rest)
-
-directory node['mconf-web']['deploy_to'] do
-  owner node['mconf']['user']
-  group node['mconf']['apache-group']
-  mode '0755'
-  action :create
 end

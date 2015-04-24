@@ -54,10 +54,13 @@
 #                localhost                   # fallback relay
 #
 
-set mailserver <%= node['mconf-lb']['smtp']['server'] %>
-               port <%= node['mconf-lb']['smtp']['port'] %>
-               username "<%= node['mconf-lb']['smtp']['username'] %>"
-               password "<%= node['mconf-lb']['smtp']['password'] %>"
+<% if node['mconf-lb']['monit']['enable_alerts'] %>
+
+
+set mailserver <%= node['mconf-lb']['monit']['smtp']['server'] %>
+               port <%= node['mconf-lb']['monit']['smtp']['port'] %>
+               username "<%= node['mconf-lb']['monit']['smtp']['username'] %>"
+               password "<%= node['mconf-lb']['monit']['smtp']['password'] %>"
                using tlsv1
                with timeout <%= node['mconf-lb']['smtp']['timeout'] %> seconds
 
@@ -82,6 +85,9 @@ set alert <%= alert_to %>
   <% end %>
 <% else %>
 set alert <%= node['mconf-lb']['monit']['alert_to'] %>
+<% end %>
+
+
 <% end %>
 
 #

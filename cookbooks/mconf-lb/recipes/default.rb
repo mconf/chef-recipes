@@ -20,6 +20,19 @@ package 'libgeoip-dev'
 package 'libexpat1-dev'
 package 'redis-server'
 
+
+# Create the app directory
+# (Just the directory, capistrano does the rest)
+
+directory node['mconf-lb']['deploy_to'] do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  recursive true
+  action :create
+end
+
+
 # Node.js
 include_recipe "nodejs"
 include_recipe "nodejs::npm"
@@ -127,13 +140,3 @@ template "/etc/logrotate.d/mconf-lb" do
 end
 
 execute "logrotate -s /var/lib/logrotate/status /etc/logrotate.d/mconf-lb"
-
-# Create the app directory
-# (Just the directory, capistrano does the rest)
-
-directory node['mconf-lb']['deploy_to'] do
-  owner node['mconf']['user']
-  group node['mconf']['apache-group']
-  mode '0755'
-  action :create
-end

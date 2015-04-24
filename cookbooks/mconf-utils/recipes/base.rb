@@ -12,7 +12,12 @@
 #
 
 user node[:mconf][:user] do
-  action :create  
+  action :create
+end
+
+sudo 'mconf' do
+  user node[:mconf][:user]
+  nopasswd true
 end
 
 [ node[:mconf][:dir],

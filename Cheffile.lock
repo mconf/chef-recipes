@@ -76,6 +76,7 @@ SITE
       yum-epel (>= 0.0.0)
     smf (2.2.6)
       rbac (>= 1.0.1)
+    sudo (2.7.1)
     windows (1.34.2)
       chef_handler (>= 0.0.0)
     x264 (0.5.1)
@@ -185,9 +186,10 @@ GIT
 GIT
   remote: https://github.com/mconf-cookbooks/mconf-utils
   ref: master
-  sha: 4d4a40e29e426dba9cea8a96cfd434f76741c61d
+  sha: 26cc61f014f07297511e11850de9b4238218fdfe
   specs:
     mconf-utils (0.0.1)
+      sudo (~> 2.7)
 
 GIT
   remote: https://github.com/mconf-cookbooks/mconf-web

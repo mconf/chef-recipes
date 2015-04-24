@@ -1,51 +1,10 @@
 chef-recipes
 ============
 
-This repo stores chef cookbooks for the Mconf plataform.
+This repository stores contains all chef cookbooks used by Mconf. It is a collection of the cookbooks developed for Mconf plus all of their dependencies. For the latest versions of the cookbooks and to install the cookbooks in your own setup, see https://github.com/mconf-cookbooks/.
 
-These recipes are developed and tested using the chef gem version 10.24.0.
+To see the version of chef being used see `.chef-version`.
 
-
-#### Cookbooks
-
-To install cookbooks from the Opscode Community:
-
-```
-knife cookbook site install COOKBOOK_NAME --cookbook-path cookbooks/ --use-current-branch
-```
-
-To install cookbooks from arbitrary GitHub repositories, first you need the gem knife-github-cookbooks:
-
-```
-sudo gem install knife-github-cookbooks
-```
-
-Then execute:
-
-```
-knife cookbook github install Youscribe/hostname-cookbook --cookbook-path cookbooks/ --use-current-branch
-```
-
-The above command will install the cookbook from https://github.com/Youscribe/hostname-cookbook.
-
-#### Mconf SIP Proxy
-
-To install the Mconf SIP Proxy, install Ruby and chef-client, then run:
-
-```
-sudo chef-solo -c ~/chef-recipes/config/solo.rb -j ~/chef-recipes/utils/mconf-sip-proxy.json
-```
-
-#### Mconf LB
-
-To install the load balancer, first edit `chef-recipes/utils/mconf-lb.json` to set the variables for
-the instance you're installing.
-
-Then install Ruby and chef-client, then run:
-
-```
-sudo chef-solo -c ~/chef-recipes/config/solo.rb -j ~/chef-recipes/utils/mconf-lb.json
-```
 
 ## Working with librarian
 
@@ -66,6 +25,7 @@ Update a cookbook:
 ```bash
 bundle exec librarian-chef update mconf-lb [--verbose]
 ```
+
 
 ## Vagrant
 
@@ -109,4 +69,15 @@ Now you can run chef-solo as in:
 
 ```bash
 sudo chef-solo -c /vagrant/config/solo.rb -j utils/mconf-web.json
+```
+
+
+## Running chef-solo
+
+Install the version of chef described in `.chef-version` and then run `chef-solo` as in the
+example below:
+
+
+```bash
+sudo chef-solo -c config/solo.rb -j utils/mconf-web.json
 ```

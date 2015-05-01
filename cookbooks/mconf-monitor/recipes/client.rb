@@ -53,7 +53,7 @@ template "performance_report upstart" do
     path "/etc/init/performance_report.conf"
     source "performance_report.conf.erb"
     mode "0644"
-    if monitoring_servers and not monitoring_servers.empty?
+    if not monitoring_servers.nil? and not monitoring_servers.empty?
       notifies :restart, "service[performance_report]", :delayed
     end
 end
@@ -69,7 +69,7 @@ template "#{node[:mconf][:nagios][:dir]}/reporter.sh" do
       :nsca_timeout => node[:nsca][:timeout]
     })
     action :create
-    if monitoring_servers and not monitoring_servers.empty?
+    if not monitoring_servers.nil? and not monitoring_servers.empty?
       notifies :restart, "service[performance_report]", :delayed
     end
 end
@@ -79,7 +79,7 @@ cookbook_file "#{node[:mconf][:nagios][:dir]}/performance_report.py" do
     mode 0755
     owner node[:mconf][:user]
     action :create
-    if monitoring_servers and not monitoring_servers.empty?
+    if not monitoring_servers.nil? and not monitoring_servers.empty?
       notifies :restart, "service[performance_report]", :delayed
     end
 end
@@ -91,7 +91,7 @@ service "performance_report" do
     # :restart isn't enough to reload the new template, and :reload 
     # duplicates the process
     restart_command "stop performance_report && start performance_report"
-    if monitoring_servers and not monitoring_servers.empty?
+    if not monitoring_servers.nil? and not monitoring_servers.empty?
       if node[:mconf][:monitor][:force_restart]
         action [ :enable, :restart ]
         node[:mconf][:monitor][:force_restart] = false

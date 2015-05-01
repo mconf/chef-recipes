@@ -11,35 +11,26 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
 
-%w{ python python-dev subversion gcc }.each do |pkg|
+%w{ python python-dev gcc }.each do |pkg|
   package pkg do
     action :install
   end
 end
 
-psutil_version = "1400"
-psutil_version_installed = "nil"
-if File.exists?("#{Chef::Config[:file_cache_path]}/psutil")
-    psutil_version_installed = `svn info #{Chef::Config[:file_cache_path]}/psutil/ | grep 'Revision: ' | cut -d' ' -f2`.strip!
-end
+psutil_dir = "/usr/local/src/psutil"
 
-Chef::Log.info("psutil revision to be installed: #{psutil_version}")
-Chef::Log.info("psutil revision currently installed: #{psutil_version_installed}")
-if psutil_version != psutil_version_installed
-    Chef::Log.info("psutil revision will be updated")
-end
-
-subversion "#{Chef::Config[:file_cache_path]}/psutil" do
-    repository "http://psutil.googlecode.com/svn/trunk"
-    revision psutil_version
-    action :sync
-    only_if do psutil_version != psutil_version_installed end
+git psutil_dir do
+  repository "https://github.com/giampaolo/psutil.git"
+  revision "release-0.5.1"
+  action :sync
+  # it is never notified
+  # notifies :run, "execute[install psutil]", :immediately
 end
 
 execute "install psutil" do
     action :run
     user "root"
-    cwd "#{Chef::Config[:file_cache_path]}/psutil"
+    cwd psutil_dir
     command "python setup.py install"
-    creates "/usr/local/lib/python2.6/dist-packages/psutil-0.5.1.egg-info"
+    creates "/usr/local/lib/python2.7/dist-packages/psutil-0.5.1.egg-info"
 end
